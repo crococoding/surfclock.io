@@ -1,0 +1,22 @@
+{
+	"manifest_version": 2,
+	"name": "TimeTrack",
+	"description": "This extension tracks the time you spend on a domain.",
+	"version": "1.0",
+	"icons": { 
+		"1024": "core/icons/icon_1024.png",
+		 "128": "core/icons/icon_128.png" 
+	},
+	"browser_action": {
+		"default_icon": "core/icons/icon_19.png",
+		"default_popup": "core/popup/index.html"
+	},
+	"permissions": [
+		"tabs"
+	],
+	"background": {
+		"scripts": [
+			"chrome.js"
+		]
+	}
+}
