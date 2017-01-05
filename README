@@ -1,4 +1,4 @@
-### TODO:
+# TODO:
 - onActivated: url finden
 - onUpdated: nur, wenn tab aktiv ist
 
@@ -6,7 +6,7 @@
 
 
 
-### chrome
+# chrome
 
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
@@ -27,7 +27,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 
 
-### browser independent
+# browser independent
 
 getActiveWindowId
 
