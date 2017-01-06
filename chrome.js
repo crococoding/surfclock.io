@@ -1,12 +1,12 @@
 // load new tab
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	chrome.windows.get(tab.windowId, null, function(window) {
-		// is updated tab active and is its window active?
-		if(tab.active && window.focused && changeInfo.url != null) {
-			timeTrack.handleUrl(changeInfo.url);
-		}
-	});
+	// is updated tab active and is its window active?
+	if( tab.active && 
+		tab.windowId == chrome.windows.WINDOW_ID_CURRENT && 
+		changeInfo.url != null) {
+		timeTrack.handleUrl(changeInfo.url);
+	}
 });
 
 // switch tab
