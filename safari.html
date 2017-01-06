@@ -5,13 +5,63 @@
 	<script type="text/javascript" src="core/TimeTrack.js"></script>
 	<script type="text/javascript">
 		
-	// function performCommand(event) {
-	// 	// Make sure event comes from the button
-	// 	alert("test");
-	// }
+	function safariNavigate(event) {
+		var url = event.target.url;
+		//console.log(url);
+
+		if (typeof url == 'undefined') {
+			alert("undefined!")
+		//	console.log(event);
+		}
 
 
-	// safari.application.addEventListener("navigate", performCommand, false);
+		console.log(url);
+		if (event.target.browserWindow.activeTab == event.target) {
+			timeTrack.handleUrl(url);
+		}
+
+	}
+
+	function safariActivate(event) {
+		//var url = event.target.browserWindow.activeTab.url;
+		console.log('activate');
+		
+		var url = null;
+		if (typeof event.target.url != 'undefined') { // SafariBrowserTab
+			url = event.target.url;
+		} else if (typeof event.target.browserWindow.activeTab.url != 'undefined') { //SafariBrowserTab
+			url = event.target.browserWindow.activeTab.url
+		} else {
+			//alert("event.target type: " + typeof event.target);
+		}
+
+		console.log(url);
+
+		// if (event.target.browserWindow.activeTab == event.target) {
+		// 	timeTrack.handleUrl(url);
+		// }
+
+	}
+
+
+	safari.application.addEventListener("navigate", safariNavigate, true);
+	// safari.application.addEventListener("open", safariOpen, true);
+	safari.application.addEventListener("activate", safariActivate, true);
+
+
+// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+// 	// is updated tab active?
+// 	if (changeInfo.url != null && tab.active == true) {
+// 		timeTrack.handleUrl(changeInfo.url);
+// 	}
+// });
+
+// chrome.tabs.onActivated.addListener(function (activeInfo) {
+// 	chrome.tabs.get(activeInfo.tabId, function (tab) {
+// 		timeTrack.handleUrl(tab.url);
+// 	});
+// });
+
 
 	</script>
 </head>
