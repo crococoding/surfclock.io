@@ -17,7 +17,7 @@
 
 		console.log(url);
 		if (event.target.browserWindow.activeTab == event.target) {
-			timeTrack.handleUrl(url);
+			timeTrack.startRecording(url);
 		}
 
 	}
@@ -38,7 +38,7 @@
 		console.log(url);
 
 		// if (event.target.browserWindow.activeTab == event.target) {
-		// 	timeTrack.handleUrl(url);
+		// 	timeTrack.startRecording(url);
 		// }
 
 	}
@@ -52,13 +52,13 @@
 // chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 // 	// is updated tab active?
 // 	if (changeInfo.url != null && tab.active == true) {
-// 		timeTrack.handleUrl(changeInfo.url);
+// 		timeTrack.startRecording(changeInfo.url);
 // 	}
 // });
 
 // chrome.tabs.onActivated.addListener(function (activeInfo) {
 // 	chrome.tabs.get(activeInfo.tabId, function (tab) {
-// 		timeTrack.handleUrl(tab.url);
+// 		timeTrack.startRecording(tab.url);
 // 	});
 // });
 
