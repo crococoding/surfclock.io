@@ -4,7 +4,8 @@ var timeTrack = {
 	activeIdentifier: new Number(),
 
 	handleUrl: function(url) {
-		alert("active url: " + url);
+		var domain = url.replace(/(((http)(s*):\/\/)(www\.)*)/,'').split(/[/?#]/)[0];
+		alert("current domain: " + domain);
 	}
 }
 
