@@ -13,7 +13,7 @@ var timeTrack = {
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// is updated tab active?
-	if (changeInfo.url != null && tabId == timeTrack.activeIdentifier) {
+	if (changeInfo.url != null && tab.active == true) {
 		timeTrack.handleUrl(changeInfo.url);
 	}
 });
