@@ -6,7 +6,7 @@ var timeTrack = {
 	handleUrl: function(url) {
 		alert("active url: " + url);
 	}
-};
+}
 
 // chrome specific
 
@@ -19,5 +19,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
 	timeTrack.activeIdentifier = activeInfo.tabId;
-	timeTrack.handleUrl("todo: url holen");
+	chrome.tabs.get(activeInfo.tabId, function (tab) {
+		timeTrack.handleUrl(tab.url);
+	});
 });
