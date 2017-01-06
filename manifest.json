@@ -16,7 +16,8 @@
 	],
 	"background": {
 		"scripts": [
-			"chrome.js"
+			"core/TimeTrack.js",
+			"chrome.js",
 		]
 	}
 }
