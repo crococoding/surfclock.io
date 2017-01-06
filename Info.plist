@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Author</key>
+	<string>crococoding</string>
+	<key>Builder Version</key>
+	<string>12602.3.12.0.1</string>
+	<key>CFBundleDisplayName</key>
+	<string>TimeTrack</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.crococoding.crocostat</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Database Quota</key>
+		<integer>0</integer>
+		<key>Global Page</key>
+		<string>safari.html</string>
+	</dict>
+	<key>Companion Bundle Identifier</key>
+	<array>
+		<string>com.crococoding</string>
+	</array>
+	<key>Description</key>
+	<string>This extension tracks the time you spend on a domain.</string>
+	<key>DeveloperIdentifier</key>
+	<string>0000000000</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Website</key>
+	<string>http://crococoding.com/</string>
+</dict>
+</plist>
