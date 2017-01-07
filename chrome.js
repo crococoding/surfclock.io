@@ -47,19 +47,14 @@ var storageApi = {
 
 	store: function(domain, intervalEntry) {
 		chrome.storage.local.get(domain, function(currentDomainEntry) {
-			var domainEntry = {};
 			var intervalEntries = [];
-
-			if (JSON.stringify(currentDomainEntry) == "{}") {
-				// no entries for this domain yet
-				intervalEntries = [intervalEntry];
-			} else {
-				// current interval entries
+			if (JSON.stringify(currentDomainEntry) != "{}") {
+				// keep current interval entries
 				intervalEntries = currentDomainEntry[domain];
-				// add new interval entry
-				intervalEntries.push(intervalEntry);
 			}
+			intervalEntries.push(intervalEntry);
 			
+			var domainEntry = {};
 			domainEntry[domain] = intervalEntries;
 
 			chrome.storage.local.set(domainEntry, function() {
