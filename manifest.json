@@ -12,7 +12,8 @@
 		"default_popup": "core/popup/index.html"
 	},
 	"permissions": [
-		"tabs"
+		"tabs",
+		"storage"
 	],
 	"background": {
 		"scripts": [

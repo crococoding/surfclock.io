@@ -32,3 +32,39 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 		});
 	}
 });
+
+
+// api
+
+var timeTrackApi = {
+	
+	// domain: null for get everything of chrome's storage (all domains)
+	retrieve: function(domain) {
+		chrome.storage.sync.get(domain, function(result) {
+		    alert(JSON.stringify(result));
+		});
+	},
+
+	save: function(domain, interval) {
+		chrome.storage.sync.get(domain, function(currentDomainEntry) {
+			var domainEntry = {};
+			var timeEntries = [];
+
+			if (JSON.stringify(currentDomainEntry) === "{}") {
+				timeEntries = [interval];
+			} else {
+				timeEntries = currentDomainEntry[domain];
+				timeEntries.push(interval);
+			}
+			
+			domainEntry[domain] = timeEntries;
+
+			chrome.storage.sync.set(domainEntry, function() {
+			    // saved
+			});
+		});
+	}
+
+}
+
+
