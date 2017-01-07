@@ -6,62 +6,57 @@
 	<script type="text/javascript">
 		
 	function safariNavigate(event) {
+		
 		var url = event.target.url;
-		//console.log(url);
-
-		if (typeof url == 'undefined') {
-			alert("undefined!")
-		//	console.log(event);
+		if (typeof(url) !== 'undefined' && url) { 
+			
+			if (event.target.browserWindow.activeTab == event.target) {
+				timeTrack.startRecording(url);
+				//console.log(url);
+			}
+		} else {
+			// opened a new empty tab
+			timeTrack.stopRecording();
 		}
-
-
-		console.log(url);
-		if (event.target.browserWindow.activeTab == event.target) {
-			timeTrack.startRecording(url);
-		}
-
 	}
 
 	function safariActivate(event) {
-		//var url = event.target.browserWindow.activeTab.url;
-		console.log('activate');
-		
+
 		var url = null;
-		if (typeof event.target.url != 'undefined') { // SafariBrowserTab
+		if (typeof(event.target.url) !== 'undefined') { // SafariBrowserTab - switched to a different tab
 			url = event.target.url;
-		} else if (typeof event.target.browserWindow.activeTab.url != 'undefined') { //SafariBrowserTab
+		} else if (typeof(event.target.browserWindow) !== 'undefined') { //activated safari by clicking somewhere on a window
 			url = event.target.browserWindow.activeTab.url
+		} else if (typeof(event.target.activeTab) !== 'undefined') { //SafariBrowserTab - switched to a different safari window
+			url = event.target.activeTab.url
+		} 
+
+		if (typeof(url) === 'undefined' || !(url)) {
+			timeTrack.stopRecording();
 		} else {
-			//alert("event.target type: " + typeof event.target);
+			timeTrack.startRecording(url);
 		}
 
-		console.log(url);
-
-		// if (event.target.browserWindow.activeTab == event.target) {
-		// 	timeTrack.startRecording(url);
-		// }
-
+		
 	}
 
 
+	function safariDeactivate(event) {
+
+		// switching between tabs of a single window 
+		
+		if (typeof(event.target.browserWindow) !== 'undefined') {
+			if (event.target.browserWindow.tabs.length > 1) {
+				return;
+			}
+		}
+		timeTrack.stopRecording();
+
+	}
+
 	safari.application.addEventListener("navigate", safariNavigate, true);
-	// safari.application.addEventListener("open", safariOpen, true);
+	safari.application.addEventListener("deactivate", safariDeactivate, true);
 	safari.application.addEventListener("activate", safariActivate, true);
-
-
-// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-// 	// is updated tab active?
-// 	if (changeInfo.url != null && tab.active == true) {
-// 		timeTrack.startRecording(changeInfo.url);
-// 	}
-// });
-
-// chrome.tabs.onActivated.addListener(function (activeInfo) {
-// 	chrome.tabs.get(activeInfo.tabId, function (tab) {
-// 		timeTrack.startRecording(tab.url);
-// 	});
-// });
-
 
 	</script>
 </head>

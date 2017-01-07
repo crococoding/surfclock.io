@@ -1,11 +1,24 @@
 var timeTrack = {
 	startRecording: function(url) {
 		var domain = url.replace(/(((http)(s*):\/\/)(www\.)*)/,'').split(/[/?#]/)[0];
-		alert("current domain: " + domain);
+		this.updateConsole(domain);
+		//alert("current domain: " + domain);
 	},
 
 	stopRecording: function() {
 		// TODO
-		alert("stopped");
-	}
+		 this.updateConsole(null);
+		//alert("stopped");
+	},
+
+	updateConsole: function(domain) {
+		if (domain != this.domain) {
+			console.log(domain);
+		}
+		this.domain = domain;
+	},
+
+
+	domain: null,
+
 }
