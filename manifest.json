@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "TimeTrack",
-	"description": "This extension tracks the time you spend on a domain.",
+	"description": "Track the time you spend surfing across different domains on the web.",
 	"version": "1.0",
 	"icons": { 
 		"1024": "core/icons/icon_1024.png",

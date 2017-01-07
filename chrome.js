@@ -1,4 +1,4 @@
-// load new tab
+// load new url
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// is updated tab active?
@@ -19,8 +19,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
 chrome.windows.onFocusChanged.addListener(function(windowId) {
 	if(windowId == chrome.windows.WINDOW_ID_NONE) {
+		// no window is focused -> Google Chrome inactive
 		timeTrack.stopRecording();
 	} else {
+		// find active tab of newly focused window
 		chrome.tabs.query({
 			'active': true, 
 			'windowId': windowId

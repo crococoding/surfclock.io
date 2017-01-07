@@ -3,6 +3,7 @@ var timeTrack = {
 		var domain = url.replace(/(((http)(s*):\/\/)(www\.)*)/,'').split(/[/?#]/)[0];
 		this.updateConsole(domain);
 		//alert("current domain: " + domain);
+		// TODO
 	},
 
 	stopRecording: function() {
