@@ -3,7 +3,7 @@
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// is updated tab active?
 	if(tab.active && changeInfo.url != null) {
-		timeTrack.startRecording(changeInfo.url);
+		timeTrack.handleUrl(changeInfo.url);
 	}
 });
 
@@ -11,7 +11,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
-		timeTrack.startRecording(tab.url);
+		timeTrack.handleUrl(tab.url);
 	});
 });
 
@@ -28,7 +28,7 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 			'windowId': windowId
 		}, function(tabs) {
 			var tab = tabs[0];
-			timeTrack.startRecording(tab.url);
+			timeTrack.handleUrl(tab.url);
 		});
 	}
 });
@@ -36,35 +36,36 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 
 // api
 
-var timeTrackApi = {
+var storageApi = {
 	
 	// domain: null for get everything of chrome's storage (all domains)
 	retrieve: function(domain) {
-		chrome.storage.sync.get(domain, function(result) {
+		chrome.storage.local.get(domain, function(result) {
 		    alert(JSON.stringify(result));
 		});
 	},
 
-	save: function(domain, interval) {
-		chrome.storage.sync.get(domain, function(currentDomainEntry) {
+	store: function(domain, intervalEntry) {
+		chrome.storage.local.get(domain, function(currentDomainEntry) {
 			var domainEntry = {};
-			var timeEntries = [];
+			var intervalEntries = [];
 
-			if (JSON.stringify(currentDomainEntry) === "{}") {
-				timeEntries = [interval];
+			if (JSON.stringify(currentDomainEntry) == "{}") {
+				// no entries for this domain yet
+				intervalEntries = [intervalEntry];
 			} else {
-				timeEntries = currentDomainEntry[domain];
-				timeEntries.push(interval);
+				// current interval entries
+				intervalEntries = currentDomainEntry[domain];
+				// add new interval entry
+				intervalEntries.push(intervalEntry);
 			}
 			
-			domainEntry[domain] = timeEntries;
+			domainEntry[domain] = intervalEntries;
 
-			chrome.storage.sync.set(domainEntry, function() {
+			chrome.storage.local.set(domainEntry, function() {
 			    // saved
 			});
 		});
 	}
 
 }
-
-

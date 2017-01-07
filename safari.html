@@ -11,7 +11,7 @@
 		if (typeof(url) !== 'undefined' && url) { 
 			
 			if (event.target.browserWindow.activeTab == event.target) {
-				timeTrack.startRecording(url);
+				timeTrack.handleUrl(url);
 				//console.log(url);
 			}
 		} else {
@@ -34,7 +34,7 @@
 		if (typeof(url) === 'undefined' || !(url)) {
 			timeTrack.stopRecording();
 		} else {
-			timeTrack.startRecording(url);
+			timeTrack.handleUrl(url);
 		}
 
 		

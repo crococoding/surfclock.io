@@ -1,21 +1,25 @@
 var timeTrack = {
-	startRecording: function(url) {
+	handleUrl: function(url) {
 		var domain = this.getDomain(url);
 
-		if(domain == null) {
+		if(domain == undefined) {
 			this.stopRecording();
 		} else if(domain != this.domain) {
-			this.domain = domain;
-			console.log(domain);
-
-			// TODO: time intervall
-			timeTrackApi.save(domain, {start: "x", end: "y"});
+			this.startRecording(domain);
 		}
+	},
+
+	startRecording: function(domain) {
+		console.log(domain);
+		this.domain = domain;
+		// TODO: time intervall
+		storageApi.store(domain, {from: "x", till: "y"});
 	},
 
 	stopRecording: function() {
 		console.log("stopped");
 		this.domain = null;
+		storageApi.retrieve(null); // only for testing
 	},
 
 	getDomain: function(url) {
@@ -25,9 +29,8 @@ var timeTrack = {
 			return url.replace(regex,'').split(/[/?#]/)[0];
 		}
 
-		return null;
+		return;
 	},
-
 
 	domain: null
 
