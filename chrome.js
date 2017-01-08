@@ -2,7 +2,7 @@
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// is updated tab active?
-	if(tab.active && changeInfo.url != null) {
+	if(tab.active && changeInfo.url) {
 		timeTrack.handleUrl(changeInfo.url);
 	}
 });
@@ -48,14 +48,14 @@ var storageApi = {
 	store: function(domain, from, till) {
 		chrome.storage.local.get(domain, function(currentDomainEntry) {
 			var currentIntervalEntries = currentDomainEntry[domain];
-			var intervalEntries = (currentIntervalEntries !== undefined) ? currentIntervalEntries : [];
+			var intervalEntries = currentIntervalEntries ? currentIntervalEntries : [];
 
-			if(from != null) {
+			if(from) {
 				// new entry
 				intervalEntries.push({"from": from});
 			}
 			
-			if(till != null) {
+			if(till) {
 				// save interval end in last array entry
 				intervalEntries[intervalEntries.length - 1]["till"] = till;
 			}

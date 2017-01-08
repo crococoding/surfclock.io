@@ -3,7 +3,7 @@ var timeTrack = {
 	handleUrl: function(url) {
 		var domain = this.getDomain(url);
 
-		if(domain == null) {
+		if(!domain) {
 			this.endInterval();
 		} else if(domain != this.domain) {
 			this.startInterval(domain);
@@ -12,17 +12,17 @@ var timeTrack = {
 
 	startInterval: function(domain) {
 		// previous interval
-		this.storePreviousIntervalEnd();
+		this.storeIntervalEnd();
 
 		// next interval
 		console.log(domain);
 		this.domain = domain;
-		this.storeNewIntervalStart();
+		this.storeIntervalStart();
 	},
 
 	endInterval: function() {
 		// previous interval
-		this.storePreviousIntervalEnd();
+		this.storeIntervalEnd();
 
 		// pause
 		console.log("stopped");
@@ -34,14 +34,14 @@ var timeTrack = {
 		// }, 2000);
 	},
 
-	storeNewIntervalStart: function() {
-		if(this.domain != null) {
+	storeIntervalStart: function() {
+		if(this.domain) {
 			storageApi.store(this.domain, this.getTimestamp(), null);
 		}
 	},
 
-	storePreviousIntervalEnd: function() {
-		if(this.domain != null) {
+	storeIntervalEnd: function() {
+		if(this.domain) {
 			storageApi.store(this.domain, null, this.getTimestamp());
 		}
 	},
