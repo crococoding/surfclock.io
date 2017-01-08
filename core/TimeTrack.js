@@ -27,6 +27,23 @@ var timeTrack = {
 		// pause
 		console.log("stopped");
 		this.domain = null;
+
+		// only for testing
+		// setTimeout(function() {
+		// 	storageApi.retrieve(null);
+		// }, 2000);
+	},
+
+	storeNewIntervalStart: function() {
+		if(this.domain != null) {
+			storageApi.store(this.domain, this.getTimestamp(), null);
+		}
+	},
+
+	storePreviousIntervalEnd: function() {
+		if(this.domain != null) {
+			storageApi.store(this.domain, null, this.getTimestamp());
+		}
 	},
 
 	getDomain: function(url) {
@@ -39,16 +56,9 @@ var timeTrack = {
 		return null;
 	},
 
-	storeNewIntervalStart: function() {
-		if(this.domain != null) {
-			storageApi.store(this.domain, (+ new Date()), null);
-		}
-	},
-
-	storePreviousIntervalEnd: function() {
-		if(this.domain != null) {
-			storageApi.store(this.domain, null, (+ new Date()));
-		}
+	getTimestamp: function() {
+		// in seconds
+		return Math.round(+new Date() / 1000);
 	},
 
 	domain: null
