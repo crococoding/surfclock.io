@@ -20,7 +20,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 chrome.windows.onFocusChanged.addListener(function(windowId) {
 	if(windowId == chrome.windows.WINDOW_ID_NONE) {
 		// no window is focused -> Google Chrome inactive
-		timeTrack.stopRecording();
+		timeTrack.endInterval();
 	} else {
 		// find active tab of newly focused window
 		chrome.tabs.query({
@@ -45,15 +45,21 @@ var storageApi = {
 		});
 	},
 
-	store: function(domain, intervalEntry) {
+	store: function(domain, from, till) {
 		chrome.storage.local.get(domain, function(currentDomainEntry) {
-			var intervalEntries = [];
-			if (JSON.stringify(currentDomainEntry) != "{}") {
-				// keep current interval entries
-				intervalEntries = currentDomainEntry[domain];
+			var currentIntervalEntries = currentDomainEntry[domain];
+			var intervalEntries = (currentIntervalEntries !== undefined) ? currentIntervalEntries : [];
+
+			if(from != null) {
+				// new entry
+				intervalEntries.push({"from": from});
 			}
-			intervalEntries.push(intervalEntry);
 			
+			if(till != null) {
+				// save interval end in last array entry
+				intervalEntries[intervalEntries.length - 1]["till"] = till;
+			}
+
 			var domainEntry = {};
 			domainEntry[domain] = intervalEntries;
 

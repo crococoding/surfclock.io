@@ -16,7 +16,7 @@
 			}
 		} else {
 			// opened a new empty tab
-			timeTrack.stopRecording();
+			timeTrack.endInterval();
 		}
 	}
 
@@ -32,7 +32,7 @@
 		} 
 
 		if (typeof(url) === 'undefined' || !(url)) {
-			timeTrack.stopRecording();
+			timeTrack.endInterval();
 		} else {
 			timeTrack.handleUrl(url);
 		}
@@ -50,7 +50,7 @@
 				return;
 			}
 		}
-		timeTrack.stopRecording();
+		timeTrack.endInterval();
 
 	}
 
