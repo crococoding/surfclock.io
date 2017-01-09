@@ -36,32 +36,40 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 
 // api
 
+chrome.extension.onConnect.addListener(function(port) {
+	// format of message: {command: "", content: ""}
+	port.onMessage.addListener(function(message) {
+		if(message["command"] && message["command"] == "retrieveData") {
+			storageApi.retrieve(message["content"], port);
+		}
+	});
+});
+
 var storageApi = {
 	
-	// domain: null for get everything of chrome's storage (all domains)
-	retrieve: function(domain) {
+	retrieve: function(domain, port) {
 		chrome.storage.local.get(domain, function(result) {
-		    alert(JSON.stringify(result));
+			port.postMessage(JSON.stringify(result));
 		});
 	},
 
 	store: function(domain, from, till) {
-		chrome.storage.local.get(domain, function(currentDomainEntry) {
-			var currentIntervalEntries = currentDomainEntry[domain];
-			var intervalEntries = currentIntervalEntries ? currentIntervalEntries : [];
+		chrome.storage.local.get(domain, function(storedDomainEntry) {
+			var storedIntervals = storedDomainEntry[domain];
+			var intervals = storedIntervals ? storedIntervals : [];
 
 			if(from) {
-				// new entry
-				intervalEntries.push({"from": from});
+				// new interval
+				intervals.push({"from": from});
 			}
 			
 			if(till) {
-				// save interval end in last array entry
-				intervalEntries[intervalEntries.length - 1]["till"] = till;
+				// save interval end in last interval
+				intervals[intervals.length - 1]["till"] = till;
 			}
 
 			var domainEntry = {};
-			domainEntry[domain] = intervalEntries;
+			domainEntry[domain] = intervals;
 
 			chrome.storage.local.set(domainEntry, function() {
 			    // saved

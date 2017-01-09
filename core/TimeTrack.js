@@ -27,11 +27,6 @@ var timeTrack = {
 		// pause
 		console.log("stopped");
 		this.domain = null;
-
-		// only for testing
-		// setTimeout(function() {
-		// 	storageApi.retrieve(null);
-		// }, 2000);
 	},
 
 	storeIntervalStart: function() {
@@ -58,7 +53,7 @@ var timeTrack = {
 
 	getTimestamp: function() {
 		// in seconds
-		return Math.round(+new Date() / 1000);
+		return Math.round(Date.now() / 1000);
 	},
 
 	domain: null
