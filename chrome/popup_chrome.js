@@ -4,7 +4,7 @@ var storageApi = {
 
 	retrieve: function(domain) {
 		chrome.storage.local.get(domain, function(result) {
-			timeTrack.processResult(JSON.stringify(result));
+			timeTrack.displayJsonResult(result);
 		});
 	},
 
@@ -16,7 +16,7 @@ var storageApi = {
 			// remove everything
 			chrome.storage.local.clear(function() {
 				backgroundCommunication.reinstateDomain();
-				timeTrack.processResult('cleared');
+				timeTrack.displayClearedSuccess();
 			});
 		}
 	}

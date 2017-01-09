@@ -8,8 +8,12 @@ window.onload = function() {
 
 var timeTrack = {
 
-	processResult: function(text) {
-		document.getElementById('chart').innerHTML = text;
+	displayClearedSuccess: function() {
+		document.getElementById('chart').innerHTML = 'cleared';
+	},
+
+	displayJsonResult: function(json) {
+		document.getElementById('chart').innerHTML = JSON.stringify(json);
 	}
 
 }
