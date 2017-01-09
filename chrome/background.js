@@ -37,24 +37,29 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 // api
 
 chrome.extension.onConnect.addListener(function(port) {
-	// format of message: {command: "", content: ""}
 	port.onMessage.addListener(function(message) {
-		if(message["command"] && message["command"] == "retrieveData") {
-			storageApi.retrieve(message["content"], port);
+		// format of message: {command: "", content: ""}
+		switch(message["command"]) {
+			
+			case "retrieveIntervals": 
+				storageApi.retrieve(port, message["content"]);
+				break;
+
+			case "removeIntervals":
+				storageApi.remove(port, message["content"]);
+				break;
+
+			default: // do nothing
 		}
 	});
 });
 
 var storageApi = {
-	
-	retrieve: function(domain, port) {
-		chrome.storage.local.get(domain, function(result) {
-			port.postMessage(JSON.stringify(result));
-		});
-	},
+
+	storageArea: chrome.storage.local,
 
 	store: function(domain, from, till) {
-		chrome.storage.local.get(domain, function(storedDomainEntry) {
+		this.storageArea.get(domain, function(storedDomainEntry) {
 			var storedIntervals = storedDomainEntry[domain];
 			var intervals = storedIntervals ? storedIntervals : [];
 
@@ -75,6 +80,25 @@ var storageApi = {
 			    // saved
 			});
 		});
+	},
+
+	retrieve: function(port, domain) {
+		this.storageArea.get(domain, function(result) {
+			port.postMessage(JSON.stringify(result));
+		});
+	},
+
+	remove: function(port, untilTime) {
+		if(untilTime) {// only remove until given time
+			// TODO
+		} else { // remove everything
+			// stop possible running interval
+			timeTrack.domain = null;
+			this.storageArea.clear(function() {
+				port.postMessage("cleared");
+				timeTrack.handleUrl(timeTrack.url);
+			});
+		}
 	}
 
 }

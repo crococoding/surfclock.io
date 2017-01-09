@@ -2,13 +2,13 @@ var port = chrome.extension.connect({
 	name: 'TimeTrack Communication'
 });
 
-function getJsonOfEverything() {
+port.onMessage.addListener(function(message) {
+	timeTrackPopup.processMessage(message);
+});
+
+function callApi(command, content) {
 	port.postMessage({
-		command: "retrieveData",
-		content: null // fetch everything
+		"command": command,
+		"content": content
 	});
 }
-
-port.onMessage.addListener(function(message) {
-	processJson(message);
-});

@@ -1,6 +1,7 @@
 var timeTrack = {
 
 	handleUrl: function(url) {
+		this.url = url;
 		var domain = this.getDomain(url);
 
 		if(!domain) {
@@ -55,6 +56,8 @@ var timeTrack = {
 		// in seconds
 		return Math.round(Date.now() / 1000);
 	},
+
+	url: null,
 
 	domain: null
 

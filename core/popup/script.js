@@ -1,7 +1,15 @@
 window.onload = function() {
-	getJsonOfEverything();
+	callApi('retrieveIntervals', null); // null means all domains
+
+	document.getElementById('reset').onclick = function(event) {
+		callApi('removeIntervals', null); // null means remove everything
+	};
 }
 
-function processJson(json) {
-	document.getElementById("chart").innerHTML = json;
+var timeTrackPopup = {
+
+	processMessage: function(text) {
+		document.getElementById('chart').innerHTML = text;
+	}
+
 }
