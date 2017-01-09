@@ -36,41 +36,21 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 
 // api
 
-chrome.extension.onConnect.addListener(function(port) {
-	port.onMessage.addListener(function(message) {
-		// format of message: {command: "", content: ""}
-		switch(message["command"]) {
-			
-			case "retrieveIntervals": 
-				storageApi.retrieve(port, message["content"]);
-				break;
-
-			case "removeIntervals":
-				storageApi.remove(port, message["content"]);
-				break;
-
-			default: // do nothing
-		}
-	});
-});
-
 var storageApi = {
 
-	storageArea: chrome.storage.local,
-
 	store: function(domain, from, till) {
-		this.storageArea.get(domain, function(storedDomainEntry) {
+		chrome.storage.local.get(domain, function(storedDomainEntry) {
 			var storedIntervals = storedDomainEntry[domain];
 			var intervals = storedIntervals ? storedIntervals : [];
 
 			if(from) {
 				// new interval
-				intervals.push({"from": from});
+				intervals.push({'from': from});
 			}
 			
 			if(till) {
 				// save interval end in last interval
-				intervals[intervals.length - 1]["till"] = till;
+				intervals[intervals.length - 1]['till'] = till;
 			}
 
 			var domainEntry = {};
@@ -80,25 +60,22 @@ var storageApi = {
 			    // saved
 			});
 		});
-	},
-
-	retrieve: function(port, domain) {
-		this.storageArea.get(domain, function(result) {
-			port.postMessage(JSON.stringify(result));
-		});
-	},
-
-	remove: function(port, untilTime) {
-		if(untilTime) {// only remove until given time
-			// TODO
-		} else { // remove everything
-			// stop possible running interval
-			timeTrack.domain = null;
-			this.storageArea.clear(function() {
-				port.postMessage("cleared");
-				timeTrack.handleUrl(timeTrack.url);
-			});
-		}
 	}
 
 }
+
+
+// messaging from popup page
+
+chrome.extension.onConnect.addListener(function(port) {
+	port.onMessage.addListener(function(message) {
+		switch(message) {
+			
+			case 'reinstateDomain': 
+				timeTrack.reinstateDomain();
+				break;
+
+			default: // do nothing
+		}
+	});
+});

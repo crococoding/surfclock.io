@@ -9,7 +9,7 @@
 	},
 	"browser_action": {
 		"default_icon": "core/icons/icon_19.png",
-		"default_popup": "core/popup/index.html"
+		"default_popup": "core/popup/popup.html"
 	},
 	"permissions": [
 		"tabs",
@@ -17,8 +17,8 @@
 	],
 	"background": {
 		"scripts": [
-			"core/TimeTrack.js",
-			"chrome/background.js"
+			"core/background.js",
+			"chrome/background_chrome.js"
 		]
 	}
 }

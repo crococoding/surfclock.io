@@ -26,7 +26,7 @@ var timeTrack = {
 		this.storeIntervalEnd();
 
 		// pause
-		console.log("stopped");
+		console.log('stopped');
 		this.domain = null;
 	},
 
@@ -55,6 +55,11 @@ var timeTrack = {
 	getTimestamp: function() {
 		// in seconds
 		return Math.round(Date.now() / 1000);
+	},
+
+	reinstateDomain: function() {
+		this.domain = null;
+		this.handleUrl(this.url);
 	},
 
 	url: null,
