@@ -1,11 +1,15 @@
 {
 	"manifest_version": 2,
 	"name": "TimeTrack",
-	"description": "Track the time you spend surfing across different domains on the web.",
 	"version": "1.0",
+	"author": "crococoding",
+	"homepage_url": "https://crococoding.com",
+	"description": "Track the time you spend surfing across different domains on the web.",
 	"icons": { 
 		"1024": "core/icons/icon_1024.png",
-		 "128": "core/icons/icon_128.png" 
+		 "128": "core/icons/icon_128.png",
+		  "96": "core/icons/icon_96.png",
+		  "48": "core/icons/icon_48.png" 
 	},
 	"browser_action": {
 		"default_icon": "core/icons/icon_19.png",

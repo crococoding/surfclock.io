@@ -53,8 +53,8 @@ var timeTrack = {
 	},
 
 	getTimestamp: function() {
-		// in seconds
-		return Math.round(Date.now() / 1000);
+		// in milliseconds since Jan 1st 1970
+		return Date.now();
 	},
 
 	reinstateDomain: function() {

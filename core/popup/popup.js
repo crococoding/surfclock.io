@@ -1,5 +1,6 @@
 window.onload = function() {
-	storageApi.retrieve(null); // null means all domains
+	// load data
+	storageApi.retrieve();
 
 	document.getElementById('reset').onclick = function(event) {
 		storageApi.remove(null); // null means remove everything
@@ -8,12 +9,55 @@ window.onload = function() {
 
 var timeTrack = {
 
-	displayClearedSuccess: function() {
+	showResetSuccess: function() {
 		document.getElementById('chart').innerHTML = 'cleared';
 	},
 
-	displayJsonResult: function(json) {
-		document.getElementById('chart').innerHTML = JSON.stringify(json);
-	}
+	showChart: function(keys, values) {
+		document.getElementById('chart').innerHTML = '<p>DOMAINS:<br>' + keys.join('<br>') + '</p>';
+		document.getElementById('chart').innerHTML += '<p>DURATIONS:<br>' + values.join('<br>') + '</p>';
+	},
+
+	showInitialChart: function() {
+		this.showDomainDurationsChart(0, Date.now());
+	},
+
+	showDomainDurationsChart: function(lowerBound, upperBound) {
+		var keys = [];
+		var values = [];
+
+		for (var domain in this.data) {
+			var intervals = this.filterAndClipIntervals(this.data[domain], lowerBound, upperBound);
+			var intervalDurations = intervals.map(this.getIntervalDuration);
+			var domainDuration = intervalDurations.reduce((a, b) => a + b, 0);
+
+			keys.push(domain);
+			values.push(domainDuration);
+		}
+
+		this.showChart(keys, values);
+	},
+
+	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {
+		var result = [];
+		for(i in intervals) {
+			var interval = intervals[i];
+			var from = interval['from'];
+			var till = interval['till'] ? interval['till'] : upperBound;
+			if(lowerBound < till && upperBound > from) {
+				result.push({
+					'from': Math.max(from, lowerBound),
+					'till': Math.min(till, upperBound)
+				});
+			}
+		}
+		return result;
+	},
+
+	getIntervalDuration: function(interval) {
+		return (interval['till'] - interval['from']);
+	},
+
+	data: null
 
 }
