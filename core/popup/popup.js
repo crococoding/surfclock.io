@@ -1,5 +1,10 @@
 window.onload = function() {
 	// load data
+	// 
+	// 
+	
+	//alert("onload");
+
 	storageApi.retrieve(function(data) {
 		popup.data = data;
 		popup.showDomainDurationsChart(0, Date.now());

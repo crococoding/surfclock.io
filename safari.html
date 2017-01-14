@@ -1,62 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>test</title>
+	<title>background</title>
 	<script type="text/javascript" src="core/background.js"></script>
-	<script type="text/javascript">
+	<script type="text/javascript" src="safari/background_safari.js"></script>
 		
-	function safariNavigate(event) {
-		
-		var url = event.target.url;
-		if (typeof(url) !== 'undefined' && url) { 
-			
-			if (event.target.browserWindow.activeTab == event.target) {
-				timeTrack.handleUrl(url);
-				//console.log(url);
-			}
-		} else {
-			// opened a new empty tab
-			timeTrack.endInterval();
-		}
-	}
-
-	function safariActivate(event) {
-
-		var url = null;
-		if (typeof(event.target.url) !== 'undefined') { // SafariBrowserTab - switched to a different tab
-			url = event.target.url;
-		} else if (typeof(event.target.browserWindow) !== 'undefined') { //activated safari by clicking somewhere on a window
-			url = event.target.browserWindow.activeTab.url
-		} else if (typeof(event.target.activeTab) !== 'undefined') { //SafariBrowserTab - switched to a different safari window
-			url = event.target.activeTab.url
-		} 
-
-		if (typeof(url) === 'undefined' || !(url)) {
-			timeTrack.endInterval();
-		} else {
-			timeTrack.handleUrl(url);
-		}
-
-		
-	}
-
-
-	function safariDeactivate(event) {
-
-		// switching between tabs of a single window 
-		
-		if (typeof(event.target.browserWindow) !== 'undefined') {
-			if (event.target.browserWindow.tabs.length > 1) {
-				return;
-			}
-		}
-		timeTrack.endInterval();
-
-	}
-
-	safari.application.addEventListener("navigate", safariNavigate, true);
-	safari.application.addEventListener("deactivate", safariDeactivate, true);
-	safari.application.addEventListener("activate", safariActivate, true);
+	
 
 	</script>
 </head>

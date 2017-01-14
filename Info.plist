@@ -22,6 +22,38 @@
 		<integer>0</integer>
 		<key>Global Page</key>
 		<string>safari.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>safari/popup_safari.html</string>
+				<key>Height</key>
+				<integer>500</integer>
+				<key>Identifier</key>
+				<string>statsPopover</string>
+				<key>Width</key>
+				<integer>500</integer>
+			</dict>
+		</array>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Identifier</key>
+				<string>statsToolbarItem</string>
+				<key>Image</key>
+				<string>core/icons/icon_96.png</string>
+				<key>Include By Default</key>
+				<true/>
+				<key>Label</key>
+				<string>timeTrackj</string>
+				<key>Palette Label</key>
+				<string>Palette Label</string>
+				<key>Popover</key>
+				<string>statsPopover</string>
+				<key>Tool Tip</key>
+				<string>Tooltip</string>
+			</dict>
+		</array>
 	</dict>
 	<key>Companion Bundle Identifier</key>
 	<array>
