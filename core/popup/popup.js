@@ -2,7 +2,7 @@ window.onload = function() {
 	// load data
 	storageApi.retrieve(function(data) {
 		popup.data = data;
-		popup.showInitialChart();
+		popup.showDomainDurationsChart(0, Date.now());
 	});
 
 	document.getElementById('reset').onclick = function(event) {
@@ -22,10 +22,6 @@ var popup = {
 	showChart: function(keys, values) {
 		document.getElementById('chart').innerHTML = '<p>DOMAINS:<br>' + keys.join('<br>') + '</p>';
 		document.getElementById('chart').innerHTML += '<p>DURATIONS:<br>' + values.join('<br>') + '</p>';
-	},
-
-	showInitialChart: function() {
-		this.showDomainDurationsChart(0, Date.now());
 	},
 
 	showDomainDurationsChart: function(lowerBound, upperBound) {
