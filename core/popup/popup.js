@@ -25,8 +25,35 @@ var popup = {
 	},
 
 	showChart: function(keys, values) {
-		document.getElementById('chart').innerHTML = '<p>DOMAINS:<br>' + keys.join('<br>') + '</p>';
-		document.getElementById('chart').innerHTML += '<p>DURATIONS:<br>' + values.join('<br>') + '</p>';
+
+
+		//alert(JSON.stringify(values));
+
+		document.getElementById('chart').innerHTML = '';
+
+		for(var i=0, len=keys.length; i<len; i++) {
+			var domain = keys[i];
+			var duration = values[i];
+
+			var milliseconds = parseInt((duration%1000)/100)
+					, seconds = parseInt((duration/1000)%60)
+					, minutes = parseInt((duration/(1000*60))%60)
+					, hours = parseInt((duration/(1000*60*60))%24);
+
+			hours = (hours < 10) ? "0" + hours : hours;
+			minutes = (minutes < 10) ? "0" + minutes : minutes;
+			seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+			var duration_string =  hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+
+			//alert(JSON.stringify(domain) + JSON.stringify(duration));
+
+			document.getElementById('chart').innerHTML += '<p>' + domain + ': ' + duration_string + '</p>';
+			
+		}
+
+		// document.getElementById('chart').innerHTML = '<p>DOMAINS:<br>' + keys.join('<br>') + '</p>';
+		// document.getElementById('chart').innerHTML += '<p>DURATIONS:<br>' + values.join('<br>') + '</p>';
 	},
 
 	showDomainDurationsChart: function(lowerBound, upperBound) {
