@@ -1,4 +1,4 @@
-var timeTrack = {
+var backgroundDataCollector = {
 
 	handleUrl: function(url) {
 		this.url = url;

@@ -1,13 +1,19 @@
 window.onload = function() {
 	// load data
-	storageApi.retrieve();
+	storageApi.retrieve(function(data) {
+		popup.data = data;
+		popup.showInitialChart();
+	});
 
 	document.getElementById('reset').onclick = function(event) {
-		storageApi.remove(null); // null means remove everything
+		// null means remove everything
+		storageApi.remove(null, function() {
+			popup.showResetSuccess();
+		});
 	};
 }
 
-var timeTrack = {
+var popup = {
 
 	showResetSuccess: function() {
 		document.getElementById('chart').innerHTML = 'cleared';

@@ -2,15 +2,14 @@
 
 var storageApi = {
 
-	retrieve: function() {
+	retrieve: function(callback) {
 		// null means whole storage (all domains)
 		chrome.storage.local.get(null, function(data) {
-			timeTrack.data = data;
-			timeTrack.showInitialChart();
+			callback(data);
 		});
 	},
 
-	remove: function(untilTime) {
+	remove: function(untilTime, callback) {
 		if(untilTime) {
 			// only remove until given time
 			// TODO
@@ -18,7 +17,7 @@ var storageApi = {
 			// remove everything
 			chrome.storage.local.clear(function() {
 				backgroundCommunication.reinstateDomain();
-				timeTrack.showResetSuccess();
+				callback();
 			});
 		}
 	}
