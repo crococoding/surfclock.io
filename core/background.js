@@ -13,33 +13,21 @@ var backgroundDataCollector = {
 
 	startInterval: function(domain) {
 		// previous interval
-		this.storeIntervalEnd();
+		this.endInterval();
 
 		// next interval
-		console.log(domain);
 		this.domain = domain;
-		this.storeIntervalStart();
+		storageApi.store(this.domain, this.getTimestamp(), null);
 	},
 
 	endInterval: function() {
 		// previous interval
-		this.storeIntervalEnd();
-
-		// pause
-		console.log('stopped');
-		this.domain = null;
-	},
-
-	storeIntervalStart: function() {
-		if(this.domain) {
-			storageApi.store(this.domain, this.getTimestamp(), null);
-		}
-	},
-
-	storeIntervalEnd: function() {
 		if(this.domain) {
 			storageApi.store(this.domain, null, this.getTimestamp());
 		}
+
+		// pause
+		this.domain = null;
 	},
 
 	getDomain: function(url) {

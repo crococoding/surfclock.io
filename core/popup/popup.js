@@ -65,11 +65,11 @@ var popup = {
 					display: false
 				},
 				tooltips: {
-					displayColors: false,
+					displayColors: false
 					//bodyFontSize: 15,
-					custom: (function(tooltip) {
-						tooltip.text = ' milliseconds'
-					})
+					// custom: (function(tooltip) {
+					// 	tooltip.text = ' milliseconds'
+					// })
 				},
 				animation: {
 					animateScale: true
