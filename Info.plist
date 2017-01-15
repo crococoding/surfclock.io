@@ -28,11 +28,11 @@
 				<key>Filename</key>
 				<string>safari/popup_safari.html</string>
 				<key>Height</key>
-				<integer>500</integer>
+				<integer>516</integer>
 				<key>Identifier</key>
 				<string>statsPopover</string>
 				<key>Width</key>
-				<integer>500</integer>
+				<integer>516</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
