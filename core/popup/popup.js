@@ -51,10 +51,6 @@ var popup = {
 			}
 		});
 
-		for (var duration in values) {
-			console.log(moment(duration));
-		}
-
 		// document.getElementById('chart').innerHTML = '';
 
 		// for(var i=0, len=keys.length; i<len; i++) {
