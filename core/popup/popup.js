@@ -1,9 +1,5 @@
 window.onload = function() {
 	// load data
-	// 
-	// 
-	
-	//alert("onload");
 
 	storageApi.retrieve(function(data) {
 		popup.data = data;
@@ -26,9 +22,6 @@ var popup = {
 
 	showChart: function(keys, values) {
 
-
-		//alert(JSON.stringify(values));
-
 		document.getElementById('chart').innerHTML = '';
 
 		for(var i=0, len=keys.length; i<len; i++) {
@@ -45,8 +38,6 @@ var popup = {
 			seconds = (seconds < 10) ? "0" + seconds : seconds;
 
 			var duration_string =  hours + ":" + minutes + ":" + seconds + "." + milliseconds;
-
-			//alert(JSON.stringify(domain) + JSON.stringify(duration));
 
 			document.getElementById('chart').innerHTML += '<p>' + domain + ': ' + duration_string + '</p>';
 			

@@ -34,37 +34,6 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 });
 
 
-// api
-
-var storageApi = {
-
-	store: function(domain, from, till) {
-		chrome.storage.local.get(domain, function(storedDomainEntry) {
-			var storedIntervals = storedDomainEntry[domain];
-			var intervals = storedIntervals ? storedIntervals : [];
-
-			if(from) {
-				// new interval
-				intervals.push({'from': from});
-			}
-			
-			if(till) {
-				// save interval end in last interval
-				intervals[intervals.length - 1]['till'] = till;
-			}
-
-			var domainEntry = {};
-			domainEntry[domain] = intervals;
-
-			chrome.storage.local.set(domainEntry, function() {
-			    // saved
-			});
-		});
-	}
-
-}
-
-
 // messaging from popup page
 
 chrome.extension.onConnect.addListener(function(port) {

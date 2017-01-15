@@ -21,6 +21,7 @@
 	],
 	"background": {
 		"scripts": [
+			"chrome/storageApi_chrome.js",
 			"core/background.js",
 			"chrome/background_chrome.js"
 		]
