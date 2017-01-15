@@ -19,7 +19,12 @@ var storageApi = {
 			domainEntry[domain] = intervals;
 
 			chrome.storage.local.set(domainEntry, function() {
-			    // saved
+				if(chrome.runtime.lastError) {
+					console.warn("Whoops.. " + chrome.runtime.lastError.message);
+					// TODO: probably (give user option to) remove older intervals
+				} else {
+					// saved
+				}
 			});
 		});
 	},
