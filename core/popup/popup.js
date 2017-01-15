@@ -20,7 +20,13 @@ var popup = {
 		// document.getElementById('chart').innerHTML = 'cleared';
 	},
 
-	showChart: function(keys, values, chartType) {
+	showChart: function(data, chartType) {
+
+		// sort descending
+		data.sort((x, y) => (y['value'] - x['value']));
+
+		var keys = data.map((x) => x['key']);
+		var values = data.map((x) => x['value']);
 
 		var context = document.getElementById('chart').getContext('2d');
 		
@@ -34,7 +40,11 @@ var popup = {
 				labels: keys,
 				datasets: [{
 					data: values,
-					backgroundColor: colors
+					backgroundColor: colors,
+					hoverBackgroundColor: colors,
+					borderWidth: Array.from({length: values.length}, () => 2),
+					hoverBorderWidth: Array.from({length: values.length}, () => 2),
+					hoverBorderColor: Array.from({length: values.length}, () => 'white')
 				}]
 			},
 			options: {
@@ -43,7 +53,10 @@ var popup = {
 				},
 				tooltips: {
 					displayColors: false,
-					custom: null // TODO: custom tooltips
+					//bodyFontSize: 15,
+					custom: (function(tooltip) {
+						tooltip.text = ' milliseconds'
+					})
 				},
 				animation: {
 					animateScale: true
@@ -74,19 +87,19 @@ var popup = {
 	},
 
 	showDomainDurationsChart: function(lowerBound, upperBound) {
-		var keys = [];
-		var values = [];
+		var data = [];
 
 		for (var domain in this.data) {
 			var intervals = this.filterAndClipIntervals(this.data[domain], lowerBound, upperBound);
 			var intervalDurations = intervals.map(this.getIntervalDuration);
-			var domainDuration = intervalDurations.reduce((a, b) => a + b, 0);
-
-			keys.push(domain);
-			values.push(domainDuration);
+			var domainDuration = intervalDurations.reduce((total, duration) => total + duration, 0);
+			data.push({
+				'key': domain,
+				'value': domainDuration
+			});
 		}
 
-		this.showChart(keys, values, 'doughnut');
+		this.showChart(data, 'doughnut');
 	},
 
 	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {
