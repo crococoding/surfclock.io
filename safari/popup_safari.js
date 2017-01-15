@@ -41,7 +41,7 @@ var storageApi = {
 
 
 function popoverHandler(event) {
-	window.onload();
+	popup.updateChart();
 }
 
 safari.application.addEventListener("popover", popoverHandler, true);

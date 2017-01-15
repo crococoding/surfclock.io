@@ -1,10 +1,7 @@
 window.onload = function() {
 	// load data
 
-	storageApi.retrieve(function(data) {
-		popup.data = data;
-		popup.showDomainDurationsChart(0, Date.now());
-	});
+	popup.updateChart();
 
 	document.getElementById('reset').onclick = function(event) {
 		// null means remove everything
@@ -16,9 +13,19 @@ window.onload = function() {
 
 var popup = {
 
+	updateChart: function() {
+		storageApi.retrieve(function(data) {
+			popup.data = data;
+			popup.showDomainDurationsChart(0, Date.now());
+		});
+	},
+
 	showResetSuccess: function() {
+		this.updateChart();
 		// document.getElementById('chart').innerHTML = 'cleared';
 	},
+
+	chart: null,
 
 	showChart: function(data, chartType) {
 
@@ -28,13 +35,19 @@ var popup = {
 		var keys = data.map((x) => x['key']);
 		var values = data.map((x) => x['value']);
 
-		var context = document.getElementById('chart').getContext('2d');
-		
+		var canvas = document.getElementById('chart');
+		var context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
+
 		var colors = randomColor({
 			count: values.length
 		});
 
-		var chart = new Chart(context, {
+		if (this.chart) {
+			this.chart.destroy();
+		}
+
+		this.chart = new Chart(context, {
 			type: chartType,
 			data: {
 				labels: keys,
