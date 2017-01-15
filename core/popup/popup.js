@@ -17,34 +17,64 @@ window.onload = function() {
 var popup = {
 
 	showResetSuccess: function() {
-		document.getElementById('chart').innerHTML = 'cleared';
+		// document.getElementById('chart').innerHTML = 'cleared';
 	},
 
-	showChart: function(keys, values) {
+	showChart: function(keys, values, chartType) {
 
-		document.getElementById('chart').innerHTML = '';
+		var context = document.getElementById('chart').getContext('2d');
+		
+		var colors = randomColor({
+			count: values.length
+		});
 
-		for(var i=0, len=keys.length; i<len; i++) {
-			var domain = keys[i];
-			var duration = values[i];
+		var chart = new Chart(context, {
+			type: chartType,
+			data: {
+				labels: keys,
+				datasets: [{
+					data: values,
+					backgroundColor: colors
+				}]
+			},
+			options: {
+				legend: {
+					display: false
+				},
+				tooltips: {
+					displayColors: false,
+					custom: null // TODO: custom tooltips
+				},
+				animation: {
+					animateScale: true
+				}
+			}
+		});
 
-			var milliseconds = parseInt((duration%1000)/100)
-					, seconds = parseInt((duration/1000)%60)
-					, minutes = parseInt((duration/(1000*60))%60)
-					, hours = parseInt((duration/(1000*60*60))%24);
-
-			hours = (hours < 10) ? "0" + hours : hours;
-			minutes = (minutes < 10) ? "0" + minutes : minutes;
-			seconds = (seconds < 10) ? "0" + seconds : seconds;
-
-			var duration_string =  hours + ":" + minutes + ":" + seconds + "." + milliseconds;
-
-			document.getElementById('chart').innerHTML += '<p>' + domain + ': ' + duration_string + '</p>';
-			
+		for (var duration in values) {
+			console.log(moment(duration));
 		}
 
-		// document.getElementById('chart').innerHTML = '<p>DOMAINS:<br>' + keys.join('<br>') + '</p>';
-		// document.getElementById('chart').innerHTML += '<p>DURATIONS:<br>' + values.join('<br>') + '</p>';
+		// document.getElementById('chart').innerHTML = '';
+
+		// for(var i=0, len=keys.length; i<len; i++) {
+		// 	var domain = keys[i];
+		// 	var duration = values[i];
+
+		// 	var milliseconds = parseInt((duration%1000)/100)
+		// 			, seconds = parseInt((duration/1000)%60)
+		// 			, minutes = parseInt((duration/(1000*60))%60)
+		// 			, hours = parseInt((duration/(1000*60*60))%24);
+
+		// 	hours = (hours < 10) ? "0" + hours : hours;
+		// 	minutes = (minutes < 10) ? "0" + minutes : minutes;
+		// 	seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+		// 	var duration_string =  hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+
+		// 	document.getElementById('chart').innerHTML += '<p>' + domain + ': ' + duration_string + '</p>';
+			
+		// }
 	},
 
 	showDomainDurationsChart: function(lowerBound, upperBound) {
@@ -60,7 +90,7 @@ var popup = {
 			values.push(domainDuration);
 		}
 
-		this.showChart(keys, values);
+		this.showChart(keys, values, 'doughnut');
 	},
 
 	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {
