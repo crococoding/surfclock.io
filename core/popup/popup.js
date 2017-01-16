@@ -28,14 +28,14 @@ var popup = {
 
 	showChart: function(input, options, type) {
 		var canvas = document.getElementById('chart');
-		var context = canvas.getContext('2d');
-		//context.clearRect(0, 0, canvas.width, canvas.height);
+		this.canvasContext = canvas.getContext('2d');
+		//this.this.canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
 		if (this.chart) {
 			this.chart.destroy();
 		}
 
-		this.chart = new Chart(context, {
+		this.chart = new Chart(this.canvasContext, {
 			type: type,
 			data: input,
 			options: options
@@ -78,6 +78,12 @@ var popup = {
 		}
 
 		this.showChart(input, {}, 'doughnut');
+		
+		// TODO: not working yet
+		this.canvasContext.textAlign = 'center';
+		this.canvasContext.fillStyle = 'black';
+		this.canvasContext.font = '30px Arial';
+		this.canvasContext.fillText('Hello World', 250, 250);
 	},
 
 	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {
@@ -103,7 +109,7 @@ var popup = {
 	getHoursMinutes: function(milliseconds) {
 		var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
-		var hours = parseInt((milliseconds/(1000*60*60))%24);
+		var hours = parseInt(milliseconds/(1000*60*60));
 
 		hours = (hours < 10) ? "0" + hours : hours;
 		minutes = (minutes < 10) ? "0" + minutes : minutes;
@@ -121,6 +127,8 @@ var popup = {
 	},
 
 	data: null,
+
+	canvasContext: null,
 
 	chart: null
 
