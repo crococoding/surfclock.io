@@ -77,13 +77,21 @@ var popup = {
 			}]
 		}
 
-		this.showChart(input, {}, 'doughnut');
+		//this.showChart(input, {}, 'doughnut');
 		
 		// TODO: not working yet
-		this.canvasContext.textAlign = 'center';
-		this.canvasContext.fillStyle = 'black';
-		this.canvasContext.font = '30px Arial';
-		this.canvasContext.fillText('Hello World', 250, 250);
+		// 
+		// 
+		// 
+		var canvas = document.getElementById('chart');
+		var context = canvas.getContext('2d');
+		
+
+
+		context.textAlign = 'center';
+		context.fillStyle = 'black';
+		context.font = '30px Arial';
+		context.fillText('Hello World', canvas.width/2, canvas.height/2);
 	},
 
 	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {

@@ -90,7 +90,7 @@ function safariNavigate(event) {
 
 			localStorage.setItem(domain, JSON.stringify(intervals));
 			//tester[domain] = intervals;
-			console.log("did save: " + JSON.stringify(domain) + JSON.stringify(intervals));
+			//console.log("did save: " + JSON.stringify(domain) + JSON.stringify(intervals));
 			//alert("did save: " + JSON.stringify(domain) + JSON.stringify(intervals));
 		} catch (e) {
 			if (e == QUOTA_EXCEEDED_ERR) {
