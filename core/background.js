@@ -34,7 +34,7 @@ var backgroundDataCollector = {
 		var regex = /(((http)(s*):\/\/)(www\.)*)/;
 		
 		if(regex.test(url)) {
-			return url.replace(regex,'').split(/[/?#]/)[0];
+			return url.replace(regex, '').split(/[/?#]/)[0];
 		}
 
 		return null;
