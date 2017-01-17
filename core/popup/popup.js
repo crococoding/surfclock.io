@@ -28,14 +28,14 @@ var popup = {
 
 	showChart: function(input, options, type) {
 		var canvas = document.getElementById('chart');
-		this.canvasContext = canvas.getContext('2d');
+		var context = canvas.getContext('2d');
 		//this.this.canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
 		if (this.chart) {
 			this.chart.destroy();
 		}
 
-		this.chart = new Chart(this.canvasContext, {
+		this.chart = new Chart(context, {
 			type: type,
 			data: input,
 			options: options
@@ -60,12 +60,13 @@ var popup = {
 
 		var domains = data.map((x) => x['domain']);
 		var durations = data.map((x) => x['duration']);
+		var totalDuration = durations.reduce((total, duration) => total + duration, 0);
 
 		var colors = randomColor({
 			count: data.length
 		});
 
-		var input = {
+		var chartInput = {
 			labels: domains,
 			datasets: [{
 				data: durations,
@@ -77,21 +78,36 @@ var popup = {
 			}]
 		}
 
-		//this.showChart(input, {}, 'doughnut');
-		
-		// TODO: not working yet
-		// 
-		// 
-		// 
+		var chartOptions = {
+			cutoutPercentage: 90,
+			animation: {
+	            duration: 2000,
+	            onProgress: function(animation) {
+	                popup.showCurrentDomainInfo();
+	            }
+	        },
+	        hover: {
+	        	onHover: function(e) {
+	        		var canvas = document.getElementById('chart');
+	        		canvas.style.cursor = e[0] ? 'pointer' : 'default';
+	        	}
+	        }
+		}
+
+		this.showChart(chartInput, chartOptions, 'doughnut');
+
+		document.getElementById('headerText').innerHTML = 'Total: ' + this.getHoursMinutes(totalDuration);
+	},
+
+	showCurrentDomainInfo: function() {
 		var canvas = document.getElementById('chart');
 		var context = canvas.getContext('2d');
-		
-
 
 		context.textAlign = 'center';
 		context.fillStyle = 'black';
-		context.font = '30px Arial';
-		context.fillText('Hello World', canvas.width/2, canvas.height/2);
+		context.textBaseline = 'alphabetic';
+		context.font = '30px HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial, Lucida Grande';
+		context.fillText('Hello World!', canvas.width/2, canvas.height/2);
 	},
 
 	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {
@@ -135,8 +151,6 @@ var popup = {
 	},
 
 	data: null,
-
-	canvasContext: null,
 
 	chart: null
 

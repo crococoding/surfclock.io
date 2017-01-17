@@ -28,11 +28,11 @@
 				<key>Filename</key>
 				<string>safari/popup_safari.html</string>
 				<key>Height</key>
-				<integer>516</integer>
+				<integer>600</integer>
 				<key>Identifier</key>
 				<string>statsPopover</string>
 				<key>Width</key>
-				<integer>516</integer>
+				<integer>500</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
@@ -45,7 +45,7 @@
 				<key>Include By Default</key>
 				<true/>
 				<key>Label</key>
-				<string>timeTrackj</string>
+				<string>TimeTrack</string>
 				<key>Palette Label</key>
 				<string>Palette Label</string>
 				<key>Popover</key>

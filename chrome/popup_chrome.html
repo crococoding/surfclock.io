@@ -8,9 +8,19 @@
 	<script type="text/javascript" src="storageApi_chrome.js"></script>
 	<script type="text/javascript" src="popup_chrome.js"></script>
 </head>
-<body id="TimeTrackPopup">
-	<canvas id="chart"></canvas>
+<body id="popup">
 
-	<button id="reset">reset statistics</button>
+	<div id="header">
+		<p id="headerText"></p>
+	</div>
+
+	<div id="main">
+		<canvas id="chart"></canvas>
+	</div>
+
+	<div id="footer">
+		<a id="reset" href="" tabindex="-1">reset statistics</a>
+	</div>
+
 </body>
 </html>

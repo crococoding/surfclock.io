@@ -7,9 +7,19 @@
 	<script type="text/javascript" src="../core/popup/popup.js"></script>
 	<script type="text/javascript" src="popup_safari.js"></script>
 </head>
-<body id="TimeTrackPopup">
-	<canvas id="chart"></canvas>
+<body id="popup">
 
-	<button id="reset">reset statistics</button>
+	<div id="header">
+		<p id="headerText"></p>
+	</div>
+
+	<div id="main">
+		<canvas id="chart"></canvas>
+	</div>
+
+	<div id="footer">
+		<a id="reset" href="">reset statistics</a>
+	</div>
+
 </body>
 </html>
