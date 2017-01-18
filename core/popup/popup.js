@@ -1,6 +1,8 @@
 window.onload = function() {
 	// load data
 
+	popup.lowerBound = 0;
+	popup.upperBound = Date.now();
 	popup.updateChart();
 
 	document.getElementById('reset').onclick = function(event) {
@@ -17,7 +19,7 @@ var popup = {
 		storageApi.retrieve(function(data) {
 			popup.data = data;
 			popup.setChartDefaults();
-			popup.showDomainDurationsChart(0, Date.now());
+			popup.showDomainDurationsChart();
 		});
 	},
 
@@ -29,7 +31,6 @@ var popup = {
 	showChart: function(input, options, type) {
 		var canvas = document.getElementById('chart');
 		var context = canvas.getContext('2d');
-		//this.this.canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
 		if (this.chart) {
 			this.chart.destroy();
@@ -42,13 +43,13 @@ var popup = {
 		});
 	},
 
-	showDomainDurationsChart: function(lowerBound, upperBound) {
+	showDomainDurationsChart: function() {
 		var data = [];
 
 		for (var domain in this.data) {
-			var intervals = this.filterAndClipIntervals(this.data[domain], lowerBound, upperBound);
+			var intervals = this.filterAndClipIntervals(this.data[domain]);
 			var intervalDurations = intervals.map(this.getIntervalDuration);
-			var domainDuration = intervalDurations.reduce((total, duration) => total + duration, 0);
+			var domainDuration = this.sumArray(intervalDurations);
 			data.push({
 				'domain': domain,
 				'duration': domainDuration
@@ -60,7 +61,7 @@ var popup = {
 
 		var domains = data.map((x) => x['domain']);
 		var durations = data.map((x) => x['duration']);
-		var totalDuration = durations.reduce((total, duration) => total + duration, 0);
+		var totalDuration = this.sumArray(durations);
 
 		var colors = randomColor({
 			count: data.length
@@ -79,47 +80,82 @@ var popup = {
 		}
 
 		var chartOptions = {
-			cutoutPercentage: 90,
+			cutoutPercentage: 83,
+			tooltips: {
+				enabled: false
+			},
 			animation: {
-	            duration: 2000,
+	            duration: 1000,
+	            //easing: 'easeOutBounce',
 	            onProgress: function(animation) {
-	                popup.showCurrentDomainInfo();
+	                popup.showDomainInfo();
 	            }
 	        },
 	        hover: {
 	        	onHover: function(e) {
 	        		var canvas = document.getElementById('chart');
-	        		canvas.style.cursor = e[0] ? 'pointer' : 'default';
+	        		if (e[0]) {
+	        			canvas.style.cursor = 'pointer';
+	        			var index = e[0]._index;
+						popup.inspectedDomain = domains[index];
+	        		} else {
+	        			canvas.style.cursor = 'default';
+	        			popup.inspectedDomain = popup.currentDomain;
+	        		}
 	        	}
 	        }
 		}
 
 		this.showChart(chartInput, chartOptions, 'doughnut');
 
-		document.getElementById('headerText').innerHTML = 'Total: ' + this.getHoursMinutes(totalDuration);
+		document.getElementById('headerText').innerHTML = 'Total Time: ' + this.getNiceTime(totalDuration);
+		
 	},
 
-	showCurrentDomainInfo: function() {
-		var canvas = document.getElementById('chart');
-		var context = canvas.getContext('2d');
+	showDomainInfo: function() {
+		if(this.inspectedDomain) {
+			var intervals = this.filterAndClipIntervals(this.data[this.inspectedDomain]);
+			var intervalDurations = intervals.map(this.getIntervalDuration);
+			var domainDuration = this.sumArray(intervalDurations);
 
-		context.textAlign = 'center';
-		context.fillStyle = 'black';
-		context.textBaseline = 'alphabetic';
-		context.font = '30px HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial, Lucida Grande';
-		context.fillText('Hello World!', canvas.width/2, canvas.height/2);
+			var canvas = document.getElementById('chart');
+			var context = canvas.getContext('2d');
+
+			var line = 0;
+			function getVerticalPosition() {
+				return canvas.height/2 - 30 + line++ * 30;
+			};
+
+			var fontFamily = 'HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial';
+			context.textAlign = 'center';
+			context.fillStyle = 'black';
+			context.textBaseline = 'alphabetic';
+
+			// domain name
+			context.font = '30px ' + fontFamily;
+			context.fillText(this.inspectedDomain, canvas.width/2, getVerticalPosition());
+
+			// domain time
+			context.font = '20px ' + fontFamily;
+			context.fillText(this.getNiceTime(domainDuration), canvas.width/2, getVerticalPosition());
+
+			// average domain time
+			context.font = '20px ' + fontFamily;
+			var text = 'for ' + intervals.length + ' visit' + (intervals.length > 1 ? 's' : '');
+			context.fillText(text, canvas.width/2, getVerticalPosition());
+		}
 	},
 
-	filterAndClipIntervals: function(intervals, lowerBound, upperBound) {
+	filterAndClipIntervals: function(intervals) {
 		var result = [];
 		for(i in intervals) {
 			var interval = intervals[i];
 			var from = interval['from'];
-			var till = interval['till'] ? interval['till'] : upperBound;
-			if(lowerBound < till && upperBound > from) {
+			var till = interval['till'] ? interval['till'] : this.upperBound;
+			if(this.lowerBound < till && this.upperBound > from) {
 				result.push({
-					'from': Math.max(from, lowerBound),
-					'till': Math.min(till, upperBound)
+					'from': Math.max(from, this.lowerBound),
+					'till': Math.min(till, this.upperBound)
 				});
 			}
 		}
@@ -130,16 +166,36 @@ var popup = {
 		return (interval['till'] - interval['from']);
 	},
 
-	getHoursMinutes: function(milliseconds) {
+	getNiceTime: function(milliseconds) {
 		var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
 		var hours = parseInt(milliseconds/(1000*60*60));
 
-		hours = (hours < 10) ? "0" + hours : hours;
-		minutes = (minutes < 10) ? "0" + minutes : minutes;
-		seconds = (seconds < 10) ? "0" + seconds : seconds;
+		function getTimePartString(timePart, timePartName) {
+			if(timePart > 0) {
+				return ' ' + timePart + ' ' + timePartName + (timePart > 1 ? 's' : '');
+			} else {
+				return '';
+			}
+		};
 
-		return (hours + ":" + minutes);
+		var time = '';
+		time += getTimePartString(hours, 'hour');
+		time += getTimePartString(minutes, 'minute');
+		time += getTimePartString(seconds, 'second');
+		time = time.slice(1);
+
+		return time;
+
+		// hours = (hours < 10) ? "0" + hours : hours;
+		// minutes = (minutes < 10) ? "0" + minutes : minutes;
+		// seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+		// return (hours + ":" + minutes);
+	},
+
+	sumArray: function(array) {
+		return array.reduce((total, duration) => total + duration, 0);
 	},
 
 	setChartDefaults: function() {
@@ -151,7 +207,10 @@ var popup = {
 	},
 
 	data: null,
-
+	lowerBound: null,
+	upperBound: null,
+	inspectedDomain: null, // domain you chose to inspect details of
+	currentDomain: null, // domain you're on right now
 	chart: null
 
 }
