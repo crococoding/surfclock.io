@@ -15,6 +15,7 @@ var backgroundDataCollector = {
 		// previous interval
 		this.endInterval();
 
+		// new interval
 		this.domain = domain;
 		database.storeIntervalStart(this.domain, this.getTimestamp());
 	},

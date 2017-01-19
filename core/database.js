@@ -58,7 +58,6 @@ var database = new function() {
 			// only remove until given time
 			// TODO
 		} else {
-			// TODO startup again
 			database.dexie.intervals.clear();
 			callback();
 		}
