@@ -14,6 +14,9 @@ var database = new function() {
 	// this.dexie.intervals.clear();
 
 	this.storeIntervalStart = function(domain, from) {
+
+		//alert('will store');
+
 		database.dexie.intervals.add({
 			'domain': domain,
 			'from' : from 
