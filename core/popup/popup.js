@@ -7,7 +7,7 @@ window.onload = function() {
 
 	document.getElementById('reset').onclick = function(event) {
 		// null means remove everything
-		database.remove(null, function() {
+		getGlobalDatabase().remove(null, function() {
 			popup.showResetSuccess();
 		});
 	};
@@ -16,7 +16,7 @@ window.onload = function() {
 var popup = {
 
 	updateChart: function() {
-		database.retrieve(function(data) {
+		getGlobalDatabase().retrieve(function(data) {
 			popup.data = data;
 			popup.setChartDefaults();
 			popup.showDomainDurationsChart();

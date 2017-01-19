@@ -29,9 +29,9 @@ var database = new function() {
 
 		database.dexie.intervals.where("domain").equals(domain).last().then(function (item) {
 
-			 database.dexie.intervals.update(item.id, {'till' : till});
+			database.dexie.intervals.update(item.id, {'till' : till});
 		}).catch(function(error) {
-			alert("error:" + JSON.stringify(error))
+			//alert("error:" + JSON.stringify(error))
 		});
 
 	}
@@ -46,7 +46,14 @@ var database = new function() {
 				data[item.domain] = [];
 			} 
 
-			data[item.domain].push({'from': item.from, 'till': item.till});
+			var interval = {};
+			if (item.from) {
+				interval['from'] = item.from;
+			}
+			if (item.till) {
+				interval['till'] = item.till;
+			}
+			data[item.domain].push(interval);
 
 		}).then(function() {
 			callback(data);
