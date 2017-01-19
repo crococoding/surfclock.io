@@ -21,7 +21,8 @@
 	],
 	"background": {
 		"scripts": [
-			"chrome/storageApi_chrome.js",
+			"core/dexie.min.js",
+			"core/database.js",
 			"core/background.js",
 			"chrome/background_chrome.js"
 		]

@@ -15,15 +15,14 @@ var backgroundDataCollector = {
 		// previous interval
 		this.endInterval();
 
-		// next interval
 		this.domain = domain;
-		storageApi.store(this.domain, this.getTimestamp(), null);
+		database.storeIntervalStart(this.domain, this.getTimestamp());
 	},
 
 	endInterval: function() {
 		// previous interval
 		if(this.domain) {
-			storageApi.store(this.domain, null, this.getTimestamp());
+			database.storeIntervalEnd(this.domain, this.getTimestamp());
 		}
 
 		// pause
