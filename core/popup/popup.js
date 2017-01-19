@@ -7,8 +7,9 @@ window.onload = function() {
 
 	document.getElementById('reset').onclick = function(event) {
 		// null means remove everything
-		getGlobalDatabase().remove(null, function() {
-			popup.showResetSuccess();
+		getBackground().database.remove(null, function() {
+			getBackground().backgroundDataCollector.reinstateDomain();
+			//popup.showResetSuccess();
 		});
 	};
 }
@@ -16,7 +17,7 @@ window.onload = function() {
 var popup = {
 
 	updateChart: function() {
-		getGlobalDatabase().retrieve(function(data) {
+		getBackground().database.retrieve(function(data) {
 			popup.data = data;
 			popup.setChartDefaults();
 			popup.showDomainDurationsChart();

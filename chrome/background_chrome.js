@@ -32,19 +32,3 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 		});
 	}
 });
-
-
-// messaging from popup page
-
-chrome.extension.onConnect.addListener(function(port) {
-	port.onMessage.addListener(function(message) {
-		switch(message) {
-			
-			case 'reinstateDomain': 
-				backgroundDataCollector.reinstateDomain();
-				break;
-
-			default: // do nothing
-		}
-	});
-});

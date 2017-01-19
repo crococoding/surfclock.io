@@ -3,7 +3,7 @@ var database = new function() {
 	this.dexie = new Dexie("domain_db");
 	this.dexie.version(1).stores({
 		intervals: '++id,domain,from,till',
-		colors: '++id,domain,from'
+		domains: '++id,domain,color,faviconUrl'
 	});
 
 	this.dexie.open().catch(function(e) {
@@ -11,14 +11,9 @@ var database = new function() {
 	});
 
 
-	// this.dexie.intervals.clear();
-
 	this.storeIntervalStart = function(domain, from) {
-
-		//alert('will store');
-
 		database.dexie.intervals.add({
-			'domain': domain,
+			'domain' : domain,
 			'from' : from 
 		}).catch(function(error) {
 			alert("error:" + JSON.stringify(error))
@@ -26,14 +21,11 @@ var database = new function() {
 	}
 
 	this.storeIntervalEnd = function(domain, till) {
-
 		database.dexie.intervals.where("domain").equals(domain).last().then(function (item) {
-
 			database.dexie.intervals.update(item.id, {'till' : till});
 		}).catch(function(error) {
 			//alert("error:" + JSON.stringify(error))
 		});
-
 	}
 
 	this.retrieve = function(callback) {
@@ -66,6 +58,7 @@ var database = new function() {
 			// only remove until given time
 			// TODO
 		} else {
+			// TODO startup again
 			database.dexie.intervals.clear();
 			callback();
 		}

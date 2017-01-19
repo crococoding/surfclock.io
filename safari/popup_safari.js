@@ -1,7 +1,5 @@
-// api
-
-function getGlobalDatabase() {
-	return safari.extension.globalPage.contentWindow.database;
+function getBackground() {
+	return safari.extension.globalPage.contentWindow;
 }
 
 
@@ -10,5 +8,3 @@ function popoverHandler(event) {
 }
 
 safari.application.addEventListener("popover", popoverHandler, true);
-
-// messaging with background page
