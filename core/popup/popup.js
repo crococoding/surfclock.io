@@ -121,28 +121,19 @@ var popup = {
 			var canvas = document.getElementById('chart');
 			var context = canvas.getContext('2d');
 
-			var line = 0;
-			function getVerticalPosition() {
-				return canvas.height/2 - 30 + line++ * 30;
-			};
-
-			var fontFamily = 'HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial';
 			context.textAlign = 'center';
 			context.fillStyle = 'black';
 			context.textBaseline = 'alphabetic';
 
-			// domain name
-			context.font = '30px ' + fontFamily;
-			context.fillText(this.inspectedDomain, canvas.width/2, getVerticalPosition());
+			var line = 0;
+			function writeOnCanvas(text, size) {
+				context.font = size + 'px HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial';
+				context.fillText(text, canvas.width/2, (canvas.height/2 - 30 + line++ * 30));
+			};
 
-			// domain time
-			context.font = '20px ' + fontFamily;
-			context.fillText(this.getNiceTime(domainDuration), canvas.width/2, getVerticalPosition());
-
-			// average domain time
-			context.font = '20px ' + fontFamily;
-			var text = 'for ' + intervals.length + ' visit' + (intervals.length > 1 ? 's' : '');
-			context.fillText(text, canvas.width/2, getVerticalPosition());
+			writeOnCanvas(this.inspectedDomain, 30);
+			writeOnCanvas(this.getNiceTime(domainDuration), 20);
+			writeOnCanvas('for ' + intervals.length + ' visit' + (intervals.length > 1 ? 's' : ''), 20);
 		}
 	},
 

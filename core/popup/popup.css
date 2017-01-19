@@ -7,6 +7,10 @@ body {
 	overflow: hidden;
 }
 
+p {
+	margin: 0;
+}
+
 #header,
 #main,
 #footer {
@@ -23,7 +27,6 @@ body {
 #headerText {
 	text-align: center;
 	font-size: 20px;
-	margin: 0;
 }
 
 #chart {
