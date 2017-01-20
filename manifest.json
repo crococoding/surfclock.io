@@ -16,8 +16,7 @@
 		"default_popup": "chrome/popup_chrome.html"
 	},
 	"permissions": [
-		"tabs",
-		"storage"
+		"tabs"
 	],
 	"background": {
 		"scripts": [

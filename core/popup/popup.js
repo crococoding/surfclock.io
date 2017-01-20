@@ -1,6 +1,10 @@
 window.onload = function() {
 	// load data
 
+	getCurrentDomain(function(domain) {
+		popup.currentDomain = domain;
+		popup.inspectedDomain = domain;
+	});
 	popup.lowerBound = 0;
 	popup.upperBound = Date.now();
 	popup.updateChart();
@@ -74,9 +78,9 @@ var popup = {
 				data: durations,
 				backgroundColor: colors,
 				hoverBackgroundColor: colors,
-				borderWidth: Array.from({length: data.length}, () => 2),
-				hoverBorderWidth: Array.from({length: data.length}, () => 2),
-				hoverBorderColor: Array.from({length: data.length}, () => 'white')
+				borderWidth: 2,
+				hoverBorderWidth: 2,
+				hoverBorderColor: 'white'
 			}]
 		}
 
