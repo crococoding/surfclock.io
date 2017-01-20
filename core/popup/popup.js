@@ -125,22 +125,9 @@ var popup = {
 			var intervalDurations = intervals.map(this.getIntervalDuration);
 			var domainDuration = this.sumArray(intervalDurations);
 
-			var canvas = document.getElementById('chart');
-			var context = canvas.getContext('2d');
-
-			context.textAlign = 'center';
-			context.fillStyle = 'black';
-			context.textBaseline = 'alphabetic';
-
-			var line = 0;
-			function writeOnCanvas(text, size = 20) {
-				context.font = size + 'px HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial';
-				context.fillText(text, canvas.width/2, (canvas.height/2 - 30 + line++ * 30));
-			};
-
-			writeOnCanvas(this.inspectedDomain, 30);
-			writeOnCanvas(this.getNiceTime(domainDuration));
-			writeOnCanvas('for ' + intervals.length + ' visit' + (intervals.length > 1 ? 's' : ''));
+			document.getElementById('name').innerHTML = this.inspectedDomain;
+			document.getElementById('description').innerHTML = this.getNiceTime(domainDuration) + '<br>';
+			document.getElementById('description').innerHTML += 'for ' + this.numerus(intervals.length, 'visit');
 		}
 	},
 
@@ -171,7 +158,7 @@ var popup = {
 
 		function getTimePartString(timePart, timePartName) {
 			if(timePart > 0) {
-				return ' ' + timePart + ' ' + timePartName + (timePart > 1 ? 's' : '');
+				return ' ' + popup.numerus(timePart, timePartName);
 			} else {
 				return '';
 			}
@@ -190,6 +177,10 @@ var popup = {
 		// seconds = (seconds < 10) ? "0" + seconds : seconds;
 
 		// return (hours + ":" + minutes);
+	},
+
+	numerus: function(number, word) {
+		return (number > 1) ? (number + ' ' + word + 's') : (number + ' ' + word);
 	},
 
 	sumArray: function(array) {
