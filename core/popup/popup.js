@@ -1,14 +1,10 @@
 window.onload = function() {
-	// load data
+	popup.setChartDefaults();
 
-	getCurrentDomain(function(domain) {
-		popup.currentDomain = domain;
-		popup.inspectedDomain = domain;
-	});
-	popup.lowerBound = 0;
-	popup.upperBound = Date.now();
+	// load data
 	popup.updateChart();
 
+	// init reset button
 	document.getElementById('reset').onclick = function(event) {
 		// null means remove everything
 		getBackground().database.remove(null, function() {
@@ -21,16 +17,22 @@ window.onload = function() {
 var popup = {
 
 	updateChart: function() {
+		getCurrentDomain(function(domain) {
+			popup.currentDomain = domain;
+			popup.inspectedDomain = domain;
+		});
+
+		popup.lowerBound = 0;
+		popup.upperBound = Date.now();
+
 		getBackground().database.retrieve(function(data) {
 			popup.data = data;
-			popup.setChartDefaults();
 			popup.showDomainDurationsChart();
 		});
 	},
 
 	showResetSuccess: function() {
 		// document.getElementById('chart').innerHTML = 'cleared';
-		this.updateChart();
 	},
 
 	showChart: function(input, options, type) {
@@ -131,14 +133,14 @@ var popup = {
 			context.textBaseline = 'alphabetic';
 
 			var line = 0;
-			function writeOnCanvas(text, size) {
+			function writeOnCanvas(text, size = 20) {
 				context.font = size + 'px HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial';
 				context.fillText(text, canvas.width/2, (canvas.height/2 - 30 + line++ * 30));
 			};
 
 			writeOnCanvas(this.inspectedDomain, 30);
-			writeOnCanvas(this.getNiceTime(domainDuration), 20);
-			writeOnCanvas('for ' + intervals.length + ' visit' + (intervals.length > 1 ? 's' : ''), 20);
+			writeOnCanvas(this.getNiceTime(domainDuration));
+			writeOnCanvas('for ' + intervals.length + ' visit' + (intervals.length > 1 ? 's' : ''));
 		}
 	},
 
