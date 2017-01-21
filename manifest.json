@@ -20,9 +20,9 @@
 	],
 	"background": {
 		"scripts": [
-			"core/dexie.min.js",
-			"core/database.js",
-			"core/background.js",
+			"core/background/dexie.min.js",
+			"core/background/database.js",
+			"core/background/logger.js",
 			"chrome/background_chrome.js"
 		]
 	}

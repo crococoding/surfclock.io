@@ -4,13 +4,7 @@ function getBackground() {
 
 
 function popoverHandler(event) {
-	popup.updateChart();
-}
-
-
-
-function getCurrentDomain(callback) {
-	callback(getBackground().backgroundDataCollector.domain)
+	popup.init();
 }
 
 safari.application.addEventListener("popover", popoverHandler, true);

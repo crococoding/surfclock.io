@@ -1,8 +1,6 @@
 window.onload = function() {
-	popup.setChartDefaults();
 
-	// load data
-	popup.updateChart();
+	popup.init();
 
 	// init reset button
 	document.getElementById('reset').onclick = function(event) {
@@ -16,131 +14,142 @@ window.onload = function() {
 
 var popup = {
 
-	updateChart: function() {
-		getCurrentDomain(function(domain) {
-			popup.currentDomain = domain;
-			popup.inspectedDomain = domain;
-		});
-
-		popup.lowerBound = 0;
-		popup.upperBound = Date.now();
-
-		getBackground().database.retrieve(function(data) {
-			popup.data = data;
-			popup.showDomainDurationsChart();
-		});
-	},
-
 	showResetSuccess: function() {
 		// document.getElementById('chart').innerHTML = 'cleared';
 	},
 
-	showChart: function(input, options, type) {
+	init: function() {
+		popup.setChartLayout();
+		popup.domain = getBackground().backgroundDataCollector.domain;
+		popup.setObservationBounds(0, Date.now());
+		popup.update();
+	},
+
+	setChartLayout: function() {
+		if(popup.chart) {
+			popup.chart.destroy();
+		}
+
 		var canvas = document.getElementById('chart');
 		var context = canvas.getContext('2d');
 
-		if (this.chart) {
-			this.chart.destroy();
-		}
-
-		this.chart = new Chart(context, {
-			type: type,
-			data: input,
-			options: options
+		popup.chart = new Chart(context, {
+			type: 'doughnut',
+			data: {
+				labels: [],
+				datasets: [{
+					data: [],
+					backgroundColor: [],
+					hoverBackgroundColor: [],
+					borderWidth: 2,
+					hoverBorderWidth: 2,
+					hoverBorderColor: 'white'
+				}]
+			},
+			options: {
+				cutoutPercentage: 83,
+				legend: {
+					display: false
+				},
+				tooltips: {
+					enabled: false,
+					displayColors: false
+				},
+				animation: {
+		            duration: 1000,
+		            animateScale: true,
+		            //easing: 'easeOutBounce',
+		            onProgress: function(animation) {
+		                //if(animation.animationObject.currentStep == 1) {
+		            		popup.showDomainInfo();
+		            	//}
+		            }
+		        },
+		        hover: {
+		        	onHover: function(e) {
+		        		if (e[0]) {
+		        			canvas.style.cursor = 'pointer';
+		        			var index = e[0]._index;
+							popup.domain = popup.chart.labels[index];
+		        		} else {
+		        			canvas.style.cursor = 'default';
+		        		}
+		        	}
+		        }
+			}
 		});
 	},
 
-	showDomainDurationsChart: function() {
-		var data = [];
+	setObservationBounds: function(lower, upper) {
+		popup.observationBounds = {
+			'lower' : lower, 
+			'upper' : upper
+		};
+	},
 
-		for (var domain in this.data) {
-			var intervals = this.filterAndClipIntervals(this.data[domain]);
-			var intervalDurations = intervals.map(this.getIntervalDuration);
-			var domainDuration = this.sumArray(intervalDurations);
-			data.push({
-				'domain': domain,
-				'duration': domainDuration
+	update: function() {
+		getBackground().database.retrieve(function(data) {
+			var chartData = [];
+
+			for (var domain in data) {
+				var intervals = popup.filterAndClipIntervals(data[domain]);
+				var intervalDurations = intervals.map(popup.getIntervalDuration);
+				var domainDuration = popup.sumArray(intervalDurations);
+				chartData.push({
+					'domain': domain,
+					'duration': domainDuration
+				});
+			}
+
+			// sort descending
+			chartData.sort((x, y) => (y['duration'] - x['duration']));
+
+			var domains = chartData.map((x) => x['domain']);
+			var durations = chartData.map((x) => x['duration']);
+			var colors = randomColor({
+				count: chartData.length
 			});
-		}
 
-		// sort descending
-		data.sort((x, y) => (y['duration'] - x['duration']));
+			popup.chart.labels = domains;
+			popup.chart.data.datasets[0].data = durations;
+			popup.chart.data.datasets[0].backgroundColor = colors;
+			popup.chart.data.datasets[0].hoverBackgroundColor = colors;
 
-		var domains = data.map((x) => x['domain']);
-		var durations = data.map((x) => x['duration']);
-		var totalDuration = this.sumArray(durations);
+			// chart
+			popup.chart.update();
 
-		var colors = randomColor({
-			count: data.length
+			// headline
+			var totalDuration = popup.sumArray(durations);
+			document.getElementById('headerText').innerHTML = 'Total Time: ' + popup.getNiceTime(totalDuration);
 		});
-
-		var chartInput = {
-			labels: domains,
-			datasets: [{
-				data: durations,
-				backgroundColor: colors,
-				hoverBackgroundColor: colors,
-				borderWidth: 2,
-				hoverBorderWidth: 2,
-				hoverBorderColor: 'white'
-			}]
-		}
-
-		var chartOptions = {
-			cutoutPercentage: 83,
-			tooltips: {
-				enabled: false
-			},
-			animation: {
-	            duration: 1000,
-	            //easing: 'easeOutBounce',
-	            onProgress: function(animation) {
-	                popup.showDomainInfo();
-	            }
-	        },
-	        hover: {
-	        	onHover: function(e) {
-	        		var canvas = document.getElementById('chart');
-	        		if (e[0]) {
-	        			canvas.style.cursor = 'pointer';
-	        			var index = e[0]._index;
-						popup.inspectedDomain = domains[index];
-	        		} else {
-	        			canvas.style.cursor = 'default';
-	        			popup.inspectedDomain = popup.currentDomain;
-	        		}
-	        	}
-	        }
-		}
-
-		this.showChart(chartInput, chartOptions, 'doughnut');
-
-		document.getElementById('headerText').innerHTML = 'Total Time: ' + this.getNiceTime(totalDuration);
-		
 	},
 
 	showDomainInfo: function() {
-		if(this.inspectedDomain) {
-			var intervals = this.filterAndClipIntervals(this.data[this.inspectedDomain]);
-			var intervalDurations = intervals.map(this.getIntervalDuration);
-			var domainDuration = this.sumArray(intervalDurations);
+		if(popup.domain && popup.chart.labels) {
+			var index = popup.chart.labels.indexOf(popup.domain);
+			var domainDuration = popup.chart.data.datasets[0].data[index];
 
-			document.getElementById('name').innerHTML = this.inspectedDomain;
-			document.getElementById('description').innerHTML = this.getNiceTime(domainDuration) + '<br>';
-			document.getElementById('description').innerHTML += 'for ' + this.numerus(intervals.length, 'visit');
+			getBackground().database.getIntervals(popup.domain, popup.observationBounds, function(intervals) {
+
+				// display
+				document.getElementById('name').innerHTML = popup.domain;
+				document.getElementById('description').innerHTML = popup.getNiceTime(domainDuration) + '<br>';
+				document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
+			});
 		}
 	},
 
+	// TODO: getIntervals() in database.js is going to replace this function
 	filterAndClipIntervals: function(intervals) {
 		var result = [];
 		for(i in intervals) {
 			var interval = intervals[i];
 			var from = interval['from'];
-			var till = interval['till'] ? interval['till'] : this.upperBound;
-			if(this.lowerBound < till && this.upperBound > from) {
+			var till = interval['till'] ? interval['till'] : popup.observationBounds.upper;
+			if(popup.observationBounds.lower < till && popup.observationBounds.upper > from) {
 				result.push({
-					'from': Math.max(from, this.lowerBound),
-					'till': Math.min(till, this.upperBound)
+					'from' : Math.max(from, popup.observationBounds.lower),
+					'till' : Math.min(till, popup.observationBounds.upper)
 				});
 			}
 		}
@@ -171,12 +180,6 @@ var popup = {
 		time = time.slice(1);
 
 		return time;
-
-		// hours = (hours < 10) ? "0" + hours : hours;
-		// minutes = (minutes < 10) ? "0" + minutes : minutes;
-		// seconds = (seconds < 10) ? "0" + seconds : seconds;
-
-		// return (hours + ":" + minutes);
 	},
 
 	numerus: function(number, word) {
@@ -187,19 +190,13 @@ var popup = {
 		return array.reduce((total, duration) => total + duration, 0);
 	},
 
-	setChartDefaults: function() {
-		// global
-		Chart.defaults.global.tooltips.displayColors = false;
-		// doughnut
-		Chart.defaults.doughnut.legend.display = false;
-		Chart.defaults.doughnut.animation.animateScale = true;
+	observationBounds: {
+		'lower' : null,
+		'upper' : null
 	},
 
-	data: null,
-	lowerBound: null,
-	upperBound: null,
-	inspectedDomain: null, // domain you chose to inspect details of
-	currentDomain: null, // domain you're on right now
+	domain: null, // domain you chose to inspect details of
+	
 	chart: null
 
 }
