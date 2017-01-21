@@ -49,6 +49,8 @@ var database = new function() {
 
 		}).then(function() {
 			callback(data);
+		}).catch(function(error) {
+			alert("errorabc:" + JSON.stringify(error))
 		});
 
 	}
