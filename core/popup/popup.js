@@ -1,28 +1,32 @@
 window.onload = function() {
 
 	popup.init();
-
-	// init reset button
-	document.getElementById('reset').onclick = function(event) {
-		// null means remove everything
-		getBackground().database.remove(null, function() {
-			getBackground().backgroundDataCollector.reinstateDomain();
-			//popup.showResetSuccess();
-		});
-	};
+	
 }
 
 var popup = {
 
-	showResetSuccess: function() {
-		// document.getElementById('chart').innerHTML = 'cleared';
-	},
-
 	init: function() {
+		popup.initObservationControl();
+		popup.initResetControl();
 		popup.setChartLayout();
+
 		popup.domain = getBackground().backgroundDataCollector.domain;
 		popup.setObservationBounds(0, Date.now());
 		popup.update();
+	},
+
+	initResetControl: function() {
+		document.getElementById('resetControl').onclick = function(event) {
+			// null means remove everything
+			getBackground().database.remove(null, function() {
+				getBackground().backgroundDataCollector.reinstateDomain();
+			});
+		};
+	},
+
+	initObservationControl: function() {
+
 	},
 
 	setChartLayout: function() {
@@ -52,7 +56,7 @@ var popup = {
 					display: false
 				},
 				tooltips: {
-					enabled: false,
+					//enabled: false,
 					displayColors: false
 				},
 				animation: {
@@ -67,13 +71,16 @@ var popup = {
 		        },
 		        hover: {
 		        	onHover: function(e) {
+		        		var position = null;
 		        		if (e[0]) {
 		        			canvas.style.cursor = 'pointer';
 		        			var index = e[0]._index;
+		        			//position = e[0].tooltipPosition();
 							popup.domain = popup.chart.labels[index];
 		        		} else {
 		        			canvas.style.cursor = 'default';
 		        		}
+		        		//popup.showDomainInfo();
 		        	}
 		        }
 			}
@@ -96,8 +103,8 @@ var popup = {
 				var intervalDurations = intervals.map(popup.getIntervalDuration);
 				var domainDuration = popup.sumArray(intervalDurations);
 				chartData.push({
-					'domain': domain,
-					'duration': domainDuration
+					'domain' : domain,
+					'duration' : domainDuration
 				});
 			}
 
@@ -120,22 +127,68 @@ var popup = {
 
 			// headline
 			var totalDuration = popup.sumArray(durations);
-			document.getElementById('headerText').innerHTML = 'Total Time: ' + popup.getNiceTime(totalDuration);
+			document.getElementById('headerText').innerHTML = 'Total Time: ' + popup.getPrettyTime(totalDuration);
 		});
 	},
 
 	showDomainInfo: function() {
-		if(popup.domain && popup.chart.labels) {
-			var index = popup.chart.labels.indexOf(popup.domain);
-			var domainDuration = popup.chart.data.datasets[0].data[index];
+		if(popup.domain && popup.chart.labels &&
+			popup.domain != document.getElementById('name').innerHTML) {
+			
+			//getBackground().database.getIntervals(popup.domain, popup.observationBounds, function(intervals) {
 
-			getBackground().database.getIntervals(popup.domain, popup.observationBounds, function(intervals) {
+				// var animateIn = 'zoomIn';
+				// var animateOut = 'zoomOut';
 
-				// display
-				document.getElementById('name').innerHTML = popup.domain;
-				document.getElementById('description').innerHTML = popup.getNiceTime(domainDuration) + '<br>';
-				document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
-			});
+				// document.getElementById('domainInfo').classList.remove(animateIn);
+				// document.getElementById('domainInfo').classList.add(animateOut);
+
+				// setTimeout(function() {
+					// document.getElementById('domainInfo').classList.remove(animateOut);
+					// document.getElementById('domainInfo').classList.add(animateIn);
+
+
+
+
+					// domain
+					document.getElementById('name').innerHTML = popup.domain;
+
+					// duration
+					var index = popup.chart.labels.indexOf(popup.domain);
+					var domainDuration = popup.chart.data.datasets[0].data[index];
+					document.getElementById('description').innerHTML = popup.getPrettyTime(domainDuration) + '<br>';
+
+					// visits
+					//document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
+
+
+
+
+
+					// indicator
+
+					var canvas = document.getElementById('chart');
+					var context = canvas.getContext('2d');
+
+					var centerX = canvas.width/2;
+					var centerY = canvas.height/2;
+					var r =  300;
+
+					var startAngle = 90.0;
+
+					var degrees = 0 - startAngle;
+					// defines the starting point of the line
+					context.moveTo(centerX, centerY);
+					// defines the ending point of the line
+					context.lineTo(centerX + r * Math.cos(degrees * Math.PI / 180.0), centerY + r * Math.sin(degrees * Math.PI / 180.0));
+					context.strokeStyle = 'black';
+					context.stroke();
+
+
+
+
+				// }, 200);				
+			//});
 		}
 	},
 
@@ -160,7 +213,7 @@ var popup = {
 		return (interval['till'] - interval['from']);
 	},
 
-	getNiceTime: function(milliseconds) {
+	getPrettyTime: function(milliseconds) {
 		var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
 		var hours = parseInt(milliseconds/(1000*60*60));

@@ -73,13 +73,52 @@ p {
 	line-height: 1.3em;
 }
 
-/* delete old data */
+/* footer */
 
-#reset {
-	padding: 5px 7px;
-	background: lightgrey;
-	border-radius: 5px;
-	text-decoration: none;
-	color: black;
+#footer > * {
+	border: 1px solid #179DFD;
+	border-radius: 6px;
 	display: inline-block;
+}
+
+#footer > *:not(:last-child) {
+	margin-right: 30px;
+}
+
+#footer > * > * {
+	color: black;
+	display: block;
+	float: left;
+	font-size: 13px;
+	padding: 5px 10px;
+	text-decoration: none;
+	transition: all .2s;
+}
+
+#footer a:first-of-type,
+#footer label:first-of-type  {
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+#footer a:last-of-type,
+#footer label:last-of-type {
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+#footer > * > *:hover {
+	background: rgba(23, 157, 253, .3);
+	cursor: pointer
+}
+
+#footer a:focus,
+#footer input:checked + label {
+	background: rgba(23, 157, 253, 1);
+	color: white;
+	outline: 0;
+}
+
+#observationControlGroup input {
+	display: none;
 }

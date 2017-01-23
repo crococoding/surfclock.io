@@ -78,6 +78,7 @@ var database = new function() {
 				intervals[index_first]['from'] = Math.max(intervals[index_first]['from'], bounds.lower);
 				intervals[index_last]['till'] = Math.min(intervals[index_last]['till'], bounds.upper);
 			}
+			// console.log(JSON.stringify(intervals));
 			callback(intervals);
 		}).catch(function(error) {
 			console.log('error: ' + JSON.stringify(error));
