@@ -26,7 +26,30 @@ var popup = {
 	},
 
 	initObservationControl: function() {
+		function updateData(observationPeriod) {
+			popup.setObservationBounds(Date.now() - observationPeriod, Date.now());
+			popup.update();
+		}
 
+		document.getElementById('hour').onclick = function(event) {
+			updateData(60 * 60 * 1000);
+		};
+
+		document.getElementById('day').onclick = function(event) {
+			updateData(24 * 60 * 60 * 1000);
+		};
+
+		document.getElementById('week').onclick = function(event) {
+			updateData(7 * 24 * 60 * 60 * 1000);
+		};
+
+		document.getElementById('month').onclick = function(event) {
+			updateData(4 * 7 * 24 * 60 * 60 * 1000);
+		};
+
+		document.getElementById('all').onclick = function(event) {
+			updateData(Date.now());
+		};
 	},
 
 	initChart: function() {
@@ -45,10 +68,8 @@ var popup = {
 					data: [],
 					backgroundColor: [],
 					hoverBackgroundColor: [],
-					borderWidth: 2,
-					hoverBorderWidth: 2,
 					hoverBorderColor: 'white',
-				}]
+				}],
 			},
 			options: {
 				cutoutPercentage: 83,
@@ -57,15 +78,9 @@ var popup = {
 				},
 				tooltips: {
 					enabled: false,
-					displayColors: false,
-				},
-				animation: {
-					duration: 1000,
-					// animateScale: true,
 				},
 				hover: {
 					onHover: function(e) {
-						var position = null;
 						if (e[0]) {
 							canvas.style.cursor = 'pointer';
 							var index = e[0]._index;
@@ -133,8 +148,7 @@ var popup = {
 	},
 
 	showDomainInfo: function() {
-		if(popup.domain && popup.chart.labels &&
-			document.getElementById('name').innerHTML != popup.domain) {
+		if(popup.domain && popup.chart.labels) {
 
 			// var animateIn = 'zoomIn';
 			// var animateOut = 'zoomOut';
@@ -160,7 +174,9 @@ var popup = {
 	},
 
 	showIndicator: function() {
-		if(popup.domain && popup.chart.labels) {
+		if(popup.domain && popup.chart.labels && 
+			popup.chart.labels.indexOf(popup.domain) != -1) {
+			
 			var index = popup.chart.labels.indexOf(popup.domain);
 			var segment = popup.chart.getDatasetMeta(0).data[index]._view;
 
@@ -169,6 +185,7 @@ var popup = {
 
 			document.getElementById('indicator').style.display = 'block';
 			document.getElementById('indicator').style.transform = 'rotate(' + angleDeg + 'deg)';
+			document.getElementById('drop').style.background = segment.backgroundColor;
 		} else {
 			document.getElementById('indicator').style.display = 'none';
 		}
