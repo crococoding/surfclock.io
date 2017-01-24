@@ -1,31 +1,58 @@
 window.onload = function() {
 
 	popup.init();
-
-	// init reset button
-	document.getElementById('reset').onclick = function(event) {
-		// null means remove everything
-		getBackground().database.remove(null, function() {
-			getBackground().backgroundDataCollector.reinstateDomain();
-			//popup.showResetSuccess();
-		});
-	};
+	
 }
 
 var popup = {
 
-	showResetSuccess: function() {
-		// document.getElementById('chart').innerHTML = 'cleared';
-	},
-
 	init: function() {
-		popup.setChartLayout();
+		popup.initObservationControl();
+		popup.initResetControl();
+		popup.initChart();
+
 		popup.domain = getBackground().backgroundDataCollector.domain;
 		popup.setObservationBounds(0, Date.now());
 		popup.update();
 	},
 
-	setChartLayout: function() {
+	initResetControl: function() {
+		document.getElementById('resetControl').onclick = function(event) {
+			// null means remove everything
+			getBackground().database.remove(null, function() {
+				getBackground().backgroundDataCollector.reinstateDomain();
+			});
+		};
+	},
+
+	initObservationControl: function() {
+		function updateData(observationPeriod) {
+			popup.setObservationBounds(Date.now() - observationPeriod, Date.now());
+			popup.update();
+		}
+
+		document.getElementById('hour').onclick = function(event) {
+			updateData(60 * 60 * 1000);
+		};
+
+		document.getElementById('day').onclick = function(event) {
+			updateData(24 * 60 * 60 * 1000);
+		};
+
+		document.getElementById('week').onclick = function(event) {
+			updateData(7 * 24 * 60 * 60 * 1000);
+		};
+
+		document.getElementById('month').onclick = function(event) {
+			updateData(4 * 7 * 24 * 60 * 60 * 1000);
+		};
+
+		document.getElementById('all').onclick = function(event) {
+			updateData(Date.now());
+		};
+	},
+
+	initChart: function() {
 		if(popup.chart) {
 			popup.chart.destroy();
 		}
@@ -41,42 +68,38 @@ var popup = {
 					data: [],
 					backgroundColor: [],
 					hoverBackgroundColor: [],
-					borderWidth: 2,
-					hoverBorderWidth: 2,
-					hoverBorderColor: 'white'
-				}]
+					hoverBorderColor: 'white',
+				}],
 			},
 			options: {
 				cutoutPercentage: 83,
 				legend: {
-					display: false
+					display: false,
 				},
 				tooltips: {
 					enabled: false,
-					displayColors: false
 				},
-				animation: {
-		            duration: 1000,
-		            animateScale: true,
-		            //easing: 'easeOutBounce',
-		            onProgress: function(animation) {
-		                //if(animation.animationObject.currentStep == 1) {
-		            		popup.showDomainInfo();
-		            	//}
-		            }
-		        },
-		        hover: {
-		        	onHover: function(e) {
-		        		if (e[0]) {
-		        			canvas.style.cursor = 'pointer';
-		        			var index = e[0]._index;
+				hover: {
+					onHover: function(e) {
+						if (e[0]) {
+							canvas.style.cursor = 'pointer';
+							var index = e[0]._index;
 							popup.domain = popup.chart.labels[index];
-		        		} else {
-		        			canvas.style.cursor = 'default';
-		        		}
-		        	}
-		        }
+						} else {
+							canvas.style.cursor = 'default';
+						}
+					},
+				},
 			}
+		});
+
+		Chart.pluginService.register({
+			beforeRender: function (chart, easing) {
+				popup.showDomainInfo();
+			},
+			afterDraw: function(chart, easing) {
+				popup.showIndicator();
+			},
 		});
 	},
 
@@ -96,8 +119,8 @@ var popup = {
 				var intervalDurations = intervals.map(popup.getIntervalDuration);
 				var domainDuration = popup.sumArray(intervalDurations);
 				chartData.push({
-					'domain': domain,
-					'duration': domainDuration
+					'domain' : domain,
+					'duration' : domainDuration
 				});
 			}
 
@@ -120,22 +143,51 @@ var popup = {
 
 			// headline
 			var totalDuration = popup.sumArray(durations);
-			document.getElementById('headerText').innerHTML = 'Total Time: ' + popup.getNiceTime(totalDuration);
+			document.getElementById('headerText').innerHTML = 'Total Time: ' + popup.getPrettyTime(totalDuration);
 		});
 	},
 
 	showDomainInfo: function() {
 		if(popup.domain && popup.chart.labels) {
-			var index = popup.chart.labels.indexOf(popup.domain);
-			var domainDuration = popup.chart.data.datasets[0].data[index];
 
-			getBackground().database.getIntervals(popup.domain, popup.observationBounds, function(intervals) {
+			// var animateIn = 'zoomIn';
+			// var animateOut = 'zoomOut';
 
-				// display
+			// document.getElementById('domainInfo').classList.remove(animateIn);
+			// document.getElementById('domainInfo').classList.add(animateOut);
+
+			// setTimeout(function() {
+			// 	document.getElementById('domainInfo').classList.remove(animateOut);
+			// 	document.getElementById('domainInfo').classList.add(animateIn);
+
+				var index = popup.chart.labels.indexOf(popup.domain);
+
+				// domain
 				document.getElementById('name').innerHTML = popup.domain;
-				document.getElementById('description').innerHTML = popup.getNiceTime(domainDuration) + '<br>';
-				document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
-			});
+
+				// duration
+				var domainDuration = popup.chart.data.datasets[0].data[index];
+				document.getElementById('description').innerHTML = popup.getPrettyTime(domainDuration) + '<br>';
+
+			// }, 200);
+		}
+	},
+
+	showIndicator: function() {
+		if(popup.domain && popup.chart.labels && 
+			popup.chart.labels.indexOf(popup.domain) != -1) {
+			
+			var index = popup.chart.labels.indexOf(popup.domain);
+			var segment = popup.chart.getDatasetMeta(0).data[index]._view;
+
+			var angleRad = (segment.startAngle + segment.endAngle) / 2.0;
+			var angleDeg = angleRad * 180.0 / Math.PI;
+
+			document.getElementById('indicator').style.display = 'block';
+			document.getElementById('indicator').style.transform = 'rotate(' + angleDeg + 'deg)';
+			document.getElementById('drop').style.background = segment.backgroundColor;
+		} else {
+			document.getElementById('indicator').style.display = 'none';
 		}
 	},
 
@@ -160,7 +212,7 @@ var popup = {
 		return (interval['till'] - interval['from']);
 	},
 
-	getNiceTime: function(milliseconds) {
+	getPrettyTime: function(milliseconds) {
 		var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
 		var hours = parseInt(milliseconds/(1000*60*60));

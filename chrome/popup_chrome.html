@@ -2,6 +2,7 @@
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="../core/popup/popup.css">
+	<!-- <link rel="stylesheet" type="text/css" href="../core/popup/animate.min.css"> -->
 	
 	<script type="text/javascript" src="../core/popup/chart.min.js"></script>
 	<script type="text/javascript" src="../core/popup/randomColor.min.js"></script>
@@ -17,8 +18,12 @@
 	<div id="main">
 		<canvas id="chart"></canvas>
 
-		<div id="domainInfo">
-			<div>
+		<div id="indicator">
+			<div id="drop"></div>
+		</div>
+
+		<div id="domainInfo"> <!-- class="animated" -->
+			<div> <!-- additional wrapper for easier vertical alignment (center) -->
 				<h2 id="name"></h2>
 				<p id="description"></p>
 			</div>
@@ -26,15 +31,28 @@
 	</div>
 
 	<div id="footer">
-		<p> Observation Period:  
-			<select id="observationPeriod" tabindex="-1">
-				<option value="everything">everything</option>
-				<option value="last 30 days">last 30 days</option>
-				<option value="last 07 days">last 07 days</option>
-				<option value="last 24 hours">last 24 hours</option>
-			</select>
-			<a id="reset" href="" tabindex="-1">reset statistics</a>
-		</p>
+		<form action="" id="observationControlGroup">
+			<!-- radio inputs are invisble but influence label behavior/style so js is not necessary -->
+
+			<input type="radio" name="observationControl" tabindex="-1" value="all" id="allRadio" checked>
+			<label for="allRadio" id="all">all</label>
+
+			<input type="radio" name="observationControl" tabindex="-1" value="month" id="monthRadio"> 
+			<label for="monthRadio" id="month">month</label>
+
+			<input type="radio" name="observationControl" tabindex="-1" value="week" id="weekRadio"> 
+			<label for="weekRadio" id="week">week</label>
+
+			<input type="radio" name="observationControl" tabindex="-1" value="day" id="dayRadio"> 
+			<label for="dayRadio" id="day">day</label>
+
+			<input type="radio" name="observationControl" tabindex="-1" value="hour" id="hourRadio"> 
+			<label for="hourRadio" id="hour">hour</label>
+		</form>
+
+		<span id="resetControlGroup">
+			<a id="resetControl" href="" tabindex="-1">delete all data</a>
+		</span>
 		
 	</div>
 
