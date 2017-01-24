@@ -34,11 +34,11 @@ var popup = {
 			popup.chart.destroy();
 		}
 
-		// Chart.pluginService.register({
-		// 	beforeRender: function (chart, easing) {
-		// 		popup.showDomainInfo();
-		// 	}
-		// });
+		Chart.pluginService.register({
+			beforeRender: function (chart, easing) {
+				popup.showDomainInfo();
+			}
+		});
 
 		var canvas = document.getElementById('chart');
 		var context = canvas.getContext('2d');
@@ -69,10 +69,10 @@ var popup = {
 		            duration: 1000,
 		            animateScale: true,
 		            onComplete: function(animation) {
-		            	popup.showDomainInfo();
+		            	popup.showIndicator();
 		            },
 		            onProgress: function(animation) {
-		            	popup.showDomainInfo();
+		            	popup.showIndicator();
 		            },
 		        },
 		        hover: {
@@ -163,21 +163,21 @@ var popup = {
 					// visits
 					//document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
 
-
-					// indicator
-					var startAngle = popup.chart.getDatasetMeta(0).data[index]._view.startAngle;
-					var endAngle = popup.chart.getDatasetMeta(0).data[index]._view.endAngle;
-					var angleRadians = (endAngle + startAngle) / 2.0;
-					var angleDegrees = angleRadians * 180.0 / Math.PI;
-
-					document.getElementById('indicator').style.display = 'block';
-					document.getElementById('indicator').style.transform = 'rotate(' + angleDegrees + 'deg)';
-
-
-
-
 				//}, 200);				
 			//});
+		}
+	},
+
+	showIndicator: function() {
+		if(popup.domain && popup.chart.labels) {
+			var index = popup.chart.labels.indexOf(popup.domain);
+			var segment = popup.chart.getDatasetMeta(0).data[index]._view;
+
+			var angleRad = (segment.startAngle + segment.endAngle) / 2.0;
+			var angleDeg = angleRad * 180.0 / Math.PI;
+
+			document.getElementById('indicator').style.display = 'block';
+			document.getElementById('indicator').style.transform = 'rotate(' + angleDeg + 'deg)';
 		} else {
 			document.getElementById('indicator').style.display = 'none';
 		}
