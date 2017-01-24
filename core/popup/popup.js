@@ -34,6 +34,12 @@ var popup = {
 			popup.chart.destroy();
 		}
 
+		// Chart.pluginService.register({
+		// 	beforeRender: function (chart, easing) {
+		// 		popup.showDomainInfo();
+		// 	}
+		// });
+
 		var canvas = document.getElementById('chart');
 		var context = canvas.getContext('2d');
 
@@ -53,21 +59,21 @@ var popup = {
 			options: {
 				cutoutPercentage: 83,
 				legend: {
-					display: false
+					//display: false
 				},
 				tooltips: {
-					//enabled: false,
+					enabled: false,
 					displayColors: false
 				},
 				animation: {
 		            duration: 1000,
 		            animateScale: true,
-		            //easing: 'easeOutBounce',
+		            onComplete: function(animation) {
+		            	popup.showDomainInfo();
+		            },
 		            onProgress: function(animation) {
-		                //if(animation.animationObject.currentStep == 1) {
-		            		popup.showDomainInfo();
-		            	//}
-		            }
+		            	popup.showDomainInfo();
+		            },
 		        },
 		        hover: {
 		        	onHover: function(e) {
@@ -75,12 +81,10 @@ var popup = {
 		        		if (e[0]) {
 		        			canvas.style.cursor = 'pointer';
 		        			var index = e[0]._index;
-		        			//position = e[0].tooltipPosition();
 							popup.domain = popup.chart.labels[index];
 		        		} else {
 		        			canvas.style.cursor = 'default';
 		        		}
-		        		//popup.showDomainInfo();
 		        	}
 		        }
 			}
@@ -132,8 +136,7 @@ var popup = {
 	},
 
 	showDomainInfo: function() {
-		if(popup.domain && popup.chart.labels &&
-			popup.domain != document.getElementById('name').innerHTML) {
+		if(popup.domain && popup.chart.labels) {
 			
 			//getBackground().database.getIntervals(popup.domain, popup.observationBounds, function(intervals) {
 
@@ -144,17 +147,16 @@ var popup = {
 				// document.getElementById('domainInfo').classList.add(animateOut);
 
 				// setTimeout(function() {
-					// document.getElementById('domainInfo').classList.remove(animateOut);
-					// document.getElementById('domainInfo').classList.add(animateIn);
+				// 	document.getElementById('domainInfo').classList.remove(animateOut);
+				// 	document.getElementById('domainInfo').classList.add(animateIn);
 
 
-
+					var index = popup.chart.labels.indexOf(popup.domain);
 
 					// domain
 					document.getElementById('name').innerHTML = popup.domain;
 
 					// duration
-					var index = popup.chart.labels.indexOf(popup.domain);
 					var domainDuration = popup.chart.data.datasets[0].data[index];
 					document.getElementById('description').innerHTML = popup.getPrettyTime(domainDuration) + '<br>';
 
@@ -162,33 +164,22 @@ var popup = {
 					//document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
 
 
-
-
-
 					// indicator
+					var startAngle = popup.chart.getDatasetMeta(0).data[index]._view.startAngle;
+					var endAngle = popup.chart.getDatasetMeta(0).data[index]._view.endAngle;
+					var angleRadians = (endAngle + startAngle) / 2.0;
+					var angleDegrees = angleRadians * 180.0 / Math.PI;
 
-					var canvas = document.getElementById('chart');
-					var context = canvas.getContext('2d');
-
-					var centerX = canvas.width/2;
-					var centerY = canvas.height/2;
-					var r =  300;
-
-					var startAngle = 90.0;
-
-					var degrees = 0 - startAngle;
-					// defines the starting point of the line
-					context.moveTo(centerX, centerY);
-					// defines the ending point of the line
-					context.lineTo(centerX + r * Math.cos(degrees * Math.PI / 180.0), centerY + r * Math.sin(degrees * Math.PI / 180.0));
-					context.strokeStyle = 'black';
-					context.stroke();
+					document.getElementById('indicator').style.display = 'block';
+					document.getElementById('indicator').style.transform = 'rotate(' + angleDegrees + 'deg)';
 
 
 
 
-				// }, 200);				
+				//}, 200);				
 			//});
+		} else if(!popup.domain) {
+			document.getElementById('indicator').style.display = 'none';
 		}
 	},
 
