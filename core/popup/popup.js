@@ -61,7 +61,7 @@ var popup = {
 				},
 				animation: {
 					duration: 1000,
-					animateScale: true,
+					// animateScale: true,
 				},
 				hover: {
 					onHover: function(e) {
