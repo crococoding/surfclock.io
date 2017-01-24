@@ -44,7 +44,7 @@ p {
 #indicator {
 	position: absolute;
 	left: 0;
-	top: 5px;
+	top: 0;
 	height: 380px;
 	width: 380px;
 	border-radius: 50%;

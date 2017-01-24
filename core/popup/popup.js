@@ -53,17 +53,17 @@ var popup = {
 					hoverBackgroundColor: [],
 					borderWidth: 2,
 					hoverBorderWidth: 2,
-					hoverBorderColor: 'white'
+					hoverBorderColor: 'white',
 				}]
 			},
 			options: {
 				cutoutPercentage: 83,
 				legend: {
-					//display: false
+					display: false,
 				},
 				tooltips: {
 					enabled: false,
-					displayColors: false
+					displayColors: false,
 				},
 				animation: {
 		            duration: 1000,
@@ -178,7 +178,7 @@ var popup = {
 
 				//}, 200);				
 			//});
-		} else if(!popup.domain) {
+		} else {
 			document.getElementById('indicator').style.display = 'none';
 		}
 	},
