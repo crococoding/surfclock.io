@@ -9,7 +9,7 @@ var popup = {
 	init: function() {
 		popup.initObservationControl();
 		popup.initResetControl();
-		popup.setChartLayout();
+		popup.initChart();
 
 		popup.domain = getBackground().backgroundDataCollector.domain;
 		popup.setObservationBounds(0, Date.now());
@@ -29,16 +29,10 @@ var popup = {
 
 	},
 
-	setChartLayout: function() {
+	initChart: function() {
 		if(popup.chart) {
 			popup.chart.destroy();
 		}
-
-		Chart.pluginService.register({
-			beforeRender: function (chart, easing) {
-				popup.showDomainInfo();
-			}
-		});
 
 		var canvas = document.getElementById('chart');
 		var context = canvas.getContext('2d');
@@ -66,28 +60,31 @@ var popup = {
 					displayColors: false,
 				},
 				animation: {
-		            duration: 1000,
-		            animateScale: true,
-		            onComplete: function(animation) {
-		            	popup.showIndicator();
-		            },
-		            onProgress: function(animation) {
-		            	popup.showIndicator();
-		            },
-		        },
-		        hover: {
-		        	onHover: function(e) {
-		        		var position = null;
-		        		if (e[0]) {
-		        			canvas.style.cursor = 'pointer';
-		        			var index = e[0]._index;
+					duration: 1000,
+					animateScale: true,
+				},
+				hover: {
+					onHover: function(e) {
+						var position = null;
+						if (e[0]) {
+							canvas.style.cursor = 'pointer';
+							var index = e[0]._index;
 							popup.domain = popup.chart.labels[index];
-		        		} else {
-		        			canvas.style.cursor = 'default';
-		        		}
-		        	}
-		        }
+						} else {
+							canvas.style.cursor = 'default';
+						}
+					},
+				},
 			}
+		});
+
+		Chart.pluginService.register({
+			beforeRender: function (chart, easing) {
+				popup.showDomainInfo();
+			},
+			afterDraw: function(chart, easing) {
+				popup.showIndicator();
+			},
 		});
 	},
 
@@ -136,35 +133,29 @@ var popup = {
 	},
 
 	showDomainInfo: function() {
-		if(popup.domain && popup.chart.labels) {
-			
-			//getBackground().database.getIntervals(popup.domain, popup.observationBounds, function(intervals) {
+		if(popup.domain && popup.chart.labels &&
+			document.getElementById('name').innerHTML != popup.domain) {
 
-				// var animateIn = 'zoomIn';
-				// var animateOut = 'zoomOut';
+			// var animateIn = 'zoomIn';
+			// var animateOut = 'zoomOut';
 
-				// document.getElementById('domainInfo').classList.remove(animateIn);
-				// document.getElementById('domainInfo').classList.add(animateOut);
+			// document.getElementById('domainInfo').classList.remove(animateIn);
+			// document.getElementById('domainInfo').classList.add(animateOut);
 
-				// setTimeout(function() {
-				// 	document.getElementById('domainInfo').classList.remove(animateOut);
-				// 	document.getElementById('domainInfo').classList.add(animateIn);
+			// setTimeout(function() {
+			// 	document.getElementById('domainInfo').classList.remove(animateOut);
+			// 	document.getElementById('domainInfo').classList.add(animateIn);
 
+				var index = popup.chart.labels.indexOf(popup.domain);
 
-					var index = popup.chart.labels.indexOf(popup.domain);
+				// domain
+				document.getElementById('name').innerHTML = popup.domain;
 
-					// domain
-					document.getElementById('name').innerHTML = popup.domain;
+				// duration
+				var domainDuration = popup.chart.data.datasets[0].data[index];
+				document.getElementById('description').innerHTML = popup.getPrettyTime(domainDuration) + '<br>';
 
-					// duration
-					var domainDuration = popup.chart.data.datasets[0].data[index];
-					document.getElementById('description').innerHTML = popup.getPrettyTime(domainDuration) + '<br>';
-
-					// visits
-					//document.getElementById('description').innerHTML += 'for ' + popup.numerus(intervals.length, 'visit');
-
-				//}, 200);				
-			//});
+			// }, 200);
 		}
 	},
 
