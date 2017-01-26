@@ -15,6 +15,8 @@ var database = new function() {
 		database.dexie.intervals.add({
 			'domain' : domain,
 			'from' : from 
+		}).then(function() {
+			// alert('start ' + domain);
 		}).catch(function(error) {
 			console.log('error: ' + JSON.stringify(error))
 		});
@@ -23,6 +25,7 @@ var database = new function() {
 	this.storeIntervalEnd = function(domain, till) {
 		database.dexie.intervals.where('domain').equals(domain).last().then(function (item) {
 			database.dexie.intervals.update(item.id, {'till' : till});
+			// alert('end ' + domain);
 		}).catch(function(error) {
 			console.log('error: ' + JSON.stringify(error));
 		});

@@ -7,21 +7,19 @@ var backgroundDataCollector = {
 		if(!domain) {
 			this.endInterval();
 		} else if(domain != this.domain) {
+			// previous interval
+			this.endInterval();
+			// new interval
 			this.startInterval(domain);
 		}
 	},
 
 	startInterval: function(domain) {
-		// previous interval
-		this.endInterval();
-
-		// new interval
 		this.domain = domain;
 		database.storeIntervalStart(this.domain, this.getTimestamp());
 	},
 
 	endInterval: function() {
-		// previous interval
 		if(this.domain) {
 			database.storeIntervalEnd(this.domain, this.getTimestamp());
 		}

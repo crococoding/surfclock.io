@@ -1,12 +1,23 @@
-Compatibility
+compatibility
 
-Chrome
-Safari
-Firefox
+	Chrome
+	Safari
+	Firefox
 
 
 credits to
 
-dexie.org
-chartjs.org
-lokeshdhakar.com/projects/color-thief
+	dexie.org
+	chartjs.org
+	lokeshdhakar.com/projects/color-thief
+
+
+local storage (for settings)
+
+	observationPeriod [all, month, week, day, hour]
+
+
+indexeddb (for database)
+	
+	intervals [domain, from, till]
+	domains [domain, color, faviconUrl]
