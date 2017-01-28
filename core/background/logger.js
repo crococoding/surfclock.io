@@ -1,4 +1,4 @@
-var backgroundDataCollector = {
+var logger = {
 
 	handleUrl: function(url) {
 		this.url = url;
@@ -28,6 +28,11 @@ var backgroundDataCollector = {
 		this.domain = null;
 	},
 
+	reinstateDomain: function() {
+		this.domain = null;
+		this.handleUrl(this.url);
+	},
+
 	getDomain: function(url) {
 		var regex = /(((http)(s*):\/\/)(www\.)*)/;
 		
@@ -41,11 +46,6 @@ var backgroundDataCollector = {
 	getTimestamp: function() {
 		// in milliseconds since Jan 1st 1970
 		return Date.now();
-	},
-
-	reinstateDomain: function() {
-		this.domain = null;
-		this.handleUrl(this.url);
 	},
 
 	url: null,

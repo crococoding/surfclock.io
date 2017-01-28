@@ -41,14 +41,7 @@ var database = new function() {
 				data[item.domain] = [];
 			} 
 
-			var interval = {};
-			if (item.from) {
-				interval['from'] = item.from;
-			}
-			if (item.till) {
-				interval['till'] = item.till;
-			}
-			data[item.domain].push(interval);
+			data[item.domain].push(item);
 
 		}).then(function() {
 			callback(data);
@@ -67,7 +60,7 @@ var database = new function() {
 		.and(function(interval) {
 			var from = interval.from;
 			var till = interval.till ? interval.till : bounds.upper;
-			return from <= bounds.upper && till >= bounds.lower;
+			return from < bounds.upper && till > bounds.lower;
 		}).each(function(interval) {
 			intervals.push({
 				'from' : interval.from,

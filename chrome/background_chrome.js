@@ -3,7 +3,7 @@
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// is updated tab active?
 	if(tab.active && changeInfo.url) {
-		backgroundDataCollector.handleUrl(changeInfo.url);
+		logger.handleUrl(changeInfo.url);
 	}
 });
 
@@ -11,7 +11,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
-		backgroundDataCollector.handleUrl(tab.url);
+		logger.handleUrl(tab.url);
 	});
 });
 
@@ -20,7 +20,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 chrome.windows.onFocusChanged.addListener(function(windowId) {
 	if(windowId == chrome.windows.WINDOW_ID_NONE) {
 		// no window is focused -> Google Chrome inactive
-		backgroundDataCollector.endInterval();
+		logger.endInterval();
 	} else {
 		// find active tab of newly focused window
 		chrome.tabs.query({
@@ -28,7 +28,7 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 			'windowId': windowId
 		}, function(tabs) {
 			var tab = tabs[0];
-			backgroundDataCollector.handleUrl(tab.url);
+			logger.handleUrl(tab.url);
 		});
 	}
 });

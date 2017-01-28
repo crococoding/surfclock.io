@@ -11,7 +11,7 @@ var popup = {
 		popup.initResetControl();
 		popup.initChart();
 
-		popup.domain = getBackground().backgroundDataCollector.domain;
+		popup.domain = getBackground().logger.domain;
 		popup.update();
 	},
 
@@ -26,7 +26,7 @@ var popup = {
 			};	
 		}
 
-		// set dom according to saved preference
+		// highlight control according to saved preference
 		getPreference('observationPeriod', function(preference) {
 			document.getElementById(preference ? preference : 'all').checked = true;	
 		});
@@ -36,7 +36,7 @@ var popup = {
 		document.querySelector('#resetControlGroup a').onclick = function(event) {
 			// null means remove everything
 			getBackground().database.remove(null, function() {
-				getBackground().backgroundDataCollector.reinstateDomain();
+				getBackground().logger.reinstateDomain();
 			});
 		};
 	},
@@ -93,14 +93,38 @@ var popup = {
 	},
 
 	update: function() {
+		function getIntervalDuration(interval) {
+			return (interval['till'] - interval['from']);
+		}
+
+		function sumArray(array) {
+			return array.reduce((total, duration) => total + duration, 0);
+		}
+
+		function filterAndClipIntervals(intervals, observationBounds) {
+			var result = [];
+			for(i in intervals) {
+				var interval = intervals[i];
+				var from = interval['from'];
+				var till = interval['till'] ? interval['till'] : observationBounds.upper;
+				if(observationBounds.lower < till && observationBounds.upper > from) {
+					result.push({
+						'from' : Math.max(from, observationBounds.lower),
+						'till' : Math.min(till, observationBounds.upper)
+					});
+				}
+			}
+			return result;
+		}
+
 		popup.getObservationBounds(function(observationBounds) {
 			getBackground().database.retrieve(function(data) {
 				var chartData = [];
 
 				for (var domain in data) {
-					var intervals = popup.filterAndClipIntervals(data[domain], observationBounds);
-					var intervalDurations = intervals.map(popup.getIntervalDuration);
-					var domainDuration = popup.sumArray(intervalDurations);
+					var intervals = filterAndClipIntervals(data[domain], observationBounds);
+					var intervalDurations = intervals.map(getIntervalDuration);
+					var domainDuration = sumArray(intervalDurations);
 					chartData.push({
 						'domain' : domain,
 						'duration' : domainDuration
@@ -125,14 +149,18 @@ var popup = {
 				popup.chart.update();
 
 				// headline
-				var totalDuration = popup.sumArray(durations);
-				document.querySelector('#header p').innerHTML = 'Total Time: ' + popup.getPrettyTime(totalDuration);
+				var totalDuration = popup.getPrettyTime(sumArray(durations));
+				if(totalDuration) {
+					document.querySelector('#header p').innerHTML = 'Total Time: ' + totalDuration;
+				}
 			});
 		});
 	},
 
 	showDomainInfo: function() {
 		if(popup.domain && popup.chart.labels) {
+			var index = popup.chart.labels.indexOf(popup.domain);
+			var duration = popup.getDomainDuration(index);
 
 			// var animateIn = 'zoomIn';
 			// var animateOut = 'zoomOut';
@@ -144,55 +172,44 @@ var popup = {
 			// 	document.getElementById('domainInfo').classList.remove(animateOut);
 			// 	document.getElementById('domainInfo').classList.add(animateIn);
 
-				var index = popup.chart.labels.indexOf(popup.domain);
-
-				// domain
 				document.querySelector('#domainInfo h2').innerHTML = popup.domain;
 
-				// duration
-				var domainDuration = popup.chart.data.datasets[0].data[index];
-				document.querySelector('#domainInfo p').innerHTML = popup.getPrettyTime(domainDuration) + '<br>';
+				if(duration > 0) {
+					document.querySelector('#domainInfo p').innerHTML = popup.getPrettyTime(duration);
+				} else {
+					document.querySelector('#domainInfo p').innerHTML = 'hasn\'t been visited in this time period';
+				}
 
 			// }, 200);
+		} else {
+			document.querySelector('#domainInfo p').innerHTML = 'Hover over an arc to inspect it';
 		}
 	},
 
 	showIndicator: function() {
 		if(popup.domain && popup.chart.labels) {
-			
 			var index = popup.chart.labels.indexOf(popup.domain);
-			var segment = popup.chart.getDatasetMeta(0).data[index]._view;
 
-			var angleRad = (segment.startAngle + segment.endAngle) / 2.0;
-			var angleDeg = angleRad * 180.0 / Math.PI;
+			if(popup.getDomainDuration(index) > 0) {
+				var arc = popup.chart.getDatasetMeta(0).data[index]._view;
+				var angleRad = (arc.startAngle + arc.endAngle) / 2.0;
+				var angleDeg = angleRad * 180.0 / Math.PI;
 
-			document.getElementById('indicator').style.display = 'block';
-			document.getElementById('indicator').style.transform = 'rotate(' + angleDeg + 'deg)';
-			document.querySelector('#indicator div').style.background = segment.backgroundColor;
-		} else {
-			document.getElementById('indicator').style.display = 'none';
-		}
-	},
-
-	// TODO: getIntervals() in database.js is going to replace this function
-	filterAndClipIntervals: function(intervals, observationBounds) {
-		var result = [];
-		for(i in intervals) {
-			var interval = intervals[i];
-			var from = interval['from'];
-			var till = interval['till'] ? interval['till'] : observationBounds.upper;
-			if(observationBounds.lower < till && observationBounds.upper > from) {
-				result.push({
-					'from' : Math.max(from, observationBounds.lower),
-					'till' : Math.min(till, observationBounds.upper)
-				});
+				// show
+				document.getElementById('indicator').style.display = 'block';
+				document.getElementById('indicator').style.transform = 'rotate(' + angleDeg + 'deg)';
+				document.querySelector('#indicator div').style.background = arc.backgroundColor;
+				
+				return;
 			}
 		}
-		return result;
+		
+		// hide
+		document.getElementById('indicator').style.display = 'none';
 	},
 
-	getIntervalDuration: function(interval) {
-		return (interval['till'] - interval['from']);
+	getDomainDuration(index) {
+		return popup.chart.data.datasets[0].data[index];
 	},
 
 	getPrettyTime: function(milliseconds) {
@@ -221,13 +238,9 @@ var popup = {
 		return (number > 1) ? (number + ' ' + word + 's') : (number + ' ' + word);
 	},
 
-	sumArray: function(array) {
-		return array.reduce((total, duration) => total + duration, 0);
-	},
-
 	getObservationBounds: function(callback) {
 		getPreference('observationPeriod', function(preference) {
-			var now = Date.now();
+			var now = getBackground().logger.getTimestamp();
 			var difference = now;
 			switch (preference) {
 				case 'hour'  : difference =              60 * 60 * 1000; break;

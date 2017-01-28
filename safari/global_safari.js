@@ -4,12 +4,12 @@ function safariNavigate(event) {
 	if (typeof(url) !== 'undefined' && url) { 
 		
 		if (event.target.browserWindow.activeTab == event.target) {
-			backgroundDataCollector.handleUrl(url);
+			logger.handleUrl(url);
 			//console.log(url);
 		}
 	} else {
 		// opened a new empty tab
-		backgroundDataCollector.endInterval();
+		logger.endInterval();
 	}
 }
 
@@ -25,9 +25,9 @@ function safariActivate(event) {
 	} 
 
 	if (typeof(url) === 'undefined' || !(url)) {
-		backgroundDataCollector.endInterval();
+		logger.endInterval();
 	} else {
-		backgroundDataCollector.handleUrl(url);
+		logger.handleUrl(url);
 	}
 
 	
@@ -43,7 +43,7 @@ function safariDeactivate(event) {
 			return;
 		}
 	}
-	backgroundDataCollector.endInterval();
+	logger.endInterval();
 
 }
 
