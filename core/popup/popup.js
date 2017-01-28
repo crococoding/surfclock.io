@@ -160,7 +160,7 @@ var popup = {
 	showDomainInfo: function() {
 		if(popup.domain && popup.chart.labels) {
 			var index = popup.chart.labels.indexOf(popup.domain);
-			var duration = popup.getDomainDuration(index);
+			var duration = popup.getPrettyTime(popup.getDomainDuration(index)) || 'hasn\'t been visited in this time period';
 
 			// var animateIn = 'zoomIn';
 			// var animateOut = 'zoomOut';
@@ -173,16 +173,9 @@ var popup = {
 			// 	document.getElementById('domainInfo').classList.add(animateIn);
 
 				document.querySelector('#domainInfo h2').innerHTML = popup.domain;
-
-				if(duration > 0) {
-					document.querySelector('#domainInfo p').innerHTML = popup.getPrettyTime(duration);
-				} else {
-					document.querySelector('#domainInfo p').innerHTML = 'hasn\'t been visited in this time period';
-				}
+				document.querySelector('#domainInfo p').innerHTML = duration;
 
 			// }, 200);
-		} else {
-			document.querySelector('#domainInfo p').innerHTML = 'Hover over an arc to inspect it';
 		}
 	},
 
@@ -229,6 +222,11 @@ var popup = {
 		time += getTimePartString(hours, 'hour');
 		time += getTimePartString(minutes, 'minute');
 		time += getTimePartString(seconds, 'second');
+
+		if(time == '') {
+			time = getTimePartString(milliseconds, 'millisecond');
+		}
+
 		time = time.slice(1);
 
 		return time;
