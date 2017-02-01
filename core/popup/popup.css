@@ -40,7 +40,7 @@ p {
 	z-index: 1;
 }
 
-#domainInfo,
+#wrapper,
 #indicator {
 	position: absolute;
 	left: 0;
@@ -73,44 +73,54 @@ p {
 	transition: all .2s;
 }
 
-/* domain info */
+/* wrapper */
 
-#domainInfo {
+#wrapper {
 	line-height: 380px;
 	/*z-index: -1;*/
 }
 
-#domainInfo div {
-	width: 100%;
+#wrapper > div {
 	display: inline-block;
 	vertical-align: middle;
 }
 
-#domainInfo h2 {
-	font-size: 30px;
-	word-break: break-all;
-	margin: 0 0 10px 0;
-	line-height: 1em;
+.innerCircleSection {
+	padding: 15px 0;
 }
 
-#domainInfo p {
+/* total info, domain info */
+
+#domainInfo h2,
+#totalInfo h2 {
+	font-size: 17px;
+	font-weight: normal;
+	color: rgba(23, 157, 253, 1);
+	word-break: break-all;
+	margin: 0;
+	line-height: 2em;
+}
+
+#domainInfo p,
+#totalInfo p {
 	font-size: 20px;
 	line-height: 1.3em;
 }
 
-/* footer */
+/* observation control */
 
-#footer > * {
+#observationControl {
+	line-height: 1.5em;
+}
+
+#observationControl form {
+	display: inline-block;
 	border: 1px solid #179DFD;
 	border-radius: 6px;
-	display: inline-block;
+	overflow: hidden;
 }
 
-#footer > *:not(:last-child) {
-	margin-right: 30px;
-}
-
-#footer > * > * {
+#observationControl label {
 	color: black;
 	display: block;
 	float: left;
@@ -120,30 +130,16 @@ p {
 	transition: all .2s;
 }
 
-#footer a:first-of-type,
-#footer label:first-of-type  {
-	border-top-left-radius: 4px;
-	border-bottom-left-radius: 4px;
-}
-
-#footer a:last-of-type,
-#footer label:last-of-type {
-	border-top-right-radius: 4px;
-	border-bottom-right-radius: 4px;
-}
-
-#footer > * > *:hover {
+#observationControl label:hover {
 	background: rgba(23, 157, 253, .3);
 	cursor: pointer
 }
 
-#footer a:focus,
-#footer input:checked + label {
-	background: rgba(23, 157, 253, 1);
-	color: white;
-	outline: 0;
+#observationControl input {
+	display: none;
 }
 
-#observationControlGroup input {
-	display: none;
+#observationControl input:checked + label { /* magic */
+	background: rgba(23, 157, 253, 1);
+	color: white;
 }

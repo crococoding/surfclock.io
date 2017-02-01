@@ -22,33 +22,45 @@
 			<div></div>
 		</div>
 
-		<div id="domainInfo"> <!-- class="animated" -->
-			<div> <!-- additional wrapper for easier vertical alignment (center) -->
-				<h2></h2>
-				<p></p>
+		<div id="wrapper"> <!-- class="animated" -->
+			<div> <!-- additional wrapper for easier vertical alignment -->
+
+				<div class="innerCircleSection" id="totalInfo">
+					<h2></h2>
+					<p></p>
+				</div>
+				
+				<div class="innerCircleSection" id="domainInfo">
+					<h2></h2>
+					<p></p>
+				</div>
+
+				<div class="innerCircleSection" id="observationControl">
+					<form action="">
+						<!-- radio inputs are invisble but influence label behavior/style so js is not necessary -->
+
+						<input type="radio" name="observationControl" tabindex="-1" id="all">
+						<label for="all">all</label>
+
+						<input type="radio" name="observationControl" tabindex="-1" id="month"> 
+						<label for="month">month</label>
+
+						<input type="radio" name="observationControl" tabindex="-1" id="week"> 
+						<label for="week">week</label>
+
+						<input type="radio" name="observationControl" tabindex="-1" id="day"> 
+						<label for="day">day</label>
+
+						<input type="radio" name="observationControl" tabindex="-1" id="hour"> 
+						<label for="hour">hour</label>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
 
 	<div id="footer">
-		<form action="" id="observationControlGroup">
-			<!-- radio inputs are invisble but influence label behavior/style so js is not necessary -->
-
-			<input type="radio" name="observationControl" tabindex="-1" id="all">
-			<label for="all">all</label>
-
-			<input type="radio" name="observationControl" tabindex="-1" id="month"> 
-			<label for="month">month</label>
-
-			<input type="radio" name="observationControl" tabindex="-1" id="week"> 
-			<label for="week">week</label>
-
-			<input type="radio" name="observationControl" tabindex="-1" id="day"> 
-			<label for="day">day</label>
-
-			<input type="radio" name="observationControl" tabindex="-1" id="hour"> 
-			<label for="hour">hour</label>
-		</form>
+		
 
 		<span id="resetControlGroup">
 			<a href="" tabindex="-1">delete all data</a>
