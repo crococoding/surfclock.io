@@ -1,14 +1,45 @@
 var database = new function() {
 	
 	this.dexie = new Dexie('domain_db');
+
+	//this.dexie.delete();
+	//https://github.com/dfahlander/Dexie.js/wiki/Dexie.delete()
+
 	this.dexie.version(1).stores({
 		intervals: '++id,domain,from,till',
-		domains: '++id,domain,color,faviconUrl'
+		domains: 'domain,color,faviconUrl'
 	});
 
 	this.dexie.open().catch(function(error) {
 		console.log('Open failed: ' + error);
 	});
+
+
+
+	this.storeColor = function(domain, color, faviconUrl) {
+		database.dexie.domains.put({domain: domain, color: color, faviconUrl: faviconUrl}).then(function() {
+			 
+		}).catch(function(error) {
+			console.log('error: ' + JSON.stringify(error))
+		});
+	}
+
+
+	this.getColor = function(domain) {
+
+
+		return new Promise(function(resolve, reject) {
+			database.dexie.domains.where('domain').equals(domain).first().then(function(val) {
+				resolve(val.color);
+			}).catch(function(error) {
+				//TODO: error handling
+				resolve(null);
+				//console.log('error: ' + JSON.stringify(error));
+			});
+		});
+
+		
+	}
 
 
 	this.storeIntervalStart = function(domain, from) {

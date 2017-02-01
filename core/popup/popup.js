@@ -106,6 +106,11 @@ var popup = {
 			for(i in intervals) {
 				var interval = intervals[i];
 				var from = interval['from'];
+
+				if (!interval['till']) {
+				//	console.log(JSON.stringify(interval));
+				}
+
 				var till = interval['till'] ? interval['till'] : observationBounds.upper;
 				if(observationBounds.lower < till && observationBounds.upper > from) {
 					result.push({
@@ -119,40 +124,68 @@ var popup = {
 
 		popup.getObservationBounds(function(observationBounds) {
 			getBackground().database.retrieve(function(data) {
-				var chartData = [];
+				// var chartData = [];
 
-				for (var domain in data) {
-					var intervals = filterAndClipIntervals(data[domain], observationBounds);
-					var intervalDurations = intervals.map(getIntervalDuration);
-					var domainDuration = sumArray(intervalDurations);
-					chartData.push({
-						'domain' : domain,
-						'duration' : domainDuration
+				var promises = [];
+
+
+				function someFunction(dataA, domain) {
+					return new Promise(function(resolve, reject) {
+						getBackground().database.getColor(domain).then(function(color) {
+							console.log(domain);
+							var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
+							var intervalDurations = intervals.map(getIntervalDuration);
+							var domainDuration = sumArray(intervalDurations);
+
+							//console.log(color);
+							// chartData.push({
+							// 	'domain' : domain,
+							// 	'duration' : domainDuration,
+							// 	'color' : (color ? color : '#EEEEEE'),
+							// });
+							// 
+							
+							var someData = {
+								'domain' : domain,
+								'duration' : domainDuration,
+								'color' : (color ? color : '#EEEEEE'),
+							}
+
+							resolve(someData);
+						});
 					});
 				}
 
-				// sort descending
-				chartData.sort((x, y) => (y['duration'] - x['duration']));
 
-				var domains = chartData.map((x) => x['domain']);
-				var durations = chartData.map((x) => x['duration']);
-				var colors = randomColor({
-					count: chartData.length
-				});
-
-				popup.chart.labels = domains;
-				popup.chart.data.datasets[0].data = durations;
-				popup.chart.data.datasets[0].backgroundColor = colors;
-				popup.chart.data.datasets[0].hoverBackgroundColor = colors;
-
-				// chart
-				popup.chart.update();
-
-				// headline
-				var totalDuration = popup.getPrettyTime(sumArray(durations));
-				if(totalDuration) {
-					document.querySelector('#header p').innerHTML = 'Total Time: ' + totalDuration;
+				for (var domain in data) {
+					promises.push(someFunction(data, domain));
 				}
+
+
+
+				Promise.all(promises).then(function(chartData) {
+					chartData.sort((x, y) => (y['duration'] - x['duration']));
+
+					var domains = chartData.map((x) => x['domain']);
+					var durations = chartData.map((x) => x['duration']);
+					var colors = chartData.map((x) => x['color']);
+
+					popup.chart.labels = domains;
+					popup.chart.data.datasets[0].data = durations;
+					popup.chart.data.datasets[0].backgroundColor = colors;
+					popup.chart.data.datasets[0].hoverBackgroundColor = colors;
+
+					//console.log(chartData);
+
+					// chart
+					popup.chart.update();
+
+					// headline
+					var totalDuration = popup.getPrettyTime(sumArray(durations));
+					if(totalDuration) {
+						document.querySelector('#header p').innerHTML = 'Total Time: ' + totalDuration;
+					}
+				});
 			});
 		});
 	},
