@@ -11,16 +11,11 @@ var logger = {
 			this.endInterval();
 			// new interval
 			this.startInterval(domain);
-		}
 
-		
-		this.getFaviconColor(faviconUrl, function(color) {
-			if (color) {
-				database.storeColor(domain, rgbToHex(color[0], color[1], color[2]), faviconUrl);
-			} else {
-				database.storeColor(domain, null, faviconUrl);
-			}
-		});
+			this.getFaviconColor(faviconUrl, function(color) {
+				database.storeColor(domain, color ? rgbToHex(color[0], color[1], color[2]) : null, faviconUrl);
+			});
+		}
 
 	},
 

@@ -17,7 +17,7 @@ var popup = {
 
 	initObservationControl: function() {
 		// save preferences on click
-		var observationPeriods = document.querySelectorAll('#observationControlGroup label');
+		var observationPeriods = document.querySelectorAll('#observationControl label');
 		for(i in observationPeriods) {
 			observationPeriods[i].onclick = function(event) {
 				setPreference('observationPeriod', this.getAttribute('for'), function() {
@@ -89,6 +89,9 @@ var popup = {
 			afterDraw: function(chart, easing) {
 				popup.showIndicator();
 			},
+			afterDatasetsDraw: function(chart, easing) {
+				popup.showTotalDuration();
+			},
 		});
 	},
 
@@ -97,20 +100,11 @@ var popup = {
 			return (interval['till'] - interval['from']);
 		}
 
-		function sumArray(array) {
-			return array.reduce((total, duration) => total + duration, 0);
-		}
-
 		function filterAndClipIntervals(intervals, observationBounds) {
 			var result = [];
 			for(i in intervals) {
 				var interval = intervals[i];
 				var from = interval['from'];
-
-				if (!interval['till']) {
-				//	console.log(JSON.stringify(interval));
-				}
-
 				var till = interval['till'] ? interval['till'] : observationBounds.upper;
 				if(observationBounds.lower < till && observationBounds.upper > from) {
 					result.push({
@@ -135,7 +129,7 @@ var popup = {
 							console.log(domain);
 							var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
 							var intervalDurations = intervals.map(getIntervalDuration);
-							var domainDuration = sumArray(intervalDurations);
+							var domainDuration = popup.sumArray(intervalDurations);
 
 							//console.log(color);
 							// chartData.push({
@@ -181,13 +175,25 @@ var popup = {
 					popup.chart.update();
 
 					// headline
-					var totalDuration = popup.getPrettyTime(sumArray(durations));
+					var totalDuration = popup.getPrettyTime(popup.sumArray(durations));
 					if(totalDuration) {
 						document.querySelector('#header p').innerHTML = 'Total Time: ' + totalDuration;
 					}
 				});
 			});
 		});
+	},
+
+	showTotalDuration: function() {
+		var durations = popup.chart.data.datasets[0].data;
+		var totalDuration = popup.getPrettyTime(popup.sumArray(durations));
+		if(totalDuration) {
+			document.querySelector('#totalInfo h2').innerHTML = 'total';
+			document.querySelector('#totalInfo p').innerHTML = totalDuration;
+		} else {
+			document.querySelector('#totalInfo h2').innerHTML = '';
+			document.querySelector('#totalInfo p').innerHTML = '';
+		}
 	},
 
 	showDomainInfo: function() {
@@ -267,6 +273,10 @@ var popup = {
 
 	numerus: function(number, word) {
 		return (number > 1) ? (number + ' ' + word + 's') : (number + ' ' + word);
+	},
+
+	sumArray: function(array) {
+		return array.reduce((total, duration) => total + duration, 0);
 	},
 
 	getObservationBounds: function(callback) {
