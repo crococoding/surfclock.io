@@ -17,11 +17,13 @@
 	},
 	"permissions": [
 		"tabs",
-		"storage"
+		"storage",
+		"*://*/*"
 	],
 	"background": {
 		"scripts": [
 			"core/background/dexie.min.js",
+			"core/background/color-thief.min.js",
 			"core/background/database.js",
 			"core/background/logger.js",
 			"chrome/background_chrome.js"
