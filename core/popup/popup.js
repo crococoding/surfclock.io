@@ -20,14 +20,16 @@ var popup = {
 		var observationPeriods = document.querySelectorAll('#observationControl label');
 		for(i in observationPeriods) {
 			observationPeriods[i].onclick = function(event) {
-				setPreference('observationPeriod', this.getAttribute('for'), function() {
+				setPreference('observationPeriod', this.getAttribute('for')).then(function() {
 					popup.update();
+				}).catch(function(error) {
+					console.log('could not save observaion period: ' + error);
 				});
 			};	
 		}
 
 		// highlight control according to saved preference
-		getPreference('observationPeriod', function(preference) {
+		getPreference('observationPeriod').then(function(preference) {
 			document.getElementById(preference ? preference : 'all').checked = true;	
 		});
 	},
@@ -96,90 +98,93 @@ var popup = {
 	},
 
 	update: function() {
-		function getIntervalDuration(interval) {
-			return (interval['till'] - interval['from']);
-		}
-
-		function filterAndClipIntervals(intervals, observationBounds) {
-			var result = [];
-			for(i in intervals) {
-				var interval = intervals[i];
-				var from = interval['from'];
-				var till = interval['till'] ? interval['till'] : observationBounds.upper;
-				if(observationBounds.lower < till && observationBounds.upper > from) {
-					result.push({
-						'from' : Math.max(from, observationBounds.lower),
-						'till' : Math.min(till, observationBounds.upper)
-					});
-				}
+		getPreference('observationPeriod').then(function(preference) {
+			var now = getBackground().getTimestamp();
+			var difference = now;
+			switch (preference) {
+				case 'hour'  : difference =              60 * 60 * 1000; break;
+				case 'day'   : difference =         24 * 60 * 60 * 1000; break;
+				case 'week'  : difference =     7 * 24 * 60 * 60 * 1000; break;
+				case 'month' : difference = 4 * 7 * 24 * 60 * 60 * 1000; break;
+				default		 : difference = now;
 			}
-			return result;
-		}
 
-		popup.getObservationBounds(function(observationBounds) {
-			getBackground().database.retrieve(function(data) {
-				// var chartData = [];
+			return {
+				'lower' : now - difference,
+				'upper' : now
+			};
 
+		}).then(function(observationBounds) {
+			return new Promise(function(resolve, reject) {
 				var promises = [];
 
-
-				function someFunction(dataA, domain) {
-					return new Promise(function(resolve, reject) {
-						getBackground().database.getColor(domain).then(function(color) {
-							console.log(domain);
-							var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
-							var intervalDurations = intervals.map(getIntervalDuration);
-							var domainDuration = popup.sumArray(intervalDurations);
-
-							//console.log(color);
-							// chartData.push({
-							// 	'domain' : domain,
-							// 	'duration' : domainDuration,
-							// 	'color' : (color ? color : '#EEEEEE'),
-							// });
-							// 
-							
-							var someData = {
-								'domain' : domain,
-								'duration' : domainDuration,
-								'color' : (color ? color : '#EEEEEE'),
-							}
-
-							resolve(someData);
-						});
-					});
-				}
-
-
-				for (var domain in data) {
-					promises.push(someFunction(data, domain));
-				}
-
-
-
-				Promise.all(promises).then(function(chartData) {
-					chartData.sort((x, y) => (y['duration'] - x['duration']));
-
-					var domains = chartData.map((x) => x['domain']);
-					var durations = chartData.map((x) => x['duration']);
-					var colors = chartData.map((x) => x['color']);
-
-					popup.chart.labels = domains;
-					popup.chart.data.datasets[0].data = durations;
-					popup.chart.data.datasets[0].backgroundColor = colors;
-					popup.chart.data.datasets[0].hoverBackgroundColor = colors;
-
-					//console.log(chartData);
-
-					// chart
-					popup.chart.update();
-
-					// headline
-					var totalDuration = popup.getPrettyTime(popup.sumArray(durations));
-					if(totalDuration) {
-						document.querySelector('#header p').innerHTML = 'Total Time: ' + totalDuration;
+				getBackground().database.retrieve().then(function(data) {
+					for (var domain in data) {
+						promises.push(someFunction(data, domain));
 					}
+
+					resolve(promises);
+				
+				}).catch(function(error) {
+					console.log('database retrieve error: ' + JSON.stringify(error));
 				});
+			});
+
+			function someFunction(dataA, domain) {
+				return new Promise(function(resolve, reject) {
+					getBackground().database.getColor(domain).then(function(color) {
+						console.log(domain);
+						var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
+						var intervalDurations = intervals.map(getIntervalDuration);
+						var domainDuration = popup.sumArray(intervalDurations);
+						
+						var someData = {
+							'domain' : domain,
+							'duration' : domainDuration,
+							'color' : (color ? color : '#EEEEEE'),
+						}
+
+						resolve(someData);
+					});
+				});
+
+				function getIntervalDuration(interval) {
+					return (interval['till'] - interval['from']);
+				}
+			}
+
+			function filterAndClipIntervals(intervals, observationBounds) {
+				var result = [];
+				for(i in intervals) {
+					var interval = intervals[i];
+					var from = interval['from'];
+					var till = interval['till'] ? interval['till'] : observationBounds.upper;
+					if(observationBounds.lower < till && observationBounds.upper > from) {
+						result.push({
+							'from' : Math.max(from, observationBounds.lower),
+							'till' : Math.min(till, observationBounds.upper)
+						});
+					}
+				}
+				return result;
+			}
+
+		}).then(function(promises) {
+			Promise.all(promises).then(function(chartData) {
+				chartData.sort((x, y) => (y['duration'] - x['duration']));
+
+				var domains = chartData.map((x) => x['domain']);
+				var durations = chartData.map((x) => x['duration']);
+				var colors = chartData.map((x) => x['color']);
+
+				popup.chart.labels = domains;
+				popup.chart.data.datasets[0].data = durations;
+				popup.chart.data.datasets[0].backgroundColor = colors;
+				popup.chart.data.datasets[0].hoverBackgroundColor = colors;
+
+				//console.log(chartData);
+
+				popup.chart.update();
 			});
 		});
 	},
@@ -277,25 +282,6 @@ var popup = {
 
 	sumArray: function(array) {
 		return array.reduce((total, duration) => total + duration, 0);
-	},
-
-	getObservationBounds: function(callback) {
-		getPreference('observationPeriod', function(preference) {
-			var now = getBackground().logger.getTimestamp();
-			var difference = now;
-			switch (preference) {
-				case 'hour'  : difference =              60 * 60 * 1000; break;
-				case 'day'   : difference =         24 * 60 * 60 * 1000; break;
-				case 'week'  : difference =     7 * 24 * 60 * 60 * 1000; break;
-				case 'month' : difference = 4 * 7 * 24 * 60 * 60 * 1000; break;
-				default		 : difference = now;
-			}
-
-			callback({
-				'lower' : now - difference,
-				'upper' : now
-			});
-		});
 	},
 
 	domain: null, // domain you chose to inspect details of

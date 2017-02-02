@@ -17,7 +17,11 @@ var database = new function() {
 
 
 	this.storeColor = function(domain, color, faviconUrl) {
-		database.dexie.domains.put({domain: domain, color: color, faviconUrl: faviconUrl}).then(function() {
+		database.dexie.domains.put({
+			domain: domain, 
+			color: color, 
+			faviconUrl: faviconUrl
+		}).then(function() {
 			 
 		}).catch(function(error) {
 			console.log('error: ' + JSON.stringify(error))
@@ -26,8 +30,6 @@ var database = new function() {
 
 
 	this.getColor = function(domain) {
-
-
 		return new Promise(function(resolve, reject) {
 			database.dexie.domains.where('domain').equals(domain).first().then(function(val) {
 				resolve(val.color);
@@ -37,8 +39,6 @@ var database = new function() {
 				//console.log('error: ' + JSON.stringify(error));
 			});
 		});
-
-		
 	}
 
 
@@ -62,24 +62,25 @@ var database = new function() {
 		});
 	}
 
-	this.retrieve = function(callback) {
+	this.retrieve = function() {
 
 		var data = {};
 
-		database.dexie.intervals.each(function(item) {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.each(function(item) {
 
-			if (data[item.domain] == null) {
-				data[item.domain] = [];
-			} 
+				if (data[item.domain] == null) {
+					data[item.domain] = [];
+				} 
 
-			data[item.domain].push(item);
+				data[item.domain].push(item);
 
-		}).then(function() {
-			callback(data);
-		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error));
+			}).then(function() {
+				resolve(data);
+			}).catch(function(error) {
+				reject(error);
+			});
 		});
-
 	}
 
 	// intervals for specified domain cut according to the specified bounds

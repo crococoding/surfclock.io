@@ -12,12 +12,16 @@ safari.application.addEventListener("popover", popoverHandler, true);
 
 
 
-function setPreference(key, value, callback) {
-	safari.extension.settings[key] = value;
-	callback();
+function setPreference(key, value) {
+	return new Promise(function(resolve, reject) {
+		safari.extension.settings[key] = value;
+		resolve();
+	});
 }
 
 function getPreference(key, callback) {
-	var value  = safari.extension.settings[key];
-	callback(value);
+	return new Promise(function(resolve, reject) {
+		var value  = safari.extension.settings[key];
+		resolve(value);
+	});
 }
