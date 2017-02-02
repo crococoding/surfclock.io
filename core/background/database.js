@@ -24,7 +24,7 @@ var database = new function() {
 		}).then(function() {
 			 
 		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error))
+			console.log('error: ' + JSON.stringify(error));
 		});
 	}
 
@@ -119,6 +119,7 @@ var database = new function() {
 			// TODO
 		} else {
 			database.dexie.intervals.clear();
+			database.dexie.domains.clear();
 			callback();
 		}
 	}

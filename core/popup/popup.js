@@ -126,14 +126,13 @@ var popup = {
 					resolve(promises);
 				
 				}).catch(function(error) {
-					console.log('database retrieve error: ' + JSON.stringify(error));
+					reject(error);
 				});
 			});
 
 			function someFunction(dataA, domain) {
 				return new Promise(function(resolve, reject) {
 					getBackground().database.getColor(domain).then(function(color) {
-						console.log(domain);
 						var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
 						var intervalDurations = intervals.map(getIntervalDuration);
 						var domainDuration = popup.sumArray(intervalDurations);
@@ -169,6 +168,8 @@ var popup = {
 				return result;
 			}
 
+		}).catch(function(error) {
+			console.log('database retrieve error: ' + JSON.stringify(error));
 		}).then(function(promises) {
 			Promise.all(promises).then(function(chartData) {
 				chartData.sort((x, y) => (y['duration'] - x['duration']));

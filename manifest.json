@@ -18,7 +18,7 @@
 	"permissions": [
 		"tabs",
 		"storage",
-		"*://*/*"
+		"chrome://favicon/"
 	],
 	"background": {
 		"scripts": [
