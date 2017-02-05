@@ -1,6 +1,6 @@
 var logger = {
 
-	handleUrl: function(url, faviconUrl) {
+	handleUrl: function(url) {
 
 		this.url = url;
 		var domain = this.getDomain(url);
@@ -12,17 +12,18 @@ var logger = {
 			this.endInterval();
 			// new interval
 			this.startInterval(domain);
+			
 			// store color
+			var faviconUrl = getFaviconUrl(url);
 			this.getFaviconColor(faviconUrl).then(function(color) {
 				database.storeColor(domain, color, faviconUrl);
 			});
 		}
 	},
 
-	// main color of favicon in r,g,b array
+	// main color of favicon in hex
 	getFaviconColor(url) {
 		return new Promise(function(resolve, reject) {
-
 			var favicon = document.getElementById('favicon');
 			if (!favicon) {
 				favicon = document.createElement('img');
@@ -35,18 +36,15 @@ var logger = {
 			favicon.setAttribute('src', url);
 			
 			favicon.onload = function() {
-				// alert('favicon loaded');
-
 				var vibrant = new Vibrant(favicon);
 				var swatches = vibrant.swatches();
-				if (swatches['Vibrant']) {
-					// alert(swatches['Vibrant'].getHex());
-					resolve(swatches['Vibrant'].getHex());
-				} else {
-					// alert('undefined color');
-					resolve(null);
+				for(swatch in swatches) {
+					if (swatches[swatch]) {
+						resolve(swatches[swatch].getHex());
+					}
 				}
-				
+				// else
+				resolve(null);
 			}
 
 			favicon.onerror = function() {
