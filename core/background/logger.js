@@ -26,6 +26,8 @@ var logger = {
 			if (!favicon) {
 				favicon = document.createElement('img');
 				favicon.setAttribute('id', 'favicon');
+				favicon.setAttribute('width', '50px');
+				favicon.setAttribute('height', '50px');
 				document.body.appendChild(favicon);
 			}
 
