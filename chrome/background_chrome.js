@@ -36,6 +36,10 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 	}
 });
 
+// function getFaviconUrl(url) {
+// 	return 'chrome://favicon/' + url;
+// }
+
 function getFaviconUrl(url) {
-	return 'chrome://favicon/' + url;
+	return 'http' + url.match(/:\/\/(.[^/]+)/)[0] + '/favicon.ico';
 }
