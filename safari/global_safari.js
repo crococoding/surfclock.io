@@ -6,7 +6,7 @@ function safariNavigate(event) {
 	if (typeof(url) !== 'undefined' && url) { 
 		
 		if (event.target.browserWindow.activeTab == event.target) {
-			logger.handleUrl(url, getFaviconUrl(url));
+			logger.handleUrl(url);
 			//console.log(url);
 		}
 	} else {
@@ -32,7 +32,7 @@ function safariActivate(event) {
 	if (typeof(url) === 'undefined' || !(url)) {
 		logger.endInterval();
 	} else {
-		logger.handleUrl(url, getFaviconUrl(url));
+		logger.handleUrl(url);
 	}
 
 

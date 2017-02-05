@@ -18,6 +18,7 @@
 	"permissions": [
 		"tabs",
 		"storage",
+		"webNavigation",
 		"<all_urls>"
 	],
 	"background": {
