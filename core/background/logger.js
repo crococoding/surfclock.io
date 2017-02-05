@@ -14,7 +14,7 @@ var logger = {
 
 			// store color
 			this.getFaviconColor(faviconUrl).then(function(color) {
-				database.storeColor(domain, color ? rgbToHex(color[0], color[1], color[2]) : null, faviconUrl);
+				database.storeColor(domain, color ? color : null, faviconUrl);
 			});
 		}
 	},
@@ -26,15 +26,21 @@ var logger = {
 			if (!favicon) {
 				favicon = document.createElement('img');
 				favicon.setAttribute('id', 'favicon');
-				favicon.setAttribute('width', '30px');
-				favicon.setAttribute('height', '30px');
+				favicon.setAttribute('width', '16px');
+				favicon.setAttribute('height', '16px');
 				document.body.appendChild(favicon);
 			}
 
 			favicon.setAttribute('src', url);
-			var colorThief = new ColorThief();
+			var vibrant = new Vibrant(favicon);
 			favicon.onload = function() {
-				resolve(colorThief.getColor(favicon));
+				var swatches = vibrant.swatches();
+				if (swatches['Vibrant']) {
+					resolve(vibrant.swatches()['Vibrant'].getHex());
+				} else {
+					resolve(null);
+				}
+				
 			}
 
 			favicon.onerror = function() {
@@ -83,13 +89,4 @@ var logger = {
 function getTimestamp() {
 	// in milliseconds since Jan 1st 1970
 	return Date.now();
-}
-
-
-function rgbToHex(r, g, b) {
-	var componentToHex = function(c) {
-		var hex = c.toString(16);
-		return hex.length == 1 ? '0' + hex : hex;
-	}
-	return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
