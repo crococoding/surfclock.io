@@ -4,6 +4,7 @@
 	<title></title>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.0.1/color-thief.min.js"></script>
+	<script type="text/javascript" src="https://raw.githubusercontent.com/jariz/vibrant.js/master/dist/Vibrant.min.js"></script>
 	<script type="text/javascript">
 		
 
@@ -41,7 +42,7 @@
 
 				getFaviconColor(url).then(function(color) {
 					if (color) {
-						$indicator.css('background-color', 'rgb(' + color.join(',') + ')');
+						$indicator.css('background-color', color);//'rgb(' + color.join(',') + ')');
 						//alert('ok' + color);
 					} else {
 						$indicator.css('background-color', 'gray');
@@ -59,19 +60,26 @@
 
 				var favicon = document.getElementById('favicon');
 
-				var colorThief = new ColorThief();
+				//var colorThief = new ColorThief();
+				
 				if (favicon.getAttribute('src') == url) {
 					// same url
-					resolve(colorThief.getColor(favicon));
-					return;
+					//var swatches = vibrant.swatches()
+					var vibrant = new Vibrant(favicon);
+					resolve(vibrant.swatches()['Vibrant'].getHex())
+					// resolve(colorThief.getColor(favicon));
+					 return;
 				}
+
 
 				favicon.setAttribute('src', url);
 
 				
 
 				favicon.onload = function() {
-					resolve(colorThief.getColor(favicon));
+					//resolve(colorThief.getColor(favicon));
+					var vibrant = new Vibrant(favicon);
+					resolve(vibrant.swatches()['Vibrant'].getHex())
 				}
 
 				favicon.onerror = function() {

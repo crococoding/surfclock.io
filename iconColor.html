@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		
+
+
+		$( document ).ready(function() {
+
+			var img = document.getElementById('img');
+
+			var icn = new iconColor();
+
+			icn.getColor(img);
+
+		});
+
+
+
+
+		var iconColor = function() {
+			var canvas = document.createElement("canvas");
+
+
+			this.getColor = function(img) {
+				canvas.width = img.width;
+				canvas.height = img.height;
+				canvas.getContext("2d").drawImage(img, 0, 0);
+
+				// Get the CanvasPixelArray from the given coordinates and dimensions.
+				var imgd = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+				var pix = imgd.data;
+
+				// Loop over each pixel and invert the color.
+				for (var i = 0, n = pix.length; i < n; i += 4) {
+					var red = 255 - pix[i  ]; // red
+					var green = 255 - pix[i+1]; // green
+					var blue = 255 - pix[i+2]; // blue
+					
+					console.log(red);
+
+				}
+			}
+
+		}
+
+
+
+
+	</script>
+</head>
+<body>
+
+<img id="img" src="http://google.com/favicon.ico" />
+</body>
+</html>
