@@ -7,7 +7,7 @@ var database = new function() {
 
 	this.dexie.version(1).stores({
 		intervals: '++id,domain,from,till',
-		domains: 'domain,color,faviconUrl'
+		domains: 'domain,color'
 	});
 
 	this.dexie.open().catch(function(error) {
@@ -16,11 +16,10 @@ var database = new function() {
 
 
 
-	this.storeColor = function(domain, color, faviconUrl) {
+	this.storeColor = function(domain, color) {
 		database.dexie.domains.put({
 			domain: domain, 
-			color: color, 
-			faviconUrl: faviconUrl
+			color: color
 		}).then(function() {
 			 
 		}).catch(function(error) {

@@ -18,8 +18,7 @@
 	"permissions": [
 		"tabs",
 		"storage",
-		"webNavigation",
-		"<all_urls>"
+		"https://www.google.com/s2/favicons"
 	],
 	"background": {
 		"scripts": [

@@ -14,9 +14,9 @@ var logger = {
 			this.startInterval(domain);
 			
 			// store color
-			var faviconUrl = getFaviconUrl(url);
+			var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
 			this.getFaviconColor(faviconUrl).then(function(color) {
-				database.storeColor(domain, color, faviconUrl);
+				database.storeColor(domain, color);
 			});
 		}
 	},

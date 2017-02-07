@@ -1,7 +1,4 @@
 function safariNavigate(event) {
-	
-
-
 	var url = event.target.url;
 	if (typeof(url) !== 'undefined' && url) { 
 		
@@ -40,9 +37,9 @@ function safariActivate(event) {
 	
 }
 
-function getFaviconUrl(url) {
-	return 'http' + url.match(/:\/\/(.[^/]+)/)[0] + '/favicon.ico';
-}
+// function getFaviconUrl(url) {
+// 	return 'http' + url.match(/:\/\/(.[^/]+)/)[0] + '/favicon.ico';
+// }
 
 // getFavicon() {
 // 	return document.getElementById('favicon');
