@@ -37,9 +37,8 @@ var popup = {
 	initResetControl: function() {
 		document.querySelector('#resetControlGroup a').onclick = function(event) {
 			// null means remove everything
-			getBackground().database.remove(null, function() {
-				getBackground().logger.reinstateDomain();
-			});
+			getBackground().database.remove(null);
+			getBackground().logger.reinstateDomain();
 		};
 	},
 
@@ -87,12 +86,10 @@ var popup = {
 		Chart.pluginService.register({
 			beforeRender: function (chart, easing) {
 				popup.showDomainInfo();
+				popup.showTotalInfo();
 			},
 			afterDraw: function(chart, easing) {
 				popup.showIndicator();
-			},
-			afterDatasetsDraw: function(chart, easing) {
-				popup.showTotalDuration();
 			},
 		});
 	},
@@ -190,7 +187,7 @@ var popup = {
 		});
 	},
 
-	showTotalDuration: function() {
+	showTotalInfo: function() {
 		var durations = popup.chart.data.datasets[0].data;
 		var totalDuration = popup.getPrettyTime(popup.sumArray(durations));
 		if(totalDuration) {
@@ -205,7 +202,7 @@ var popup = {
 	showDomainInfo: function() {
 		if(popup.domain && popup.chart.labels) {
 			var index = popup.chart.labels.indexOf(popup.domain);
-			var duration = popup.getPrettyTime(popup.getDomainDuration(index)) || 'hasn\'t been visited in this time period';
+			var duration = popup.getPrettyTime(popup.getDomainDuration(index));
 
 			// var animateIn = 'zoomIn';
 			// var animateOut = 'zoomOut';
@@ -251,30 +248,23 @@ var popup = {
 	},
 
 	getPrettyTime: function(milliseconds) {
-		var seconds = parseInt((milliseconds/1000)%60);
+		//var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
 		var hours = parseInt(milliseconds/(1000*60*60));
 
-		function getTimePartString(timePart, timePartName) {
-			if(timePart > 0) {
-				return ' ' + popup.numerus(timePart, timePartName);
-			} else {
-				return '';
-			}
-		};
+		if(hours + minutes == 0) {
+			return '< 1 minute';
+		} else {
+			function getTimePartString(timePart, timePartName) {
+				return timePart > 0 ? popup.numerus(timePart, timePartName) : '';
+			};
 
-		var time = '';
-		time += getTimePartString(hours, 'hour');
-		time += getTimePartString(minutes, 'minute');
-		time += getTimePartString(seconds, 'second');
+			var time = [];
+			time.push(getTimePartString(hours, 'hour'));
+			time.push(getTimePartString(minutes, 'minute'));
 
-		if(time == '') {
-			time = getTimePartString(milliseconds, 'millisecond');
+			return time.join(' ');
 		}
-
-		time = time.slice(1);
-
-		return time;
 	},
 
 	numerus: function(number, word) {

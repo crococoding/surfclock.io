@@ -26,12 +26,6 @@ p {
 	height: 50px;
 }
 
-/* total time */
-
-#header p {
-	font-size: 20px;
-}
-
 /* doughnut */
 
 #chart {
@@ -40,7 +34,7 @@ p {
 	z-index: 1;
 }
 
-#wrapper,
+#info,
 #indicator {
 	position: absolute;
 	left: 0;
@@ -73,38 +67,47 @@ p {
 	transition: all .2s;
 }
 
-/* wrapper */
+/* info */
 
-#wrapper {
+#info {
 	line-height: 380px;
 	/*z-index: -1;*/
 }
 
-#wrapper > div {
+#info > div {
 	display: inline-block;
 	vertical-align: middle;
 }
 
-.innerCircleSection {
-	padding: 15px 0;
+.infoBlock {
+	line-height: 1em;
 }
 
-/* total info, domain info */
+.infoBlock h2,
+.infoBlock p {
+	line-height: 1.3em;
+}
 
-#domainInfo h2,
-#totalInfo h2 {
+/*#totalInfo,
+#domainInfo {
+	display: inline-block;
+	padding: 10px;
+	vertical-align: top;
+}*/
+
+.infoBlock h2 {
 	font-size: 17px;
 	font-weight: normal;
-	color: rgba(23, 157, 253, 1);
 	word-break: break-all;
 	margin: 0;
-	line-height: 2em;
 }
 
-#domainInfo p,
-#totalInfo p {
+.infoBlock p {
 	font-size: 20px;
-	line-height: 1.3em;
+}
+
+.infoBlock p span {
+	display: block;
 }
 
 /* observation control */

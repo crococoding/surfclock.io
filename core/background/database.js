@@ -82,44 +82,13 @@ var database = new function() {
 		});
 	}
 
-	// intervals for specified domain cut according to the specified bounds
-	this.getIntervals = function(domain, bounds, callback) {
-		var intervals = [];
-
-		database.dexie.intervals
-		.where('domain').equals(domain)
-		.and(function(interval) {
-			var from = interval.from;
-			var till = interval.till ? interval.till : bounds.upper;
-			return from < bounds.upper && till > bounds.lower;
-		}).each(function(interval) {
-			intervals.push({
-				'from' : interval.from,
-				'till' : interval.till ? interval.till : bounds.upper
-			});
-		}).then(function() {
-			if(intervals.length > 0) {
-				index_first = 0;
-				index_last = intervals.length - 1;
-
-				intervals[index_first]['from'] = Math.max(intervals[index_first]['from'], bounds.lower);
-				intervals[index_last]['till'] = Math.min(intervals[index_last]['till'], bounds.upper);
-			}
-			// console.log(JSON.stringify(intervals));
-			callback(intervals);
-		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error));
-		});
-	}
-
-	this.remove = function(untilTime, callback) {
+	this.remove = function(untilTime) {
 		if (untilTime) {
 			// only remove until given time
 			// TODO
 		} else {
 			database.dexie.intervals.clear();
 			database.dexie.domains.clear();
-			callback();
 		}
 	}
 }
