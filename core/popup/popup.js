@@ -7,35 +7,83 @@ window.onload = function() {
 var popup = {
 
 	init: function() {
-		popup.initObservationControl();
 		popup.initResetControl();
-		popup.initChart();
-
-		popup.domain = getBackground().logger.domain;
-		popup.update();
-	},
-
-	initObservationControl: function() {
-		// save preferences on click
-		var observationPeriods = document.querySelectorAll('#observationControl label');
-		for(i in observationPeriods) {
-			observationPeriods[i].onclick = function(event) {
-				setPreference('observationPeriod', this.getAttribute('for')).then(function() {
-					popup.update();
-				}).catch(function(error) {
-					console.log('could not save observaion period: ' + error);
-				});
-			};	
-		}
-
-		// highlight control according to saved preference
-		getPreference('observationPeriod').then(function(preference) {
-			document.getElementById(preference ? preference : 'all').checked = true;	
+		popup.initObservationControl().then(function(observationBounds) {
+			popup.initChart();
+			popup.domain = getBackground().logger.domain;
+			popup.update(observationBounds);
 		});
 	},
 
+	initObservationControl: function() {
+		return new Promise(function(resolve, reject) {
+			getPreference('observationPeriod').then(function(preference) {
+				getBackground().database.getBeginning().then(function(beginning) {
+					var threshold = 1000*60*60; // hour: bewtween start and end
+					var now = getBackground().getTimestamp();
+					var observationPeriod = {
+						'from' : beginning,
+						'till' : now
+					};
+
+					if(preference) {
+						observationPeriod = {
+							'from' : preference.from,
+							'till' : now - beginning > threshold ? preference.till : now
+						}
+					} else {
+						setPreference('observationPeriod', observationPeriod);
+					}
+
+					var slider = document.getElementById('observationControl');
+					noUiSlider.create(slider, {
+						start: [observationPeriod.from, observationPeriod.till],
+						connect: true, // display a colored bar between the handles
+						margin: threshold,
+						behaviour: 'drag',
+						tooltips: [true, false],
+						range: {
+							'min': beginning,
+							'max': now
+						},
+						format: {
+							from: Number,
+							to: function(milliseconds) {
+								var dateTime = new Date(milliseconds);
+
+						    	var date = dateTime.toDateString();
+						    	date = date.substring(0, date.lastIndexOf(' '));
+						    	var time = dateTime.toTimeString();
+						    	time = time.substring(0, time.lastIndexOf(':'));
+
+						        return date + ', ' + time;
+							}
+						},
+					});
+					slider.noUiSlider.on('change', function(formattedValues, handle, unencodedValues) {
+						var preference = {
+							'from' : unencodedValues[0],
+							'till' : unencodedValues[1]
+						}
+						setPreference('observationPeriod', preference);
+				    	popup.update(preference);
+					});
+					slider.noUiSlider.on('slide', function(formattedValues, handle, unencodedValues) {
+						var from = unencodedValues[0];
+						var till = unencodedValues[1];
+						document.querySelector('.noUi-connect').innerHTML = popup.getPrettyTime(till - from);
+					});
+
+					document.querySelector('.noUi-connect').innerHTML = popup.getPrettyTime(observationPeriod.till - observationPeriod.from);
+					resolve(observationPeriod);
+				});
+			});
+		});
+		
+	},
+
 	initResetControl: function() {
-		document.querySelector('#resetControlGroup a').onclick = function(event) {
+		document.getElementById('resetControl').onclick = function(event) {
 			// null means remove everything
 			getBackground().database.remove(null);
 			getBackground().logger.reinstateDomain();
@@ -94,37 +142,19 @@ var popup = {
 		});
 	},
 
-	update: function() {
-		getPreference('observationPeriod').then(function(preference) {
-			var now = getBackground().getTimestamp();
-			var difference = now;
-			switch (preference) {
-				case 'hour'  : difference =              60 * 60 * 1000; break;
-				case 'day'   : difference =         24 * 60 * 60 * 1000; break;
-				case 'week'  : difference =     7 * 24 * 60 * 60 * 1000; break;
-				case 'month' : difference = 4 * 7 * 24 * 60 * 60 * 1000; break;
-				default		 : difference = now;
-			}
+	update: function(observationBounds) {
+		return new Promise(function(resolve, reject) {
+			var promises = [];
 
-			return {
-				'lower' : now - difference,
-				'upper' : now
-			};
+			getBackground().database.retrieve().then(function(data) {
+				for (var domain in data) {
+					promises.push(someFunction(data, domain));
+				}
 
-		}).then(function(observationBounds) {
-			return new Promise(function(resolve, reject) {
-				var promises = [];
-
-				getBackground().database.retrieve().then(function(data) {
-					for (var domain in data) {
-						promises.push(someFunction(data, domain));
-					}
-
-					resolve(promises);
-				
-				}).catch(function(error) {
-					reject(error);
-				});
+				resolve(promises);
+			
+			}).catch(function(error) {
+				reject(error);
 			});
 
 			function someFunction(dataA, domain) {
@@ -154,19 +184,16 @@ var popup = {
 				for(i in intervals) {
 					var interval = intervals[i];
 					var from = interval['from'];
-					var till = interval['till'] ? interval['till'] : observationBounds.upper;
-					if(observationBounds.lower < till && observationBounds.upper > from) {
+					var till = interval['till'] ? interval['till'] : observationBounds['till'];
+					if(observationBounds['from'] < till && observationBounds['till'] > from) {
 						result.push({
-							'from' : Math.max(from, observationBounds.lower),
-							'till' : Math.min(till, observationBounds.upper)
+							'from' : Math.max(from, observationBounds['from']),
+							'till' : Math.min(till, observationBounds['till'])
 						});
 					}
 				}
 				return result;
 			}
-
-		}).catch(function(error) {
-			console.log('database retrieve error: ' + JSON.stringify(error));
 		}).then(function(promises) {
 			Promise.all(promises).then(function(chartData) {
 				chartData.sort((x, y) => (y['duration'] - x['duration']));
@@ -204,20 +231,8 @@ var popup = {
 			var index = popup.chart.labels.indexOf(popup.domain);
 			var duration = popup.getPrettyTime(popup.getDomainDuration(index));
 
-			// var animateIn = 'zoomIn';
-			// var animateOut = 'zoomOut';
-
-			// document.getElementById('domainInfo').classList.remove(animateIn);
-			// document.getElementById('domainInfo').classList.add(animateOut);
-
-			// setTimeout(function() {
-			// 	document.getElementById('domainInfo').classList.remove(animateOut);
-			// 	document.getElementById('domainInfo').classList.add(animateIn);
-
-				document.querySelector('#domainInfo h2').innerHTML = popup.domain;
-				document.querySelector('#domainInfo p').innerHTML = duration;
-
-			// }, 200);
+			document.querySelector('#domainInfo h2').innerHTML = popup.domain;
+			document.querySelector('#domainInfo p').innerHTML = duration;
 		}
 	},
 

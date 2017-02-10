@@ -7,9 +7,10 @@
 - [Dexie.js](http://dexie.org)
 - [Chart.js](http://www.chartjs.org)
 - [Vibrant.js](http://jariz.github.io/vibrant.js)
+- [noUiSlider.js](https://refreshless.com/nouislider)
 
 ### local storage (for settings)
-- observationPeriod: all | month | week | day | hour
+- observationPeriod: from, till
 
 ### indexeddb (for database)
 - intervals: domain, from, till

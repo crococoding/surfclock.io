@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel="stylesheet" type="text/css" href="../core/popup/nouislider.min.css">
 	<link rel="stylesheet" type="text/css" href="../core/popup/popup.css">
-	<!-- <link rel="stylesheet" type="text/css" href="../core/popup/animate.min.css"> -->
-	
-	<script type="text/javascript" src="../core/popup/chart.min.js"></script>
-	<script type="text/javascript" src="../core/popup/popup.js"></script>
-	<script type="text/javascript" src="popup_chrome.js"></script>
 </head>
-<body id="popup">
+<body id="popup" style="width: 500px; height: 600px;">
 
 	<div id="header">
 		<p></p>
@@ -21,52 +17,30 @@
 			<div></div>
 		</div>
 
-		<div id="info"> <!-- class="animated" -->
+		<div id="info">
 			<div> <!-- additional wrapper for easier vertical alignment -->
-
-				<div class="infoBlock">
-					<div id="totalInfo">
-						<h2></h2>
-						<p></p>
-					</div>
-					
-					<div id="domainInfo">
-						<h2></h2>
-						<p></p>
-					</div>
+				<div id="totalInfo">
+					<h2></h2>
+					<p></p>
 				</div>
-
-				<div class="infoBlock" id="observationControl">
-					<form action="">
-						<!-- radio inputs are invisble but influence label behavior/style so js is not necessary -->
-
-						<input type="radio" name="observationControl" tabindex="-1" id="all">
-						<label for="all">all</label>
-
-						<input type="radio" name="observationControl" tabindex="-1" id="month"> 
-						<label for="month">month</label>
-
-						<input type="radio" name="observationControl" tabindex="-1" id="week"> 
-						<label for="week">week</label>
-
-						<input type="radio" name="observationControl" tabindex="-1" id="day"> 
-						<label for="day">day</label>
-
-						<input type="radio" name="observationControl" tabindex="-1" id="hour"> 
-						<label for="hour">hour</label>
-					</form>
+				<div id="domainInfo">
+					<h2></h2>
+					<p></p>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<div id="footer">
-
-		<span id="resetControlGroup">
-			<a href="" tabindex="-1">delete all data</a>
-		</span>
-		
+		<div id="observationControl"></div>
+		<a href="" tabindex="-1" id="resetControl">delete all data</a>
 	</div>
+
+
+	<script type="text/javascript" src="../core/popup/chart.min.js"></script>
+	<script type="text/javascript" src="../core/popup/nouislider.min.js"></script>
+	<script type="text/javascript" src="../core/popup/popup.js"></script>
+	<script type="text/javascript" src="popup_chrome.js"></script>
 
 </body>
 </html>

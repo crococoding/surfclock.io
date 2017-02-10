@@ -53,7 +53,7 @@ var database = new function() {
 	}
 
 	this.storeIntervalEnd = function(domain, till) {
-		database.dexie.intervals.where('domain').equals(domain).last().then(function (item) {
+		database.dexie.intervals.where('domain').equals(domain).last().then(function(item) {
 			database.dexie.intervals.update(item.id, {'till' : till});
 			// alert('end ' + domain);
 		}).catch(function(error) {
@@ -78,6 +78,19 @@ var database = new function() {
 				resolve(data);
 			}).catch(function(error) {
 				reject(error);
+			});
+		});
+	}
+
+	this.getBeginning = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.toCollection().first().then(function(interval) {
+				if(interval) {
+					resolve(interval.from);
+				} else {
+					resolve(null);
+				}
+				
 			});
 		});
 	}

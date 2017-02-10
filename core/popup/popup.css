@@ -1,6 +1,22 @@
+/* branding
+
+rgba(23, 157, 253, .6)
+
+*/
+
+.noUi-connect {
+	background: rgba(23, 157, 253, .6);
+}
+
+
+/* general */
+
+html,
 body {
-	width: 500px;
-	height: 600px;
+
+}
+
+body {
 	margin: 0;
 	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; 
 	font-weight: 300;
@@ -21,9 +37,13 @@ p {
 	position: relative;
 }
 
-#header,
+#header {
+	height: 0;
+	padding: 0;
+}
+
 #footer {
-	height: 50px;
+	height: 100px;
 }
 
 /* doughnut */
@@ -79,70 +99,69 @@ p {
 	vertical-align: middle;
 }
 
-.infoBlock {
-	line-height: 1em;
-}
-
-.infoBlock h2,
-.infoBlock p {
+#info h2,
+#info p {
 	line-height: 1.3em;
 }
 
-/*#totalInfo,
-#domainInfo {
-	display: inline-block;
-	padding: 10px;
-	vertical-align: top;
-}*/
-
-.infoBlock h2 {
+#info h2 {
 	font-size: 17px;
 	font-weight: normal;
 	word-break: break-all;
 	margin: 0;
 }
 
-.infoBlock p {
+#info p {
 	font-size: 20px;
 }
 
-.infoBlock p span {
+#info p span {
 	display: block;
 }
 
 /* observation control */
 
-#observationControl {
-	line-height: 1.5em;
+.noUi-horizontal .noUi-handle {
+	width: 6px;
+	height: 18px;
+	top: -1px;
+	left: 0;
+	background: none;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	cursor: ew-resize;
 }
 
-#observationControl form {
-	display: inline-block;
-	border: 1px solid #179DFD;
+.noUi-horizontal .noUi-handle-upper {
+	left: -6px;
+}
+
+.noUi-draggable {
+	cursor: move;
+	border-radius: 5px;
+}
+
+.noUi-connect {
+	box-shadow: none;
+}
+
+.noUi-target {
 	border-radius: 6px;
-	overflow: hidden;
+	box-shadow: none;
+	background: none;
 }
 
-#observationControl label {
-	color: black;
-	display: block;
-	float: left;
-	font-size: 15px;
-	padding: 5px 10px;
-	text-decoration: none;
-	transition: all .2s;
-}
-
-#observationControl label:hover {
-	background: rgba(23, 157, 253, .3);
-	cursor: pointer
-}
-
-#observationControl input {
+.noUi-horizontal .noUi-handle::after,
+.noUi-horizontal .noUi-handle::before {
 	display: none;
 }
 
-#observationControl input:checked + label { /* magic */
-	background: rgba(23, 157, 253, 1);
-	color: white;
+/* reset control */
+
+#resetControl,
+#resetControl:visited {
+	color: lightgrey;
+	display: inline-block;
+	margin-top: 20px;
 }
