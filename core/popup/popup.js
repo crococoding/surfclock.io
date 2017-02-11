@@ -17,7 +17,7 @@ var popup = {
 
 	initObservationControl: function() {
 		return new Promise(function(resolve, reject) {
-			getPreference('observationPeriod').then(function(preference) {
+			// getPreference('observationPeriod').then(function(preference) {
 				getBackground().database.getBeginning().then(function(beginning) {
 					var threshold = 1000*60*60; // hour: bewtween start and end
 					var now = getBackground().getTimestamp();
@@ -26,14 +26,14 @@ var popup = {
 						'till' : now
 					};
 
-					if(preference) {
-						observationPeriod = {
-							'from' : preference.from,
-							'till' : now - beginning > threshold ? preference.till : now
-						}
-					} else {
-						setPreference('observationPeriod', observationPeriod);
-					}
+					// if(preference) {
+					// 	observationPeriod = {
+					// 		'from' : preference.from,
+					// 		'till' : now - beginning > threshold ? preference.till : now
+					// 	}
+					// } else {
+					// 	setPreference('observationPeriod', observationPeriod);
+					// }
 
 					var slider = document.getElementById('observationControl');
 					noUiSlider.create(slider, {
@@ -41,45 +41,42 @@ var popup = {
 						connect: true, // display a colored bar between the handles
 						margin: threshold,
 						behaviour: 'drag',
-						tooltips: [true, false],
+						step: 1000*60,
+						format: {
+							from: Number,
+							to: function(number) {
+								return Math.round(number);
+							}
+						},
 						range: {
 							'min': beginning,
 							'max': now
 						},
-						format: {
-							from: Number,
-							to: function(milliseconds) {
-								var dateTime = new Date(milliseconds);
-
-						    	var date = dateTime.toDateString();
-						    	date = date.substring(0, date.lastIndexOf(' '));
-						    	var time = dateTime.toTimeString();
-						    	time = time.substring(0, time.lastIndexOf(':'));
-
-						        return date + ', ' + time;
-							}
-						},
 					});
-					slider.noUiSlider.on('change', function(formattedValues, handle, unencodedValues) {
+					
+					// update preference and chart data when moving the slider is done
+					slider.noUiSlider.on('change', function(values) {
 						var preference = {
-							'from' : unencodedValues[0],
-							'till' : unencodedValues[1]
+							'from' : values[0],
+							'till' : values[1]
 						}
-						setPreference('observationPeriod', preference);
+						// setPreference('observationPeriod', preference);
 				    	popup.update(preference);
 					});
-					slider.noUiSlider.on('slide', function(formattedValues, handle, unencodedValues) {
-						var from = unencodedValues[0];
-						var till = unencodedValues[1];
-						document.querySelector('.noUi-connect').innerHTML = popup.getPrettyTime(till - from);
+					
+					// update slider duration while moving the slider
+					slider.noUiSlider.on('slide', function(values) {
+						var from = values[0];
+						var till = values[1];
+						popup.showObservationPeriod(from, till);
 					});
 
-					document.querySelector('.noUi-connect').innerHTML = popup.getPrettyTime(observationPeriod.till - observationPeriod.from);
+					popup.showObservationPeriod(observationPeriod.from, observationPeriod.till);
+
 					resolve(observationPeriod);
 				});
-			});
+			// });
 		});
-		
 	},
 
 	initResetControl: function() {
@@ -133,8 +130,7 @@ var popup = {
 
 		Chart.pluginService.register({
 			beforeRender: function (chart, easing) {
-				popup.showDomainInfo();
-				popup.showTotalInfo();
+				popup.showDurations();
 			},
 			afterDraw: function(chart, easing) {
 				popup.showIndicator();
@@ -214,25 +210,32 @@ var popup = {
 		});
 	},
 
-	showTotalInfo: function() {
-		var durations = popup.chart.data.datasets[0].data;
-		var totalDuration = popup.getPrettyTime(popup.sumArray(durations));
-		if(totalDuration) {
-			document.querySelector('#totalInfo h2').innerHTML = 'total';
-			document.querySelector('#totalInfo p').innerHTML = totalDuration;
-		} else {
-			document.querySelector('#totalInfo h2').innerHTML = '';
-			document.querySelector('#totalInfo p').innerHTML = '';
+	showObservationPeriod: function(from, till) {
+		function displayTimestamp(milliseconds) {
+			var date = new Date(milliseconds) + '';
+			return date.substring(0, date.lastIndexOf(':'));
 		}
+
+		document.getElementById('periodFrom').innerHTML = displayTimestamp(from);
+		document.getElementById('periodTill').innerHTML = displayTimestamp(till);
+		document.getElementById('periodDuration').innerHTML = popup.getPrettyTime(till - from);
 	},
 
-	showDomainInfo: function() {
-		if(popup.domain && popup.chart.labels) {
-			var index = popup.chart.labels.indexOf(popup.domain);
-			var duration = popup.getPrettyTime(popup.getDomainDuration(index));
+	showDurations: function() {
+		// total
+		var totalDuration = popup.sumArray(popup.chart.data.datasets[0].data);
+		document.getElementById('totalDuration').innerHTML = totalDuration ? popup.getPrettyTime(totalDuration) : '0 minutes';	
 
-			document.querySelector('#domainInfo h2').innerHTML = popup.domain;
-			document.querySelector('#domainInfo p').innerHTML = duration;
+		// domain
+		if(popup.domain && popup.chart.labels && totalDuration) {
+			var index = popup.chart.labels.indexOf(popup.domain);
+			var domainDuration = popup.getDomainDuration(index);
+			
+			document.querySelector('#info p:last-of-type').style.display = 'block';
+			document.getElementById('domain').innerHTML = popup.domain;
+			document.getElementById('domainDuration').innerHTML = domainDuration ? popup.getPrettyTime(domainDuration) : '0 minutes';
+		} else {
+			document.querySelector('#info p:last-of-type').style.display = 'none';
 		}
 	},
 
@@ -271,14 +274,16 @@ var popup = {
 			return '< 1 minute';
 		} else {
 			function getTimePartString(timePart, timePartName) {
-				return timePart > 0 ? popup.numerus(timePart, timePartName) : '';
+				return timePart ? ' ' + popup.numerus(timePart, timePartName) : '';
 			};
 
-			var time = [];
-			time.push(getTimePartString(hours, 'hour'));
-			time.push(getTimePartString(minutes, 'minute'));
+			var time = '';
+			time += getTimePartString(hours, 'hour');
+			time += getTimePartString(minutes, 'minute');
 
-			return time.join(' ');
+			time = time.slice(1);
+
+			return time;
 		}
 	},
 
