@@ -18,7 +18,7 @@
 	"permissions": [
 		"tabs",
 		"storage",
-		"http://favicon.yandex.net/favicon/*"
+		"https://www.google.com/*"
 	],
 	"background": {
 		"scripts": [

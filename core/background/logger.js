@@ -14,9 +14,9 @@ var logger = {
 			this.startInterval(domain);
 			
 			// store color
-			// 'https://www.google.com/s2/favicons?domain='
+			// 'http://favicon.yandex.net/favicon/''
 			
-			var faviconUrl = 'http://favicon.yandex.net/favicon/' + domain;
+			var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
 			this.getFaviconColor(faviconUrl).then(function(color) {
 				database.storeColor(domain, color);
 			});
@@ -32,6 +32,7 @@ var logger = {
 				favicon.setAttribute('id', 'favicon');
 				favicon.setAttribute('width', '16px');
 				favicon.setAttribute('height', '16px');
+				favicon.setAttribute('crossOrigin', 'anonymous'); // necessary for Firefox
 				document.body.appendChild(favicon);
 			}
 
