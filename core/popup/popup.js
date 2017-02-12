@@ -17,65 +17,83 @@ var popup = {
 
 	initObservationControl: function() {
 		return new Promise(function(resolve, reject) {
-			// getPreference('observationPeriod').then(function(preference) {
-				getBackground().database.getBeginning().then(function(beginning) {
-					var threshold = 1000*60*60; // hour: bewtween start and end
-					var now = getBackground().getTimestamp();
-					var observationPeriod = {
-						'from' : beginning,
-						'till' : now
-					};
+			getBackground().database.getBeginning().then(function(beginning) {
+				var now = getBackground().getTimestamp();
+				const totalDuration = now - beginning;
 
-					// if(preference) {
-					// 	observationPeriod = {
-					// 		'from' : preference.from,
-					// 		'till' : now - beginning > threshold ? preference.till : now
-					// 	}
-					// } else {
-					// 	setPreference('observationPeriod', observationPeriod);
-					// }
+				const minute = 1000 * 60;
+				const hour = minute * 60;
+				const day = hour * 24;
+				const scales = [minute, hour, day];
 
-					var slider = document.getElementById('observationControl');
-					noUiSlider.create(slider, {
-						start: [observationPeriod.from, observationPeriod.till],
-						connect: true, // display a colored bar between the handles
-						margin: threshold,
-						behaviour: 'drag',
-						step: 1000*60,
+				var scaleIndex = 0;
+				if(totalDuration > 5 * day) {
+					scaleIndex = 2;
+				} else if(totalDuration > day) {
+					scaleIndex = 1;
+				}
+
+				beginning = beginning - beginning % scales[scaleIndex]; // start at round number
+
+				var slider = document.getElementById('observationControl');
+				noUiSlider.create(slider, {
+					start: [beginning, now],
+					connect: true, // display a colored bar between the handles
+					behaviour: 'drag',
+					margin: scales[scaleIndex], // minimum between start and end
+					step: scales[scaleIndex],
+					pips: {
+						mode: 'steps',
+						filter: function(value, type) {
+							if(scaleIndex > 0 && value % (scales[scaleIndex - 1]) == 0) {
+								return 1; // large tick
+							} else {
+								return -1; // no tick
+							}
+						},
 						format: {
 							from: Number,
 							to: function(number) {
-								return Math.round(number);
+								return ''; // skip scale numbers
 							}
 						},
-						range: {
-							'min': beginning,
-							'max': now
-						},
-					});
-					
-					// update preference and chart data when moving the slider is done
-					slider.noUiSlider.on('change', function(values) {
-						var preference = {
-							'from' : values[0],
-							'till' : values[1]
+					},
+					format: {
+						from: Number,
+						to: function(number) {
+							return Math.round(number); // skip decimals
 						}
-						// setPreference('observationPeriod', preference);
-				    	popup.update(preference);
-					});
-					
-					// update slider duration while moving the slider
-					slider.noUiSlider.on('slide', function(values) {
-						var from = values[0];
-						var till = values[1];
-						popup.showObservationPeriod(from, till);
-					});
-
-					popup.showObservationPeriod(observationPeriod.from, observationPeriod.till);
-
-					resolve(observationPeriod);
+					},
+					range: {
+						'min': beginning,
+						'max': now
+					},
 				});
-			// });
+				
+				// update preference and chart data when moving the slider is done
+				slider.noUiSlider.on('change', function(values) {
+					var preference = {
+						'from' : values[0],
+						'till' : values[1]
+					}
+					// setPreference('observationPeriod', preference);
+			    	popup.update(preference);
+				});
+				
+				// update slider duration while moving the slider
+				slider.noUiSlider.on('slide', function(values) {
+					var from = values[0];
+					var till = values[1];
+					popup.showObservationPeriod(from, till);
+				});
+
+				popup.showObservationPeriod(beginning, now);
+
+				resolve({
+					'from' : beginning,
+					'till' : now
+				});
+			});
 		});
 	},
 
