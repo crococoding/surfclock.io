@@ -1,14 +1,44 @@
 var database = new function() {
 	
 	this.dexie = new Dexie('domain_db');
+
+	//this.dexie.delete();
+	//https://github.com/dfahlander/Dexie.js/wiki/Dexie.delete()
+
 	this.dexie.version(1).stores({
 		intervals: '++id,domain,from,till',
-		domains: '++id,domain,color,faviconUrl'
+		domains: 'domain,color'
 	});
 
 	this.dexie.open().catch(function(error) {
 		console.log('Open failed: ' + error);
 	});
+
+
+
+	this.storeColor = function(domain, color) {
+		database.dexie.domains.put({
+			domain: domain, 
+			color: color
+		}).then(function() {
+			 
+		}).catch(function(error) {
+			console.log('error: ' + JSON.stringify(error));
+		});
+	}
+
+
+	this.getColor = function(domain) {
+		return new Promise(function(resolve, reject) {
+			database.dexie.domains.where('domain').equals(domain).first().then(function(val) {
+				resolve(val.color);
+			}).catch(function(error) {
+				//TODO: error handling
+				resolve(null);
+				//console.log('error: ' + JSON.stringify(error));
+			});
+		});
+	}
 
 
 	this.storeIntervalStart = function(domain, from) {
@@ -23,7 +53,7 @@ var database = new function() {
 	}
 
 	this.storeIntervalEnd = function(domain, till) {
-		database.dexie.intervals.where('domain').equals(domain).last().then(function (item) {
+		database.dexie.intervals.where('domain').equals(domain).last().then(function(item) {
 			database.dexie.intervals.update(item.id, {'till' : till});
 			// alert('end ' + domain);
 		}).catch(function(error) {
@@ -31,63 +61,47 @@ var database = new function() {
 		});
 	}
 
-	this.retrieve = function(callback) {
+	this.retrieve = function() {
 
 		var data = {};
 
-		database.dexie.intervals.each(function(item) {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.each(function(item) {
 
-			if (data[item.domain] == null) {
-				data[item.domain] = [];
-			} 
+				if (data[item.domain] == null) {
+					data[item.domain] = [];
+				} 
 
-			data[item.domain].push(item);
+				data[item.domain].push(item);
 
-		}).then(function() {
-			callback(data);
-		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error));
-		});
-
-	}
-
-	// intervals for specified domain cut according to the specified bounds
-	this.getIntervals = function(domain, bounds, callback) {
-		var intervals = [];
-
-		database.dexie.intervals
-		.where('domain').equals(domain)
-		.and(function(interval) {
-			var from = interval.from;
-			var till = interval.till ? interval.till : bounds.upper;
-			return from < bounds.upper && till > bounds.lower;
-		}).each(function(interval) {
-			intervals.push({
-				'from' : interval.from,
-				'till' : interval.till ? interval.till : bounds.upper
+			}).then(function() {
+				resolve(data);
+			}).catch(function(error) {
+				reject(error);
 			});
-		}).then(function() {
-			if(intervals.length > 0) {
-				index_first = 0;
-				index_last = intervals.length - 1;
-
-				intervals[index_first]['from'] = Math.max(intervals[index_first]['from'], bounds.lower);
-				intervals[index_last]['till'] = Math.min(intervals[index_last]['till'], bounds.upper);
-			}
-			// console.log(JSON.stringify(intervals));
-			callback(intervals);
-		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error));
 		});
 	}
 
-	this.remove = function(untilTime, callback) {
+	this.getBeginning = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.toCollection().first().then(function(interval) {
+				if(interval) {
+					resolve(interval.from);
+				} else {
+					resolve(null);
+				}
+				
+			});
+		});
+	}
+
+	this.remove = function(untilTime) {
 		if (untilTime) {
 			// only remove until given time
 			// TODO
 		} else {
 			database.dexie.intervals.clear();
-			callback();
+			database.dexie.domains.clear();
 		}
 	}
 }

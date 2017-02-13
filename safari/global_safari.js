@@ -1,5 +1,4 @@
 function safariNavigate(event) {
-	
 	var url = event.target.url;
 	if (typeof(url) !== 'undefined' && url) { 
 		
@@ -11,6 +10,8 @@ function safariNavigate(event) {
 		// opened a new empty tab
 		logger.endInterval();
 	}
+
+	// getFaviconColor();
 }
 
 function safariActivate(event) {
@@ -24,14 +25,30 @@ function safariActivate(event) {
 		url = event.target.activeTab.url
 	} 
 
+
 	if (typeof(url) === 'undefined' || !(url)) {
 		logger.endInterval();
 	} else {
 		logger.handleUrl(url);
 	}
 
+
+	// getFaviconColor();
 	
 }
+
+// function getFaviconUrl(url) {
+// 	return 'http' + url.match(/:\/\/(.[^/]+)/)[0] + '/favicon.ico';
+// }
+
+// getFavicon() {
+// 	return document.getElementById('favicon');
+// }
+
+// updateFavicon() {
+// 	var favicon = getFavicon();
+// 	favicon.src = document.
+// }
 
 
 function safariDeactivate(event) {

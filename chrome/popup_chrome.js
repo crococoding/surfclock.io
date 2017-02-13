@@ -4,21 +4,25 @@ function getBackground() {
 
 var storage = chrome.storage.local;
 
-function setPreference(key, value, callback) {
-	var preference = {};
-	preference[key] = value;
-	storage.set(preference, function() {
-		if(chrome.runtime.lastError) {
-			console.warn("Whoops.. " + chrome.runtime.lastError.message);
-		} else {
-			callback();
-		}
+function setPreference(key, value) {
+	return new Promise(function(resolve, reject) {
+		var preference = {};
+		preference[key] = value;
+		storage.set(preference, function() {
+			if(chrome.runtime.lastError) {
+				reject(chrome.runtime.lastError.message);
+			} else {
+				resolve();
+			}
+		});
 	});
 }
 
 function getPreference(key, callback) {
-	storage.get(key, function(preference) {
-		var value = preference[key];
-		callback(value);
+	return new Promise(function(resolve, reject) {
+		storage.get(key, function(preference) {
+			var value = preference[key];
+			resolve(value);
+		});
 	});
 }

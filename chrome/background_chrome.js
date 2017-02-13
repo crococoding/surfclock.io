@@ -2,8 +2,9 @@
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// is updated tab active?
-	if(tab.active && changeInfo.url) {
-		logger.handleUrl(changeInfo.url);
+	var url = changeInfo.url;
+	if(tab.active && url) {
+		logger.handleUrl(url);
 	}
 });
 
@@ -11,7 +12,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
-		logger.handleUrl(tab.url);
+		var url = tab.url
+		logger.handleUrl(url);
 	});
 });
 
@@ -28,7 +30,8 @@ chrome.windows.onFocusChanged.addListener(function(windowId) {
 			'windowId': windowId
 		}, function(tabs) {
 			var tab = tabs[0];
-			logger.handleUrl(tab.url);
+			var url = tab.url;
+			logger.handleUrl(url);
 		});
 	}
 });

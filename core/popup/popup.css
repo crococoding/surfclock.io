@@ -1,10 +1,16 @@
+/* general */
+
+html,
 body {
 	width: 500px;
 	height: 600px;
+	overflow: hidden;
+}
+
+body {
 	margin: 0;
 	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; 
 	font-weight: 300;
-	overflow: hidden;
 }
 
 p {
@@ -21,15 +27,13 @@ p {
 	position: relative;
 }
 
-#header,
-#footer {
-	height: 50px;
+#header {
+	height: 0;
+	padding: 0;
 }
 
-/* total time */
-
-#header p {
-	font-size: 20px;
+#footer {
+	height: 100px;
 }
 
 /* doughnut */
@@ -40,7 +44,7 @@ p {
 	z-index: 1;
 }
 
-#domainInfo,
+#info,
 #indicator {
 	position: absolute;
 	left: 0;
@@ -64,7 +68,7 @@ p {
 	position: absolute;
 	top: 50%;
 	right: 6px;
-	margin-top: -15px;
+	margin-top: -16px;
 	height: 21px;
 	width: 21px;
 	border-radius: 50%;
@@ -73,77 +77,87 @@ p {
 	transition: all .2s;
 }
 
-/* domain info */
+/* info */
 
-#domainInfo {
+#info {
 	line-height: 380px;
-	/*z-index: -1;*/
+	z-index: -1;
 }
 
-#domainInfo div {
-	width: 100%;
+#info > div {
 	display: inline-block;
 	vertical-align: middle;
 }
 
-#domainInfo h2 {
-	font-size: 30px;
-	word-break: break-all;
-	margin: 0 0 10px 0;
-	line-height: 1em;
+#info p {
+	line-height: 1.5em;
+	font-size: 18px;
+	padding: 0 50px;
+	margin: 15px 0;
 }
 
-#domainInfo p {
-	font-size: 20px;
-	line-height: 1.3em;
+#info p span {
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+	border-radius: 8px;
+	padding: 0 7px;
+	white-space: nowrap;
+	word-break: keep-all;
 }
 
-/* footer */
+#info p span,
+.noUi-connect {
+	background: yellow;
+}
 
-#footer > * {
-	border: 1px solid #179DFD;
+#domain {
+	font-weight: bold;
+	white-space: normal !important;
+	word-break: normal !important;
+}
+
+/* observation control */
+
+.noUi-horizontal .noUi-handle {
+	width: 6px;
+	height: 18px;
+	top: 0;
+	left: -1px;
+	background: none;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	cursor: ew-resize;
+}
+
+.noUi-horizontal .noUi-handle-upper {
+	left: -5px;
+}
+
+.noUi-connect {
+	cursor: move;
+	border: 4px double black;
 	border-radius: 6px;
-	display: inline-block;
+	box-shadow: none;
 }
 
-#footer > *:not(:last-child) {
-	margin-right: 30px;
+.noUi-target {
+	border-radius: 6px;
+	box-shadow: none;
+	background: lightgrey;
+	border: none;
 }
 
-#footer > * > * {
-	color: black;
-	display: block;
-	float: left;
-	font-size: 15px;
-	padding: 5px 10px;
-	text-decoration: none;
-	transition: all .2s;
-}
-
-#footer a:first-of-type,
-#footer label:first-of-type  {
-	border-top-left-radius: 4px;
-	border-bottom-left-radius: 4px;
-}
-
-#footer a:last-of-type,
-#footer label:last-of-type {
-	border-top-right-radius: 4px;
-	border-bottom-right-radius: 4px;
-}
-
-#footer > * > *:hover {
-	background: rgba(23, 157, 253, .3);
-	cursor: pointer
-}
-
-#footer a:focus,
-#footer input:checked + label {
-	background: rgba(23, 157, 253, 1);
-	color: white;
-	outline: 0;
-}
-
-#observationControlGroup input {
+.noUi-horizontal .noUi-handle::after,
+.noUi-horizontal .noUi-handle::before {
 	display: none;
+}
+
+/* reset control */
+
+#resetControl,
+#resetControl:visited {
+	color: lightgrey;
+	display: inline-block;
+	margin-top: 20px;
 }

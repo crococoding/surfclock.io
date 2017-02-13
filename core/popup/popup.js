@@ -7,37 +7,83 @@ window.onload = function() {
 var popup = {
 
 	init: function() {
-		popup.initObservationControl();
 		popup.initResetControl();
-		popup.initChart();
-
-		popup.domain = getBackground().logger.domain;
-		popup.update();
+		popup.initObservationControl().then(function(observationBounds) {
+			popup.initChart();
+			popup.domain = getBackground().logger.domain;
+			popup.update(observationBounds);
+		});
 	},
 
 	initObservationControl: function() {
-		// save preferences on click
-		var observationPeriods = document.querySelectorAll('#observationControlGroup label');
-		for(i in observationPeriods) {
-			observationPeriods[i].onclick = function(event) {
-				setPreference('observationPeriod', this.getAttribute('for'), function() {
-					popup.update();
-				});
-			};	
-		}
+		return new Promise(function(resolve, reject) {
+			// getPreference('observationPeriod').then(function(preference) {
+				getBackground().database.getBeginning().then(function(beginning) {
+					var threshold = 1000*60*60; // hour: bewtween start and end
+					var now = getBackground().getTimestamp();
+					var observationPeriod = {
+						'from' : beginning,
+						'till' : now
+					};
 
-		// highlight control according to saved preference
-		getPreference('observationPeriod', function(preference) {
-			document.getElementById(preference ? preference : 'all').checked = true;	
+					// if(preference) {
+					// 	observationPeriod = {
+					// 		'from' : preference.from,
+					// 		'till' : now - beginning > threshold ? preference.till : now
+					// 	}
+					// } else {
+					// 	setPreference('observationPeriod', observationPeriod);
+					// }
+
+					var slider = document.getElementById('observationControl');
+					noUiSlider.create(slider, {
+						start: [observationPeriod.from, observationPeriod.till],
+						connect: true, // display a colored bar between the handles
+						margin: threshold,
+						behaviour: 'drag',
+						step: 1000*60,
+						format: {
+							from: Number,
+							to: function(number) {
+								return Math.round(number);
+							}
+						},
+						range: {
+							'min': beginning,
+							'max': now
+						},
+					});
+					
+					// update preference and chart data when moving the slider is done
+					slider.noUiSlider.on('change', function(values) {
+						var preference = {
+							'from' : values[0],
+							'till' : values[1]
+						}
+						// setPreference('observationPeriod', preference);
+				    	popup.update(preference);
+					});
+					
+					// update slider duration while moving the slider
+					slider.noUiSlider.on('slide', function(values) {
+						var from = values[0];
+						var till = values[1];
+						popup.showObservationPeriod(from, till);
+					});
+
+					popup.showObservationPeriod(observationPeriod.from, observationPeriod.till);
+
+					resolve(observationPeriod);
+				});
+			// });
 		});
 	},
 
 	initResetControl: function() {
-		document.querySelector('#resetControlGroup a').onclick = function(event) {
+		document.getElementById('resetControl').onclick = function(event) {
 			// null means remove everything
-			getBackground().database.remove(null, function() {
-				getBackground().logger.reinstateDomain();
-			});
+			getBackground().database.remove(null);
+			getBackground().logger.reinstateDomain();
 		};
 	},
 
@@ -84,7 +130,7 @@ var popup = {
 
 		Chart.pluginService.register({
 			beforeRender: function (chart, easing) {
-				popup.showDomainInfo();
+				popup.showDurations();
 			},
 			afterDraw: function(chart, easing) {
 				popup.showIndicator();
@@ -92,90 +138,104 @@ var popup = {
 		});
 	},
 
-	update: function() {
-		function getIntervalDuration(interval) {
-			return (interval['till'] - interval['from']);
-		}
+	update: function(observationBounds) {
+		return new Promise(function(resolve, reject) {
+			var promises = [];
 
-		function sumArray(array) {
-			return array.reduce((total, duration) => total + duration, 0);
-		}
+			getBackground().database.retrieve().then(function(data) {
+				for (var domain in data) {
+					promises.push(someFunction(data, domain));
+				}
 
-		function filterAndClipIntervals(intervals, observationBounds) {
-			var result = [];
-			for(i in intervals) {
-				var interval = intervals[i];
-				var from = interval['from'];
-				var till = interval['till'] ? interval['till'] : observationBounds.upper;
-				if(observationBounds.lower < till && observationBounds.upper > from) {
-					result.push({
-						'from' : Math.max(from, observationBounds.lower),
-						'till' : Math.min(till, observationBounds.upper)
+				resolve(promises);
+			
+			}).catch(function(error) {
+				reject(error);
+			});
+
+			function someFunction(dataA, domain) {
+				return new Promise(function(resolve, reject) {
+					getBackground().database.getColor(domain).then(function(color) {
+						var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
+						var intervalDurations = intervals.map(getIntervalDuration);
+						var domainDuration = popup.sumArray(intervalDurations);
+						
+						var someData = {
+							'domain' : domain,
+							'duration' : domainDuration,
+							'color' : (color ? color : '#EEEEEE'),
+						}
+
+						resolve(someData);
 					});
+				});
+
+				function getIntervalDuration(interval) {
+					return (interval['till'] - interval['from']);
 				}
 			}
-			return result;
-		}
 
-		popup.getObservationBounds(function(observationBounds) {
-			getBackground().database.retrieve(function(data) {
-				var chartData = [];
-
-				for (var domain in data) {
-					var intervals = filterAndClipIntervals(data[domain], observationBounds);
-					var intervalDurations = intervals.map(getIntervalDuration);
-					var domainDuration = sumArray(intervalDurations);
-					chartData.push({
-						'domain' : domain,
-						'duration' : domainDuration
-					});
+			function filterAndClipIntervals(intervals, observationBounds) {
+				var result = [];
+				for(i in intervals) {
+					var interval = intervals[i];
+					var from = interval['from'];
+					var till = interval['till'] ? interval['till'] : observationBounds['till'];
+					if(observationBounds['from'] < till && observationBounds['till'] > from) {
+						result.push({
+							'from' : Math.max(from, observationBounds['from']),
+							'till' : Math.min(till, observationBounds['till'])
+						});
+					}
 				}
-
-				// sort descending
+				return result;
+			}
+		}).then(function(promises) {
+			Promise.all(promises).then(function(chartData) {
 				chartData.sort((x, y) => (y['duration'] - x['duration']));
 
 				var domains = chartData.map((x) => x['domain']);
 				var durations = chartData.map((x) => x['duration']);
-				var colors = randomColor({
-					count: chartData.length
-				});
+				var colors = chartData.map((x) => x['color']);
 
 				popup.chart.labels = domains;
 				popup.chart.data.datasets[0].data = durations;
 				popup.chart.data.datasets[0].backgroundColor = colors;
 				popup.chart.data.datasets[0].hoverBackgroundColor = colors;
 
-				// chart
-				popup.chart.update();
+				//console.log(chartData);
 
-				// headline
-				var totalDuration = popup.getPrettyTime(sumArray(durations));
-				if(totalDuration) {
-					document.querySelector('#header p').innerHTML = 'Total Time: ' + totalDuration;
-				}
+				popup.chart.update();
 			});
 		});
 	},
 
-	showDomainInfo: function() {
-		if(popup.domain && popup.chart.labels) {
+	showObservationPeriod: function(from, till) {
+		function displayTimestamp(milliseconds) {
+			var date = new Date(milliseconds) + '';
+			return date.substring(0, date.lastIndexOf(':'));
+		}
+
+		document.getElementById('periodFrom').innerHTML = displayTimestamp(from);
+		document.getElementById('periodTill').innerHTML = displayTimestamp(till);
+		document.getElementById('periodDuration').innerHTML = popup.getPrettyTime(till - from);
+	},
+
+	showDurations: function() {
+		// total
+		var totalDuration = popup.sumArray(popup.chart.data.datasets[0].data);
+		document.getElementById('totalDuration').innerHTML = totalDuration ? popup.getPrettyTime(totalDuration) : '0 minutes';	
+
+		// domain
+		if(popup.domain && popup.chart.labels && totalDuration) {
 			var index = popup.chart.labels.indexOf(popup.domain);
-			var duration = popup.getPrettyTime(popup.getDomainDuration(index)) || 'hasn\'t been visited in this time period';
-
-			// var animateIn = 'zoomIn';
-			// var animateOut = 'zoomOut';
-
-			// document.getElementById('domainInfo').classList.remove(animateIn);
-			// document.getElementById('domainInfo').classList.add(animateOut);
-
-			// setTimeout(function() {
-			// 	document.getElementById('domainInfo').classList.remove(animateOut);
-			// 	document.getElementById('domainInfo').classList.add(animateIn);
-
-				document.querySelector('#domainInfo h2').innerHTML = popup.domain;
-				document.querySelector('#domainInfo p').innerHTML = duration;
-
-			// }, 200);
+			var domainDuration = popup.getDomainDuration(index);
+			
+			document.querySelector('#info p:last-of-type').style.display = 'block';
+			document.getElementById('domain').innerHTML = popup.domain;
+			document.getElementById('domainDuration').innerHTML = domainDuration ? popup.getPrettyTime(domainDuration) : '0 minutes';
+		} else {
+			document.querySelector('#info p:last-of-type').style.display = 'none';
 		}
 	},
 
@@ -206,53 +266,33 @@ var popup = {
 	},
 
 	getPrettyTime: function(milliseconds) {
-		var seconds = parseInt((milliseconds/1000)%60);
+		//var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
 		var hours = parseInt(milliseconds/(1000*60*60));
 
-		function getTimePartString(timePart, timePartName) {
-			if(timePart > 0) {
-				return ' ' + popup.numerus(timePart, timePartName);
-			} else {
-				return '';
-			}
-		};
+		if(hours + minutes == 0) {
+			return '< 1 minute';
+		} else {
+			function getTimePartString(timePart, timePartName) {
+				return timePart ? ' ' + popup.numerus(timePart, timePartName) : '';
+			};
 
-		var time = '';
-		time += getTimePartString(hours, 'hour');
-		time += getTimePartString(minutes, 'minute');
-		time += getTimePartString(seconds, 'second');
+			var time = '';
+			time += getTimePartString(hours, 'hour');
+			time += getTimePartString(minutes, 'minute');
 
-		if(time == '') {
-			time = getTimePartString(milliseconds, 'millisecond');
+			time = time.slice(1);
+
+			return time;
 		}
-
-		time = time.slice(1);
-
-		return time;
 	},
 
 	numerus: function(number, word) {
 		return (number > 1) ? (number + ' ' + word + 's') : (number + ' ' + word);
 	},
 
-	getObservationBounds: function(callback) {
-		getPreference('observationPeriod', function(preference) {
-			var now = getBackground().logger.getTimestamp();
-			var difference = now;
-			switch (preference) {
-				case 'hour'  : difference =              60 * 60 * 1000; break;
-				case 'day'   : difference =         24 * 60 * 60 * 1000; break;
-				case 'week'  : difference =     7 * 24 * 60 * 60 * 1000; break;
-				case 'month' : difference = 4 * 7 * 24 * 60 * 60 * 1000; break;
-				default		 : difference = now;
-			}
-
-			callback({
-				'lower' : now - difference,
-				'upper' : now
-			});
-		});
+	sumArray: function(array) {
+		return array.reduce((total, duration) => total + duration, 0);
 	},
 
 	domain: null, // domain you chose to inspect details of

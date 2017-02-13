@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.0.1/color-thief.min.js"></script>
+	<script type="text/javascript" src="core/background/vibrant.min.js"></script>
+	<script type="text/javascript">
+		
+
+			var favicon = document.createElement('img');
+			favicon.setAttribute('id', 'favicon');
+
+		$( document ).ready(function() {
+
+			document.body.appendChild(favicon);
+
+
+
+			$('button').click(function() {
+				updateColorIndicator();
+			});
+
+			$('#size').change(function() {
+				favicon.setAttribute('width', $(this).val() + 'px');
+				favicon.setAttribute('height', $(this).val() + 'px');
+
+				updateColorIndicator();
+			});
+
+
+
+
+
+
+		});
+
+
+		function updateColorIndicator() {
+				var url = $('#url').val();
+				var $indicator = $('#indicator');
+
+				getFaviconColor(url).then(function(color) {
+					if (color) {
+						$indicator.css('background-color', color);//'rgb(' + color.join(',') + ')');
+						//alert('ok' + color);
+					} else {
+						$indicator.css('background-color', 'gray');
+					}
+
+				}).catch(function(error) {
+					alert(JSON.stringify(error));
+				});
+
+			}
+
+
+		function getFaviconColor(url) {
+			return new Promise(function(resolve, reject) {
+
+				var favicon = document.getElementById('favicon');
+
+				//var colorThief = new ColorThief();
+				
+				if (favicon.getAttribute('src') == url) {
+					// same url
+					//var swatches = vibrant.swatches()
+					var vibrant = new Vibrant(favicon);
+					resolve(vibrant.swatches()['Vibrant'].getHex())
+					// resolve(colorThief.getColor(favicon));
+					 return;
+				}
+
+
+				favicon.setAttribute('src', url);
+
+				
+
+				favicon.onload = function() {
+					//resolve(colorThief.getColor(favicon));
+					var vibrant = new Vibrant(favicon);
+					resolve(vibrant.swatches()['Vibrant'].getHex())
+				}
+
+				favicon.onerror = function() {
+					resolve(null);
+				}
+			});
+		}
+
+
+
+
+	</script>
+</head>
+<body>
+
+<input type="text" id="url"  value="http://google.com/favicon.ico">
+<input type="number" id="size" value="50"/>
+<button>Click me</button>
+
+<div id="indicator" style="width: 100px; height: 100px; border: 1px solid black"></div>
+
+</body>
+</html>
