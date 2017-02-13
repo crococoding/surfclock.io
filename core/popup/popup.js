@@ -144,7 +144,7 @@ var popup = {
 
 			getBackground().database.retrieve().then(function(data) {
 				for (var domain in data) {
-					promises.push(someFunction(data, domain));
+					promises.push(preparePromiseForSingleDomain(data, domain));
 				}
 
 				resolve(promises);
@@ -153,7 +153,7 @@ var popup = {
 				reject(error);
 			});
 
-			function someFunction(dataA, domain) {
+			function preparePromiseForSingleDomain(dataA, domain) {
 				return new Promise(function(resolve, reject) {
 					getBackground().database.getColor(domain).then(function(color) {
 						var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
