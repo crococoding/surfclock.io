@@ -2,16 +2,18 @@ var logger = {
 
 	handleUrl: function(url) {
 
+		this.paused = false;
+
 		this.url = url;
 		var domain = this.getDomain(url);
 
 		if(!domain) {
-			this.endInterval();
+			//this.endInterval();
 		} else if(domain != this.domain) {
-			// previous interval
-			this.endInterval();
-			// new interval
-			this.startInterval(domain);
+
+
+			this.domain = domain;
+			database.addUserActivity(this.domain);
 			
 			// store color
 			// 'http://favicon.yandex.net/favicon/''
@@ -20,8 +22,11 @@ var logger = {
 			this.getFaviconColor(faviconUrl).then(function(color) {
 				database.storeColor(domain, color);
 			});
+		} else if (domain == this.domain){
+			database.updateUserActivity(this.domain);
 		}
 	},
+
 
 	// main color of favicon in hex
 	getFaviconColor(url) {
@@ -64,12 +69,16 @@ var logger = {
 
 
 	endInterval: function() {
-		if(this.domain) {
-			database.storeIntervalEnd(this.domain, getTimestamp());
-		}
 
-		// pause
-		this.domain = null;
+		logger.handleUrl(logger.url);
+		this.paused = true;
+
+		// if(this.domain) {
+		// 	database.storeIntervalEnd(this.domain, getTimestamp());
+		// }
+
+		// // pause
+		// this.domain = null;
 	},
 
 	reinstateDomain: function() {
@@ -89,11 +98,49 @@ var logger = {
 
 	url: null,
 
-	domain: null
+	domain: null,
+
+	// set this to true when browser is not active!
+	paused: true,
 
 }
+
+
+
+
+setInterval(function() {
+
+	if (!logger.paused) {
+		logger.handleUrl(logger.url);
+	}
+	
+	//console.log("auto update");
+
+
+	
+
+
+}, 3000);
+
+
+
+function logDB() {
+	console.log("started");
+	database.retrieve().then(function(val) {
+		console.log(val);
+	}).catch(function(error) {
+		console.log("error: " + error);
+	});
+}
+
 
 function getTimestamp() {
 	// in milliseconds since Jan 1st 1970
 	return Date.now();
 }
+
+
+
+
+
+

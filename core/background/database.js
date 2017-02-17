@@ -16,6 +16,45 @@ var database = new function() {
 
 
 
+
+	this.addUserActivity = function(domain) {
+
+		database.dexie.intervals.add({
+			'domain' : domain,
+			'from' : Date.now(),
+			'till' : Date.now(), // Date.now(), will be updated later
+		}).catch(function(error) {
+			console.log("ERROR adding activity" + error);
+		});
+
+		console.log("added activity");
+	}
+
+
+	this.updateUserActivity = function(domain) {
+
+		// get last domain entry from DB to make sure we don't change some old value
+		database.dexie.intervals.toCollection().last().then(function(lastDomain) {
+			if (lastDomain.domain == domain) {
+				// update the last entry
+				
+				//DEBUG
+				if (Date.now() - lastDomain.till > 1 * 68 * 60 * 1000) { // > 1h
+					alert("INTERVAL > 1h!! domain: " + domain + "Date.now(): " + Date.now() + "lastDomain.till: " + lastDomain.till);
+				}
+
+				database.dexie.intervals.update(lastDomain.id, {'till' : Date.now()});
+			} else {
+				alert('unexpected behavior. //TODO further investigation');
+			}
+		});
+
+
+		console.log("updated activity");
+	}
+
+
+
 	this.storeColor = function(domain, color) {
 		database.dexie.domains.put({
 			domain: domain, 
@@ -65,6 +104,9 @@ var database = new function() {
 
 		var data = {};
 
+
+		console.log("did call retrieve");
+
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.each(function(item) {
 
@@ -73,6 +115,8 @@ var database = new function() {
 				} 
 
 				data[item.domain].push(item);
+
+				//console.log(item);
 
 			}).then(function() {
 				resolve(data);
