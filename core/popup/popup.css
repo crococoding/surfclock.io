@@ -107,6 +107,7 @@ p {
 	padding: 0 7px;*/
 	white-space: nowrap;
 	word-break: keep-all;
+	word-wrap:break-word;
 }
 
 #domain {

@@ -37,6 +37,12 @@ var popup = {
 			beginning = beginning - beginning % scales[scaleIndex]; // start at round number
 
 			var slider = document.getElementById('observationControl');
+
+			// destroy the slider in case it already existes (necessary for Safari)
+			if (slider.noUiSlider) {
+				slider.noUiSlider.destroy();
+			}
+
 			noUiSlider.create(slider, {
 				start: [beginning, now],
 				connect: true, // display a colored bar between the handles
