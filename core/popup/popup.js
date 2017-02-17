@@ -8,74 +8,80 @@ var popup = {
 
 	init: function() {
 		popup.initResetControl();
-		popup.initObservationControl().then(function(observationBounds) {
-			popup.initChart();
-			popup.domain = getBackground().logger.domain;
-			popup.update(observationBounds);
+		popup.initObservationControl()
+		popup.initChart();
+		popup.domain = getBackground().logger.domain;
+		popup.update({
+			'from' : 0,
+			'till' : getBackground().getTimestamp()
 		});
 	},
 
 	initObservationControl: function() {
-		return new Promise(function(resolve, reject) {
-			// getPreference('observationPeriod').then(function(preference) {
-				getBackground().database.getBeginning().then(function(beginning) {
-					var threshold = 1000*60*60; // hour: bewtween start and end
-					var now = getBackground().getTimestamp();
-					var observationPeriod = {
-						'from' : beginning,
-						'till' : now
-					};
+		getBackground().database.getBeginning().then(function(beginning) {
+			var now = getBackground().getTimestamp();
+			const totalDuration = now - beginning;
 
-					// if(preference) {
-					// 	observationPeriod = {
-					// 		'from' : preference.from,
-					// 		'till' : now - beginning > threshold ? preference.till : now
-					// 	}
-					// } else {
-					// 	setPreference('observationPeriod', observationPeriod);
-					// }
+			const minute = 1000 * 60;
+			const hour = minute * 60;
+			const day = hour * 24;
+			const scales = [minute, hour, day];
 
-					var slider = document.getElementById('observationControl');
-					noUiSlider.create(slider, {
-						start: [observationPeriod.from, observationPeriod.till],
-						connect: true, // display a colored bar between the handles
-						margin: threshold,
-						behaviour: 'drag',
-						step: 1000*60,
-						format: {
-							from: Number,
-							to: function(number) {
-								return Math.round(number);
-							}
-						},
-						range: {
-							'min': beginning,
-							'max': now
-						},
-					});
-					
-					// update preference and chart data when moving the slider is done
-					slider.noUiSlider.on('change', function(values) {
-						var preference = {
-							'from' : values[0],
-							'till' : values[1]
-						}
-						// setPreference('observationPeriod', preference);
-				    	popup.update(preference);
-					});
-					
-					// update slider duration while moving the slider
-					slider.noUiSlider.on('slide', function(values) {
-						var from = values[0];
-						var till = values[1];
-						popup.showObservationPeriod(from, till);
-					});
+			var scaleIndex = 0;
+			if(totalDuration > 5 * day) {
+				scaleIndex = 2;
+			} else if(totalDuration > day) {
+				scaleIndex = 1;
+			}
 
-					popup.showObservationPeriod(observationPeriod.from, observationPeriod.till);
+			beginning = beginning - beginning % scales[scaleIndex]; // start at round number
 
-					resolve(observationPeriod);
-				});
-			// });
+			var slider = document.getElementById('observationControl');
+
+			// destroy the slider in case it already existes (necessary for Safari)
+			if (slider.noUiSlider) {
+				slider.noUiSlider.destroy();
+			}
+
+			noUiSlider.create(slider, {
+				start: [beginning, now],
+				connect: true, // display a colored bar between the handles
+				behaviour: 'drag',
+				margin: scales[scaleIndex], // minimum between start and end
+				step: scales[scaleIndex],
+				pips: {
+					mode: 'steps',
+				},
+				format: {
+					from: Number,
+					to: function(number) {
+						return Math.round(number); // skip decimals
+					}
+				},
+				range: {
+					'min': beginning,
+					'max': now
+				},
+			});
+			
+			// update preference and chart data when moving the slider is done
+			slider.noUiSlider.on('change', function(values) {
+				var preference = {
+					'from' : values[0],
+					'till' : values[1]
+				}
+				// setPreference('observationPeriod', preference);
+		    	popup.update(preference);
+			});
+			
+			// update slider duration while moving the slider
+			slider.noUiSlider.on('slide', function(values) {
+				var from = values[0];
+				var till = values[1];
+				popup.showObservationPeriod(from, till);
+			});
+
+			popup.showObservationPeriod(beginning, now);
 		});
 	},
 
@@ -216,9 +222,7 @@ var popup = {
 			return date.substring(0, date.lastIndexOf(':'));
 		}
 
-		document.getElementById('periodFrom').innerHTML = displayTimestamp(from);
-		document.getElementById('periodTill').innerHTML = displayTimestamp(till);
-		document.getElementById('periodDuration').innerHTML = popup.getPrettyTime(till - from);
+		document.getElementById('text').innerHTML = displayTimestamp(from) + ' - ' + displayTimestamp(till) + ' (' + popup.getPrettyTime(till - from) + ')';
 	},
 
 	showDurations: function() {
@@ -268,9 +272,10 @@ var popup = {
 	getPrettyTime: function(milliseconds) {
 		//var seconds = parseInt((milliseconds/1000)%60);
 		var minutes = parseInt((milliseconds/(1000*60))%60);
-		var hours = parseInt(milliseconds/(1000*60*60));
+		var hours = parseInt((milliseconds/(1000*60*60))%24);
+		var days = parseInt(milliseconds/(1000*60*60*24));
 
-		if(hours + minutes == 0) {
+		if(days + hours + minutes == 0) {
 			return '< 1 minute';
 		} else {
 			function getTimePartString(timePart, timePartName) {
@@ -278,6 +283,7 @@ var popup = {
 			};
 
 			var time = '';
+			time += getTimePartString(days, 'day');
 			time += getTimePartString(hours, 'hour');
 			time += getTimePartString(minutes, 'minute');
 

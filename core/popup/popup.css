@@ -82,6 +82,10 @@ p {
 #info {
 	line-height: 380px;
 	z-index: -1;
+	height: 394px;
+    width: 394px;
+    margin: 53px;
+    box-shadow: 0 0 50px 1px rgba(0,0,0,.7) inset;
 }
 
 #info > div {
@@ -90,8 +94,8 @@ p {
 }
 
 #info p {
-	line-height: 1.5em;
-	font-size: 18px;
+	line-height: 1em;
+	font-size: 19px;
 	padding: 0 50px;
 	margin: 15px 0;
 }
@@ -99,15 +103,11 @@ p {
 #info p span {
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
-	border-radius: 8px;
-	padding: 0 7px;
+	/*border-radius: 8px;
+	padding: 0 7px;*/
 	white-space: nowrap;
 	word-break: keep-all;
-}
-
-#info p span,
-.noUi-connect {
-	background: yellow;
+	word-wrap:break-word;
 }
 
 #domain {
@@ -118,13 +118,17 @@ p {
 
 /* observation control */
 
+#observationControl {
+	height: 8px;
+}
+
 .noUi-horizontal .noUi-handle {
 	width: 6px;
 	height: 18px;
-	top: 0;
+	top: -5px;
 	left: -1px;
-	background: none;
-	border: none;
+	background: black;
+	border: 2px solid white;
 	border-radius: 0;
 	box-shadow: none;
 	cursor: ew-resize;
@@ -135,10 +139,10 @@ p {
 }
 
 .noUi-connect {
-	cursor: move;
-	border: 4px double black;
-	border-radius: 6px;
+	background: yellow;
+	border: 1px solid black;
 	box-shadow: none;
+	cursor: move;
 }
 
 .noUi-target {
@@ -153,11 +157,24 @@ p {
 	display: none;
 }
 
+.noUi-pips-horizontal {
+    padding-bottom: 0;
+    height: 30px;
+}
+
+.noUi-pips {
+	display: none;
+}
+
+#text {
+	margin-top: 10px;
+}
+
 /* reset control */
 
 #resetControl,
 #resetControl:visited {
 	color: lightgrey;
 	display: inline-block;
-	margin-top: 20px;
+	margin-top: 25px;
 }
