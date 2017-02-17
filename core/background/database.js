@@ -14,6 +14,37 @@ var database = new function() {
 		console.log('Open failed: ' + error);
 	});
 
+	this.storeUserActivity = function(domain) {
+		database.dexie.intervals.add({
+			'domain' : domain,
+			'from' : getTimestamp(),
+			'till' : getTimestamp(), // Date.now(), will be updated later
+		}).catch(function(error) {
+			console.log("ERROR adding activity" + error);
+		});
+	}
+
+
+	this.updateUserActivity = function(domain) {
+		// get last domain entry from DB to make sure we don't change some old value
+		database.dexie.intervals.toCollection().last().then(function(lastInverval) {
+			if (lastInverval.domain == domain) {
+				// update the last entry
+				//DEBUG
+				if (getTimestamp() - lastInverval.till > 1 * 68 * 60 * 1000) { // > 1h
+					alert("INTERVAL > 1h!! domain: " + domain + "getTimestamp: " + getTimestamp() + "lastDomain.till: " + lastInverval.till);
+				}
+
+				database.dexie.intervals.update(lastInverval.id, {'till' : getTimestamp()});
+			} else {
+				alert('unexpected behavior. //TODO further investigation');
+			}
+		});
+
+
+		console.log("updated activity");
+	}
+
 
 
 	this.storeColor = function(domain, color) {
@@ -40,30 +71,12 @@ var database = new function() {
 		});
 	}
 
-
-	this.storeIntervalStart = function(domain, from) {
-		database.dexie.intervals.add({
-			'domain' : domain,
-			'from' : from 
-		}).then(function() {
-			// alert('start ' + domain);
-		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error))
-		});
-	}
-
-	this.storeIntervalEnd = function(domain, till) {
-		database.dexie.intervals.where('domain').equals(domain).last().then(function(item) {
-			database.dexie.intervals.update(item.id, {'till' : till});
-			// alert('end ' + domain);
-		}).catch(function(error) {
-			console.log('error: ' + JSON.stringify(error));
-		});
-	}
-
 	this.retrieve = function() {
 
 		var data = {};
+
+
+		console.log("did call retrieve");
 
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.each(function(item) {
@@ -73,6 +86,8 @@ var database = new function() {
 				} 
 
 				data[item.domain].push(item);
+
+				//console.log(item);
 
 			}).then(function() {
 				resolve(data);
