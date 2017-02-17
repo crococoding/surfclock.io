@@ -13,11 +13,10 @@ var logger = {
 			//this.endInterval();
 		} else if(domain != this.domain) {
 			this.domain = domain;
-			database.addUserActivity(this.domain);
+			database.storeUserActivity(this.domain);
 			
 			// store color
 			// 'http://favicon.yandex.net/favicon/''
-			
 			var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
 			this.getFaviconColor(faviconUrl).then(function(color) {
 				database.storeColor(domain, color);

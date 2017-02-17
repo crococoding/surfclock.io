@@ -41,8 +41,7 @@ var database = new function() {
 			}
 		});
 
-
-		console.log("updated activity");
+		// console.log("updated activity");
 	}
 
 
@@ -75,8 +74,7 @@ var database = new function() {
 
 		var data = {};
 
-
-		console.log("did call retrieve");
+		// console.log("did call retrieve");
 
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.each(function(item) {
