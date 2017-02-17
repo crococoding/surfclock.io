@@ -2,16 +2,16 @@ var logger = {
 
 	handleUrl: function(url) {
 
-		this.paused = false;
-
 		this.url = url;
 		var domain = this.getDomain(url);
+
+		if (domain) {
+			this.paused = false;
+		}
 
 		if(!domain) {
 			//this.endInterval();
 		} else if(domain != this.domain) {
-
-
 			this.domain = domain;
 			database.addUserActivity(this.domain);
 			
@@ -109,17 +109,9 @@ var logger = {
 
 
 setInterval(function() {
-
 	if (!logger.paused) {
 		logger.handleUrl(logger.url);
 	}
-	
-	//console.log("auto update");
-
-
-	
-
-
 }, 3000);
 
 
