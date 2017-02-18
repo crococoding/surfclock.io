@@ -61,7 +61,7 @@ var logger = {
 
 
 	startInterval: function(domain) {
-		database.storeUserActivity(domain);
+		database.storeInterval(domain);
 
 		this.paused = false;
 		this.domain = domain;

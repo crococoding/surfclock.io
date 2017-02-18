@@ -14,7 +14,11 @@ var database = new function() {
 		console.log('Open failed: ' + error);
 	});
 
-	this.storeUserActivity = function(domain) {
+
+
+
+
+	this.storeInterval = function(domain) {
 		database.dexie.intervals.add({
 			'domain' : domain,
 			'from' : getTimestamp(),
@@ -23,7 +27,6 @@ var database = new function() {
 			console.log('ERROR adding activity' + error);
 		});
 	}
-
 
 	this.updateIntervalEnd = function(domain) {
 		// get last domain entry from DB to make sure we don't change some old value
@@ -44,7 +47,19 @@ var database = new function() {
 		// console.log('updated activity');
 	}
 
-
+	this.getBeginning = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.toCollection().first().then(function(interval) {
+				if(interval) {
+					resolve(interval.from);
+				} else {
+					resolve(null);
+				}
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
 
 	this.storeColor = function(domain, color) {
 		database.dexie.domains.put({
@@ -74,6 +89,8 @@ var database = new function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.domains.toCollection().toArray(function(domains) {
 				resolve(domains.map(x => x.domain));
+			}).catch(function(error) {
+				reject(error);
 			});
 		});
 	}
@@ -83,7 +100,7 @@ var database = new function() {
 			database.dexie.intervals
 			.where('domain').equals(domain)
 			// filter
-			.and((interval) => observationBounds.from < interval.till && observationBounds.till > interval.from)
+			.and(interval => observationBounds.from < interval.till && observationBounds.till > interval.from)
 			.toArray(function(intervals) {
 				
 				// clip
@@ -97,49 +114,11 @@ var database = new function() {
 				// calculate
 				var duration = intervals
 				.map(interval => (interval.till - interval.from))
-				.reduce((total, duration) => (total + duration, 0));
+				.reduce((total, duration) => total + duration, 0);
 				
 				resolve(duration);
 			}).catch(function(error) {
-				resolve(0);
-			});
-		});
-	}
-
-	this.retrieve = function() {
-
-		var data = {};
-
-		// console.log('did call retrieve');
-
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.each(function(item) {
-
-				if (data[item.domain] == null) {
-					data[item.domain] = [];
-				} 
-
-				data[item.domain].push(item);
-
-				//console.log(item);
-
-			}).then(function() {
-				resolve(data);
-			}).catch(function(error) {
 				reject(error);
-			});
-		});
-	}
-
-	this.getBeginning = function() {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.toCollection().first().then(function(interval) {
-				if(interval) {
-					resolve(interval.from);
-				} else {
-					resolve(null);
-				}
-				
 			});
 		});
 	}

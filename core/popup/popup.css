@@ -77,10 +77,10 @@ p {
 	transform: rotate(0);
 	transition: all .2s;
 
+	/* translateZ for gpu acceleration */
 	-webkit-transform: translateZ(0) rotate(45deg);
 	-moz-transform: translateZ(0) rotate(45deg);
 	transform: translateZ(0) rotate(45deg);
-   /* Other transform properties here */
 }
 
 /* info */

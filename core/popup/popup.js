@@ -157,53 +157,31 @@ var popup = {
 	},
 
 	update: function(observationBounds) {
-		return new Promise(function(resolve, reject) {
-			var promises = [];
-
-			getBackground().database.retrieve().then(function(data) {
-				for (var domain in data) {
-					promises.push(someFunction(data[domain], domain));
-
-					function someFunction(intervals, domain) {
-						return new Promise(function(resolve, reject) {
-							getBackground().database.getColor(domain).then(function(color) {
-								var intervalDurations = clip(intervals.filter((interval) => (observationBounds.from < interval.till && observationBounds.till > interval.from))).map((interval) => (interval.till - interval.from));
-								var domainDuration = popup.sumArray(intervalDurations);
-								
-								resolve({
-									'domain' : domain,
-									'duration' : domainDuration,
-									'color' : (color ? color : '#EEEEEE'),
-								});
-
-
-								function clip(intervals) {
-									if(intervals.length > 0) {
-										var indexFirst = 0;
-										var indexLast = intervals.length - 1;
-										intervals[indexFirst].from = Math.max(intervals[indexFirst].from, observationBounds.from);
-										intervals[indexLast].till = Math.min(intervals[indexLast].till, observationBounds.till);
-									}
-									return intervals;
-								}
+		getBackground().database.getDomains().then(function(domains) {
+			return domains.map(function(domain) {
+				return new Promise(function(resolve, reject) {
+					getBackground().database.getColor(domain).then(function(color) {
+						getBackground().database.getDuration(domain, observationBounds).then(function(duration) {
+							resolve({
+								'domain' : domain,
+								'duration' : duration,
+								'color' : (color ? color : '#EEEEEE'),
 							});
+						}).catch(function(error) {
+							console.log(error);
 						});
-					}
-				}
-
-				resolve(promises);
-			
-			}).catch(function(error) {
-				reject(error);
+					}).catch(function(error) {
+						console.log(error);
+					});
+				});
 			});
-			
 		}).then(function(promises) {
 			Promise.all(promises).then(function(chartData) {
-				chartData.sort((x, y) => (y['duration'] - x['duration']));
+				chartData.sort((x, y) => y.duration - x.duration);
 
-				var domains = chartData.map((x) => x['domain']);
-				var durations = chartData.map((x) => x['duration']);
-				var colors = chartData.map((x) => x['color']);
+				var domains = chartData.map(x => x.domain);
+				var durations = chartData.map(x => x.duration);
+				var colors = chartData.map(x => x.color);
 
 				popup.chart.labels = domains;
 				popup.chart.data.datasets[0].data = durations;
