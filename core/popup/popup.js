@@ -86,10 +86,22 @@ var popup = {
 	},
 
 	initResetControl: function() {
-		document.getElementById('resetControl').onclick = function(event) {
-			// null means remove everything
+		document.getElementById('resetControl').onclick = function(e) {
+			
+			e.preventDefault();
+
+			// delete entries from database
+			// null means remove everything 
 			getBackground().database.remove(null);
+
+			// start a new interval
 			getBackground().logger.reinstateDomain();
+
+			// reload chart
+			popup.update({
+				'from' : 0,
+				'till' : getBackground().getTimestamp()
+			});
 		};
 	},
 
