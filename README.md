@@ -10,7 +10,7 @@
 - [noUiSlider.js](https://refreshless.com/nouislider)
 
 ### local storage (for settings)
-- observationPeriod: from, till
+- ~~observationPeriod: from, till~~
 
 ### indexeddb (for database)
 - intervals: domain, from, till
