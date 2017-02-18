@@ -20,7 +20,7 @@ var database = new function() {
 			'from' : getTimestamp(),
 			'till' : getTimestamp(), // Date.now(), will be updated later
 		}).catch(function(error) {
-			console.log("ERROR adding activity" + error);
+			console.log('ERROR adding activity' + error);
 		});
 	}
 
@@ -32,7 +32,7 @@ var database = new function() {
 				// update the last entry
 				//DEBUG
 				if (getTimestamp() - lastInverval.till > 1 * 68 * 60 * 1000) { // > 1h
-					alert("INTERVAL > 1h!! domain: " + domain + "getTimestamp: " + getTimestamp() + "lastDomain.till: " + lastInverval.till);
+					alert('INTERVAL > 1h!! domain: ' + domain + 'getTimestamp: ' + getTimestamp() + 'lastDomain.till: ' + lastInverval.till);
 				}
 
 				database.dexie.intervals.update(lastInverval.id, {'till' : getTimestamp()});
@@ -41,7 +41,7 @@ var database = new function() {
 			}
 		});
 
-		// console.log("updated activity");
+		// console.log('updated activity');
 	}
 
 
@@ -74,7 +74,7 @@ var database = new function() {
 
 		var data = {};
 
-		// console.log("did call retrieve");
+		// console.log('did call retrieve');
 
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.each(function(item) {

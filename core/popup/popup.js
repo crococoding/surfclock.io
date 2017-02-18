@@ -150,7 +150,33 @@ var popup = {
 
 			getBackground().database.retrieve().then(function(data) {
 				for (var domain in data) {
-					promises.push(someFunction(data, domain));
+					promises.push(someFunction(data[domain], domain));
+
+					function someFunction(intervals, domain) {
+						return new Promise(function(resolve, reject) {
+							getBackground().database.getColor(domain).then(function(color) {
+								var intervalDurations = clip(intervals.filter((interval) => (observationBounds.from < interval.till && observationBounds.till > interval.from))).map((interval) => (interval.till - interval.from));
+								var domainDuration = popup.sumArray(intervalDurations);
+								
+								resolve({
+									'domain' : domain,
+									'duration' : domainDuration,
+									'color' : (color ? color : '#EEEEEE'),
+								});
+
+
+								function clip(intervals) {
+									if(intervals.length > 0) {
+										var indexFirst = 0;
+										var indexLast = intervals.length - 1;
+										intervals[indexFirst].from = Math.max(intervals[indexFirst].from, observationBounds.from);
+										intervals[indexLast].till = Math.min(intervals[indexLast].till, observationBounds.till);
+									}
+									return intervals;
+								}
+							});
+						});
+					}
 				}
 
 				resolve(promises);
@@ -158,44 +184,7 @@ var popup = {
 			}).catch(function(error) {
 				reject(error);
 			});
-
-			function someFunction(dataA, domain) {
-				return new Promise(function(resolve, reject) {
-					getBackground().database.getColor(domain).then(function(color) {
-						var intervals = filterAndClipIntervals(dataA[domain], observationBounds);
-						var intervalDurations = intervals.map(getIntervalDuration);
-						var domainDuration = popup.sumArray(intervalDurations);
-						
-						var someData = {
-							'domain' : domain,
-							'duration' : domainDuration,
-							'color' : (color ? color : '#EEEEEE'),
-						}
-
-						resolve(someData);
-					});
-				});
-
-				function getIntervalDuration(interval) {
-					return (interval['till'] - interval['from']);
-				}
-			}
-
-			function filterAndClipIntervals(intervals, observationBounds) {
-				var result = [];
-				for(i in intervals) {
-					var interval = intervals[i];
-					var from = interval['from'];
-					var till = interval['till'] ? interval['till'] : observationBounds['till'];
-					if(observationBounds['from'] < till && observationBounds['till'] > from) {
-						result.push({
-							'from' : Math.max(from, observationBounds['from']),
-							'till' : Math.min(till, observationBounds['till'])
-						});
-					}
-				}
-				return result;
-			}
+			
 		}).then(function(promises) {
 			Promise.all(promises).then(function(chartData) {
 				chartData.sort((x, y) => (y['duration'] - x['duration']));
@@ -209,20 +198,18 @@ var popup = {
 				popup.chart.data.datasets[0].backgroundColor = colors;
 				popup.chart.data.datasets[0].hoverBackgroundColor = colors;
 
-				//console.log(chartData);
-
 				popup.chart.update();
 			});
 		});
 	},
 
 	showObservationPeriod: function(from, till) {
-		function displayTimestamp(milliseconds) {
-			var date = new Date(milliseconds) + '';
-			return date.substring(0, date.lastIndexOf(':'));
-		}
+		moment.locale(window.navigator.userLanguage || window.navigator.language);
+		var start = moment(from).format('llll');
+		var end = moment(till).format('llll');
+		var duration = popup.getPrettyTime(till - from);
 
-		document.getElementById('text').innerHTML = displayTimestamp(from) + ' - ' + displayTimestamp(till) + ' (' + popup.getPrettyTime(till - from) + ')';
+		document.getElementById('text').innerHTML = start + ' - ' + end + ' (' + duration + ')';
 	},
 
 	showDurations: function() {
@@ -270,10 +257,11 @@ var popup = {
 	},
 
 	getPrettyTime: function(milliseconds) {
-		//var seconds = parseInt((milliseconds/1000)%60);
-		var minutes = parseInt((milliseconds/(1000*60))%60);
-		var hours = parseInt((milliseconds/(1000*60*60))%24);
-		var days = parseInt(milliseconds/(1000*60*60*24));
+		var duration = moment.duration(milliseconds, 'milliseconds');
+
+		var minutes = duration.minutes();
+		var hours = duration.hours();
+		var days = duration.days();
 
 		if(days + hours + minutes == 0) {
 			return '< 1 minute';

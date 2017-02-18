@@ -4,10 +4,11 @@
 - Firefox
 
 ### credits to
-- [Dexie.js](http://dexie.org)
 - [Chart.js](http://www.chartjs.org)
-- [Vibrant.js](http://jariz.github.io/vibrant.js)
+- [Dexie.js](http://dexie.org)
+- [Moment.js](http://momentjs.com)
 - [noUiSlider.js](https://refreshless.com/nouislider)
+- [Vibrant.js](http://jariz.github.io/vibrant.js)
 
 ### local storage (for settings)
 - ~~observationPeriod: from, till~~
