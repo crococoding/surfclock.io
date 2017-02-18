@@ -5,24 +5,23 @@ var logger = {
 		this.url = url;
 		var domain = this.getDomain(url);
 
-		if (domain) {
-			this.paused = false;
-		}
-
 		if(!domain) {
-			//this.endInterval();
+			// internal browser page
+			this.endInterval();
 		} else if(domain != this.domain) {
-			this.domain = domain;
-			database.storeUserActivity(this.domain);
+			// end previous interval
+			this.endInterval();
+
+			// start new interval
+			this.startInterval(domain);
 			
-			// store color
-			// 'http://favicon.yandex.net/favicon/''
+			// store color (alternative: 'http://favicon.yandex.net/favicon/')
 			var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
 			this.getFaviconColor(faviconUrl).then(function(color) {
 				database.storeColor(domain, color);
 			});
-		} else if (domain == this.domain){
-			database.updateUserActivity(this.domain);
+		} else if (domain == this.domain) {
+			database.updateIntervalEnd(this.domain);
 		}
 	},
 
@@ -62,27 +61,25 @@ var logger = {
 
 
 	startInterval: function(domain) {
+		database.storeUserActivity(domain);
+
+		this.paused = false;
 		this.domain = domain;
-		database.storeIntervalStart(this.domain, getTimestamp());
 	},
 
 
 	endInterval: function() {
+		if(this.domain) {
+			database.updateIntervalEnd(this.domain);
+		}
 
-		logger.handleUrl(logger.url);
 		this.paused = true;
-
-		// if(this.domain) {
-		// 	database.storeIntervalEnd(this.domain, getTimestamp());
-		// }
-
-		// // pause
-		// this.domain = null;
+		this.domain = null;
 	},
 
 	reinstateDomain: function() {
 		this.domain = null;
-		this.handleUrl(this.url, null);
+		this.handleUrl(this.url);
 	},
 
 	getDomain: function(url) {
@@ -112,17 +109,6 @@ setInterval(function() {
 		logger.handleUrl(logger.url);
 	}
 }, 3000);
-
-
-
-function logDB() {
-	console.log("started");
-	database.retrieve().then(function(val) {
-		console.log(val);
-	}).catch(function(error) {
-		console.log("error: " + error);
-	});
-}
 
 
 function getTimestamp() {

@@ -11,6 +11,7 @@ body {
 	margin: 0;
 	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; 
 	font-weight: 300;
+	color: #666666;
 }
 
 p {
@@ -94,8 +95,8 @@ p {
 }
 
 #info p {
-	line-height: 1em;
-	font-size: 19px;
+	line-height: 1.2em;
+	font-size: 20px;
 	padding: 0 50px;
 	margin: 15px 0;
 }
@@ -126,7 +127,7 @@ p {
 	height: 18px;
 	top: -5px;
 	left: -1px;
-	background: black;
+	background: #666666;
 	border: 2px solid white;
 	border-radius: 0;
 	box-shadow: none;
@@ -138,8 +139,7 @@ p {
 }
 
 .noUi-connect {
-	background: yellow;
-	border: 1px solid black;
+	background: #666666;
 	box-shadow: none;
 	cursor: move;
 }
@@ -167,6 +167,7 @@ p {
 
 #text {
 	margin-top: 10px;
+	font-size: 12px;
 }
 
 /* reset control */

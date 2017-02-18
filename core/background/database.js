@@ -25,7 +25,7 @@ var database = new function() {
 	}
 
 
-	this.updateUserActivity = function(domain) {
+	this.updateIntervalEnd = function(domain) {
 		// get last domain entry from DB to make sure we don't change some old value
 		database.dexie.intervals.toCollection().last().then(function(lastInverval) {
 			if (lastInverval.domain == domain) {
@@ -66,6 +66,42 @@ var database = new function() {
 				//TODO: error handling
 				resolve(null);
 				//console.log('error: ' + JSON.stringify(error));
+			});
+		});
+	}
+
+	this.getDomains = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.domains.toCollection().toArray(function(domains) {
+				resolve(domains.map(x => x.domain));
+			});
+		});
+	}
+
+	this.getDuration = function(domain, observationBounds) {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals
+			.where('domain').equals(domain)
+			// filter
+			.and((interval) => observationBounds.from < interval.till && observationBounds.till > interval.from)
+			.toArray(function(intervals) {
+				
+				// clip
+				if(intervals.length > 0) {
+					var indexFirst = 0;
+					var indexLast = intervals.length - 1;
+					intervals[indexFirst].from = Math.max(intervals[indexFirst].from, observationBounds.from);
+					intervals[indexLast].till = Math.min(intervals[indexLast].till, observationBounds.till);
+				}
+
+				// calculate
+				var duration = intervals
+				.map(interval => (interval.till - interval.from))
+				.reduce((total, duration) => (total + duration, 0));
+				
+				resolve(duration);
+			}).catch(function(error) {
+				resolve(0);
 			});
 		});
 	}
