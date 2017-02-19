@@ -161,15 +161,6 @@ p {
 	display: none;
 }
 
-.noUi-pips-horizontal {
-    padding-bottom: 0;
-    height: 30px;
-}
-
-.noUi-pips {
-	display: none;
-}
-
 #text {
 	margin-top: 10px;
 	font-size: 12px;

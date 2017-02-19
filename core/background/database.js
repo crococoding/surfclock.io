@@ -17,7 +17,7 @@ var database = new function() {
 
 
 
-
+	// store a new interval for a domain
 	this.storeInterval = function(domain) {
 		database.dexie.intervals.add({
 			'domain' : domain,
@@ -28,6 +28,7 @@ var database = new function() {
 		});
 	}
 
+	// update the end of the last interval of a given domain
 	this.updateIntervalEnd = function(domain) {
 		// get last domain entry from DB to make sure we don't change some old value
 		database.dexie.intervals.toCollection().last().then(function(lastInverval) {
@@ -43,10 +44,9 @@ var database = new function() {
 				alert('unexpected behavior. //TODO further investigation');
 			}
 		});
-
-		// console.log('updated activity');
 	}
 
+	// get timestamp of first recorded entry
 	this.getBeginning = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.toCollection().first().then(function(interval) {
@@ -61,18 +61,17 @@ var database = new function() {
 		});
 	}
 
+	// store color for a domain
 	this.storeColor = function(domain, color) {
 		database.dexie.domains.put({
 			domain: domain, 
 			color: color
-		}).then(function() {
-			 
 		}).catch(function(error) {
 			console.log('error: ' + JSON.stringify(error));
 		});
 	}
 
-
+	// get color of a given domain
 	this.getColor = function(domain) {
 		return new Promise(function(resolve, reject) {
 			database.dexie.domains.where('domain').equals(domain).first().then(function(val) {
@@ -85,6 +84,7 @@ var database = new function() {
 		});
 	}
 
+	// get all recorded domains
 	this.getDomains = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.domains.toCollection().toArray(function(domains) {
@@ -95,6 +95,7 @@ var database = new function() {
 		});
 	}
 
+	// get duration of all intervals in a given observation period of a given domain summed up
 	this.getDuration = function(domain, observationBounds) {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals
@@ -113,7 +114,7 @@ var database = new function() {
 
 				// calculate
 				var duration = intervals
-				.map(interval => (interval.till - interval.from))
+				.map(interval => interval.till - interval.from)
 				.reduce((total, duration) => total + duration, 0);
 				
 				resolve(duration);
@@ -123,6 +124,7 @@ var database = new function() {
 		});
 	}
 
+	// clear all entries
 	this.remove = function(untilTime) {
 		if (untilTime) {
 			// only remove until given time

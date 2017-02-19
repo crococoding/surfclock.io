@@ -8,7 +8,7 @@ var popup = {
 
 	init: function() {
 		popup.initResetControl();
-		popup.initObservationControl()
+		popup.initObservationControl();
 		popup.initChart();
 		popup.domain = getBackground().logger.domain;
 		popup.update({
@@ -19,7 +19,7 @@ var popup = {
 
 	initObservationControl: function() {
 		getBackground().database.getBeginning().then(function(beginning) {
-			var now = getBackground().getTimestamp();
+			const now = getBackground().getTimestamp();
 			const totalDuration = now - beginning;
 
 			const minute = 1000 * 60;
@@ -30,7 +30,7 @@ var popup = {
 			var scaleIndex = 0;
 			if(totalDuration > 5 * day) {
 				scaleIndex = 2;
-			} else if(totalDuration > day) {
+			} else if(totalDuration > 12 * hour) {
 				scaleIndex = 1;
 			}
 
@@ -38,7 +38,7 @@ var popup = {
 
 			var slider = document.getElementById('observationControl');
 
-			// destroy the slider in case it already existes (necessary for Safari)
+			// destroy the slider in case it already exists (necessary for Safari)
 			if (slider.noUiSlider) {
 				slider.noUiSlider.destroy();
 			}
@@ -49,9 +49,6 @@ var popup = {
 				behaviour: 'drag',
 				margin: scales[scaleIndex], // minimum between start and end
 				step: scales[scaleIndex],
-				pips: {
-					mode: 'steps',
-				},
 				format: {
 					from: Number,
 					to: function(number) {
@@ -66,18 +63,16 @@ var popup = {
 			
 			// update preference and chart data when moving the slider is done
 			slider.noUiSlider.on('change', function(values) {
-				var preference = {
+		    	popup.update({
 					'from' : values[0],
 					'till' : values[1]
-				}
-				// setPreference('observationPeriod', preference);
-		    	popup.update(preference);
+				});
 			});
 			
 			// update slider duration while moving the slider
 			slider.noUiSlider.on('slide', function(values) {
-				var from = values[0];
-				var till = values[1];
+				const from = values[0];
+				const till = values[1];
 				popup.showObservationPeriod(from, till);
 			});
 
@@ -106,6 +101,7 @@ var popup = {
 	},
 
 	initChart: function() {
+		// destroy the chart in case it already exists (necessary for Safari)
 		if(popup.chart) {
 			popup.chart.destroy();
 		}
@@ -160,28 +156,42 @@ var popup = {
 		getBackground().database.getDomains().then(function(domains) {
 			return domains.map(function(domain) {
 				return new Promise(function(resolve, reject) {
-					getBackground().database.getColor(domain).then(function(color) {
-						getBackground().database.getDuration(domain, observationBounds).then(function(duration) {
-							resolve({
-								'domain' : domain,
-								'duration' : duration,
-								'color' : (color ? color : '#EEEEEE'),
+					var entry = {
+						'domain' : domain,
+						'duration' : 0,
+						'color' : '#EEEEEE',
+					};
+					// fetch color and duration in parallel
+					Promise.all([
+						// color
+						new Promise(function(resolve, reject) {
+							getBackground().database.getColor(domain).then(function(color) {
+								entry.color = color ? color : '#EEEEEE';
+								resolve();
 							});
-						}).catch(function(error) {
-							console.log(error);
-						});
-					}).catch(function(error) {
-						console.log(error);
+						}),
+						// duration
+						new Promise(function(resolve, reject) {
+							getBackground().database.getDuration(domain, observationBounds).then(function(duration) {
+								entry.duration = duration ? duration : 0;
+								resolve();
+							});
+						})
+					]).catch(function(error) {
+						console.log(error)
+					}).then(function() {
+						resolve(entry);
 					});
 				});
 			});
 		}).then(function(promises) {
-			Promise.all(promises).then(function(chartData) {
-				chartData.sort((x, y) => y.duration - x.duration);
+			Promise.all(promises).then(function(entries) {
+				entries.sort((x, y) => y.duration - x.duration);
+				entries = popup.handleSmallEntries(entries, 2.0);
 
-				var domains = chartData.map(x => x.domain);
-				var durations = chartData.map(x => x.duration);
-				var colors = chartData.map(x => x.color);
+				const domains = entries.map(x => x.domain);
+				const durations = entries.map(x => x.duration);
+				const colors = entries.map(x => x.color);
 
 				popup.chart.labels = domains;
 				popup.chart.data.datasets[0].data = durations;
@@ -193,24 +203,51 @@ var popup = {
 		});
 	},
 
+	// put everything smaller than x degrees into "other"; precondition: sorted
+	handleSmallEntries: function(entries, thresholdDegrees) {
+		const totalDuration = entries
+		.map(x => x.duration)
+		.reduce((total, duration) => total + duration, 0);
+
+		var other = {
+			'domain' : 'other',
+			'duration' : 0,
+			'color' : '#EEEEEE',
+		};
+
+		for (var i = entries.length - 1; i >= 0; i--) {;
+			const entry = entries[i];
+			if(entry.duration * 1.0 / totalDuration < thresholdDegrees / 360.0) {
+				other.duration += entry.duration;
+				entry.duration = 0;
+			} else {
+				break; // because we're iterating backwards, no smaller values will come
+			}
+		}
+
+		entries.push(other);
+
+		return entries;
+	},
+
 	showObservationPeriod: function(from, till) {
 		moment.locale(window.navigator.userLanguage || window.navigator.language);
-		var start = moment(from).format('llll');
-		var end = moment(till).format('llll');
-		var duration = popup.getPrettyTime(till - from);
+		const start = moment(from).format('llll');
+		const end = moment(till).format('llll');
+		const duration = popup.getPrettyTime(till - from);
 
 		document.getElementById('text').innerHTML = start + ' - ' + end + ' (' + duration + ')';
 	},
 
 	showDurations: function() {
 		// total
-		var totalDuration = popup.sumArray(popup.chart.data.datasets[0].data);
+		const totalDuration = popup.chart.data.datasets[0].data.reduce((total, duration) => total + duration, 0);
 		document.getElementById('totalDuration').innerHTML = totalDuration ? popup.getPrettyTime(totalDuration) : '0 minutes';	
 
 		// domain
 		if(popup.domain && popup.chart.labels && totalDuration) {
-			var index = popup.chart.labels.indexOf(popup.domain);
-			var domainDuration = popup.getDomainDuration(index);
+			const index = popup.chart.labels.indexOf(popup.domain);
+			const domainDuration = popup.getDomainDuration(index);
 			
 			document.querySelector('#info p:last-of-type').style.display = 'block';
 			document.getElementById('domain').innerHTML = popup.domain;
@@ -222,12 +259,12 @@ var popup = {
 
 	showIndicator: function() {
 		if(popup.domain && popup.chart.labels) {
-			var index = popup.chart.labels.indexOf(popup.domain);
+			const index = popup.chart.labels.indexOf(popup.domain);
 
 			if(popup.getDomainDuration(index) > 0) {
-				var arc = popup.chart.getDatasetMeta(0).data[index]._view;
-				var angleRad = (arc.startAngle + arc.endAngle) / 2.0;
-				var angleDeg = angleRad * 180.0 / Math.PI;
+				const arc = popup.chart.getDatasetMeta(0).data[index]._view;
+				const angleRad = (arc.startAngle + arc.endAngle) / 2.0;
+				const angleDeg = angleRad * 180.0 / Math.PI;
 
 				// show
 				document.getElementById('indicator').style.display = 'block';
@@ -247,11 +284,11 @@ var popup = {
 	},
 
 	getPrettyTime: function(milliseconds) {
-		var duration = moment.duration(milliseconds, 'milliseconds');
+		const duration = moment.duration(milliseconds, 'milliseconds');
 
-		var minutes = duration.minutes();
-		var hours = duration.hours();
-		var days = duration.days();
+		const minutes = duration.minutes();
+		const hours = duration.hours();
+		const days = duration.days();
 
 		if(days + hours + minutes == 0) {
 			return '< 1 minute';
@@ -273,10 +310,6 @@ var popup = {
 
 	numerus: function(number, word) {
 		return (number > 1) ? (number + ' ' + word + 's') : (number + ' ' + word);
-	},
-
-	sumArray: function(array) {
-		return array.reduce((total, duration) => total + duration, 0);
 	},
 
 	domain: null, // domain you chose to inspect details of

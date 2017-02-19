@@ -30,7 +30,7 @@ var logger = {
 	getFaviconColor(url) {
 		return new Promise(function(resolve, reject) {
 			var favicon = document.getElementById('favicon');
-			if (!favicon) {
+			if(!favicon) {
 				favicon = document.createElement('img');
 				favicon.setAttribute('id', 'favicon');
 				favicon.setAttribute('width', '16px');
@@ -45,7 +45,7 @@ var logger = {
 				var vibrant = new Vibrant(favicon);
 				var swatches = vibrant.swatches();
 				for(swatch in swatches) {
-					if (swatches[swatch]) {
+					if(swatches[swatch]) {
 						resolve(swatches[swatch].getHex());
 					}
 				}
@@ -83,7 +83,7 @@ var logger = {
 	},
 
 	getDomain: function(url) {
-		var regex = /(((http)(s*):\/\/)(www\.)*)/;
+		const regex = /(((http)(s*):\/\/)(www\.)*)/;
 		
 		if(regex.test(url)) {
 			return url.replace(regex, '').split(/[/?#]/)[0];
