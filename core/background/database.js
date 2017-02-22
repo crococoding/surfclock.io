@@ -19,14 +19,12 @@ var database = new function() {
 
 	// store a new interval for a domain
 	this.storeInterval = function(domain) {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.add({
-				'domain' : domain,
-				'from' : getTimestamp(),
-				'till' : getTimestamp(), // Date.now(), will be updated later
-			}).catch(function(error) {
-				console.log('adding interval: ' + error);
-			});
+		database.dexie.intervals.add({
+			'domain' : domain,
+			'from' : getTimestamp(),
+			'till' : getTimestamp(), // Date.now(), will be updated later
+		}).catch(function(error) {
+			console.log('adding interval: ' + error);
 		});
 	}
 
