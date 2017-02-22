@@ -19,30 +19,36 @@ var database = new function() {
 
 	// store a new interval for a domain
 	this.storeInterval = function(domain) {
-		database.dexie.intervals.add({
-			'domain' : domain,
-			'from' : getTimestamp(),
-			'till' : getTimestamp(), // Date.now(), will be updated later
-		}).catch(function(error) {
-			console.log('ERROR adding activity' + error);
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.add({
+				'domain' : domain,
+				'from' : getTimestamp(),
+				'till' : getTimestamp(), // Date.now(), will be updated later
+			}).catch(function(error) {
+				console.log('adding interval: ' + error);
+			});
 		});
 	}
 
 	// update the end of the last interval of a given domain
 	this.updateIntervalEnd = function(domain) {
-		// get last domain entry from DB to make sure we don't change some old value
-		database.dexie.intervals.toCollection().last().then(function(lastInverval) {
-			if (lastInverval.domain == domain) {
-				// update the last entry
-				//DEBUG
-				if (getTimestamp() - lastInverval.till > 1 * 68 * 60 * 1000) { // > 1h
-					alert('INTERVAL > 1h!! domain: ' + domain + 'getTimestamp: ' + getTimestamp() + 'lastDomain.till: ' + lastInverval.till);
-				}
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.toCollection().last().then(function(lastInverval) {
+				if (lastInverval.domain == domain) {
+					// when a strange problem happens
+					if (getTimestamp() - lastInverval.till > 10 * 1000) { // > 10 seconds
+						return reject(new Error('Interval > 10secs'));
+					}
 
-				database.dexie.intervals.update(lastInverval.id, {'till' : getTimestamp()});
-			} else {
-				alert('unexpected behavior. //TODO further investigation');
-			}
+					// update the last entry
+					database.dexie.intervals.update(lastInverval.id, {'till' : getTimestamp()});
+					return resolve();
+				} else {
+					return reject(new Error('lastInterval.domain != domain'));
+				}
+			}).catch(function(error) {
+				return reject(new Error('database: ' + error));
+			});
 		});
 	}
 

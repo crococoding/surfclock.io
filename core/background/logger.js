@@ -20,8 +20,10 @@ var logger = {
 			this.getFaviconColor(faviconUrl).then(function(color) {
 				database.storeColor(domain, color);
 			});
-		} else if (domain == this.domain) {
-			database.updateIntervalEnd(this.domain);
+		} else if(domain == this.domain) {
+			database.updateIntervalEnd(this.domain).catch(function(error) {
+				alert('Error: ' + error);
+			});
 		}
 	},
 
@@ -70,7 +72,9 @@ var logger = {
 
 	endInterval: function() {
 		if(this.domain) {
-			database.updateIntervalEnd(this.domain);
+			database.updateIntervalEnd(this.domain).catch(function(error) {
+				alert('Error: ' + error);
+			});
 		}
 
 		this.paused = true;
@@ -103,7 +107,7 @@ var logger = {
 
 
 
-
+// refresh intervalEnd every 3 secs
 setInterval(function() {
 	if (!logger.paused) {
 		logger.handleUrl(logger.url);

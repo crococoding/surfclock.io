@@ -178,7 +178,7 @@ var popup = {
 							});
 						})
 					]).catch(function(error) {
-						console.log(error)
+						console.log(error);
 					}).then(function() {
 						resolve(entry);
 					});
@@ -187,7 +187,7 @@ var popup = {
 		}).then(function(promises) {
 			Promise.all(promises).then(function(entries) {
 				entries.sort((x, y) => y.duration - x.duration);
-				entries = popup.handleSmallEntries(entries, 2.0);
+				entries = popup.handleSmallEntries(entries, 1.0);
 
 				const domains = entries.map(x => x.domain);
 				const durations = entries.map(x => x.duration);
