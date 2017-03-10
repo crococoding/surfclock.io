@@ -22,19 +22,21 @@ var popup = {
 			const now = getBackground().getTimestamp();
 			const totalDuration = now - beginning;
 
-			const minute = 1000 * 60;
+			const second = 1000;
+			const minute = second * 60;
 			const hour = minute * 60;
 			const day = hour * 24;
-			const scales = [minute, hour, day];
+			const scales = [second, minute, hour, day];
 
-			var scaleIndex = 0;
-			if(totalDuration > 5 * day) {
-				scaleIndex = 2;
+			var scaleIndex = 1;
+			if(totalDuration > 3 * day) {
+				scaleIndex = 3;
 			} else if(totalDuration > 12 * hour) {
-				scaleIndex = 1;
+				scaleIndex = 2;
 			}
-
-			beginning = beginning - beginning % scales[scaleIndex]; // start at round number
+			
+			// subtract hour so that it starts at 00:00
+			beginning = beginning - (beginning % scales[scaleIndex]) - hour; // start at round number
 
 			var slider = document.getElementById('observationControl');
 
@@ -47,8 +49,8 @@ var popup = {
 				start: [beginning, now],
 				connect: true, // display a colored bar between the handles
 				behaviour: 'drag',
-				margin: scales[scaleIndex], // minimum between start and end
-				step: scales[scaleIndex],
+				// margin: scales[scaleIndex], // minimum between start and end
+				// step: scales[scaleIndex],
 				format: {
 					from: Number,
 					to: function(number) {
@@ -56,8 +58,9 @@ var popup = {
 					}
 				},
 				range: {
-					'min': beginning,
-					'max': now
+					'min' : [beginning, scales[scaleIndex]],
+					'75%' : [now - now % scales[scaleIndex], scales[scaleIndex - 1]],
+					'max' : [now]
 				},
 			});
 			
@@ -232,11 +235,16 @@ var popup = {
 
 	showObservationPeriod: function(from, till) {
 		moment.locale(window.navigator.userLanguage || window.navigator.language);
-		const start = moment(from).format('llll');
-		const end = moment(till).format('llll');
+
+		// const start = moment(from).format('llll');
+		// const end = moment(till).format('llll');
+
+		const start = moment(from).calendar();
+		const end = moment(till).calendar();
+
 		const duration = popup.getPrettyTime(till - from);
 
-		document.getElementById('text').innerHTML = start + ' - ' + end + ' (' + duration + ')';
+		document.getElementById('text').innerHTML = '<b>' + start + ' - ' + end + '</b><br>' + duration + '';
 	},
 
 	showDurations: function() {

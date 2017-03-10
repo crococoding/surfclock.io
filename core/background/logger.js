@@ -23,6 +23,7 @@ var logger = {
 		} else if(domain == this.domain) {
 			database.updateIntervalEnd(this.domain).catch(function(error) {
 				alert('Error: ' + error);
+				logger.reinstateDomain();
 			});
 		}
 	},
@@ -74,6 +75,7 @@ var logger = {
 		if(this.domain) {
 			database.updateIntervalEnd(this.domain).catch(function(error) {
 				alert('Error: ' + error);
+				logger.reinstateDomain();
 			});
 		}
 
@@ -87,13 +89,9 @@ var logger = {
 	},
 
 	getDomain: function(url) {
-		const regex = /(((http)(s*):\/\/)(www\.)*)/;
-		
-		if(regex.test(url)) {
-			return url.replace(regex, '').split(/[/?#]/)[0];
-		}
+		const regex = /(((http)(s?):\/\/)(www\.)?)/;
 
-		return null;
+		return regex.test(url) ? url.replace(regex, '').match(/.*?.(?=(\/|\?|#|$))/)[0] : null;
 	},
 
 	url: null,
