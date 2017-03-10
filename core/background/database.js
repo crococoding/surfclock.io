@@ -128,6 +128,20 @@ var database = new function() {
 		});
 	}
 
+
+
+	this.countIntervals = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.count().then(function(count) {
+				resolve(count);
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
+
+
 	// clear all entries
 	this.remove = function(untilTime) {
 		if (untilTime) {

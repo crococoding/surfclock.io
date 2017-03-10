@@ -7,14 +7,46 @@ window.onload = function() {
 var popup = {
 
 	init: function() {
-		popup.initResetControl();
-		popup.initObservationControl();
-		popup.initChart();
-		popup.domain = getBackground().logger.domain;
-		popup.update({
-			'from' : 0,
-			'till' : getBackground().getTimestamp()
+
+		function initGraph() {
+			popup.initResetControl();
+			popup.initObservationControl();
+			popup.initChart();
+			popup.domain = getBackground().logger.domain;
+			popup.update({
+				'from' : 0,
+				'till' : getBackground().getTimestamp()
+			});
+		}
+
+		function initWelcomeScreen() {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', '../core/popup/welcome.html', true);
+			xhr.onreadystatechange = function() {
+				if(xhr.readyState !== 4) return;
+				document.write(xhr.responseText);
+				document.close();
+			};
+			xhr.send();
+		}
+
+
+
+		getBackground().database.countIntervals().then(function(count) {
+
+			if (count > 5) {
+				initGraph();
+			} else {
+				initWelcomeScreen();
+			}
+
+		}).catch(function(error) {
+			alert("error counting intervals: " + error);
 		});
+
+		
+
+		
 	},
 
 	initObservationControl: function() {
