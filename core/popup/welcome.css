@@ -1,11 +1,18 @@
+html,
 body {
-	/*background-color: ;*/
+	width: 500px;
+	height: 600px;
+	overflow: hidden;
+}
 
+body {
+	margin: 0;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; 
+	font-weight: 300;
+	color: #666666;
 }
 
 h1, h2 {
 	padding: 0 40px;
-	font-weight: 100;
 	text-align: center;
-	color: black;
 }
