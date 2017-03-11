@@ -65,6 +65,21 @@ var database = new function() {
 		});
 	}
 
+	// get timestamp of last recorded entry
+	this.getEnd = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.intervals.toCollection().last().then(function(interval) {
+				if(interval) {
+					resolve(interval.from);
+				} else {
+					resolve(null);
+				}
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
 	// store color for a domain
 	this.storeColor = function(domain, color) {
 		database.dexie.domains.put({
@@ -128,8 +143,6 @@ var database = new function() {
 		});
 	}
 
-
-
 	this.countIntervals = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.count().then(function(count) {
@@ -139,8 +152,6 @@ var database = new function() {
 			});
 		});
 	}
-
-
 
 	// clear all entries
 	this.remove = function(untilTime) {

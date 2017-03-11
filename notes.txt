@@ -1,0 +1,36 @@
+popup_{safari/chrome}.html
+
+   --> JavaScript ()
+
+
+ 		if (total_duration > 5hr) {
+
+ 			// load(char.html)
+
+ 		} else {
+ 			// load(welcome.html)
+ 		}
+
+
+
+ function load(file) {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', '../core/popup/' + file, true);
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState !== 4) return;
+		document.write(xhr.responseText);
+		document.close();
+	};
+	xhr.send();
+}
+
+
+
+
+//chart.html 
+
+
+html
+
+script charjs.min.js
+script momenet.min..j.s.....

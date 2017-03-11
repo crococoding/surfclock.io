@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="../core/popup/nouislider.min.css">
+	<link rel="stylesheet" type="text/css" href="../core/popup/stats.css">
+</head>
+<body id="popup">
+
+	<div id="header">
+		<p></p>
+	</div>
+
+	<div id="main">
+		<canvas id="chart"></canvas>
+
+		<div id="indicator">
+			<div></div>
+		</div>
+
+		<div id="info">
+			<div> <!-- additional wrapper for easier vertical alignment -->
+				<p>you have been surfing for <span id="totalDuration"></span></p>
+
+				<p>thereof <span id="domainDuration"></span> on<br><span id="domain"></span></p>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer">
+		<div id="observationControl"></div>
+		<div id="text"></div>
+		<a href="" tabindex="-1" id="resetControl">delete all data</a>
+	</div>
+
+
+	<script type="text/javascript" src="../core/popup/chart.min.js"></script>
+	<script type="text/javascript" src="../core/popup/nouislider.min.js"></script>
+	<script type="text/javascript" src="../core/popup/moment-with-locales.min.js"></script>
+	<script type="text/javascript" src="../core/popup/stats.js"></script>
+
+</body>
+</html>

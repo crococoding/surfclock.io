@@ -4,6 +4,13 @@ function getBackground() {
 
 var storage = chrome.storage.local;
 
+
+
+popup.init();
+
+
+
+
 function setPreference(key, value) {
 	return new Promise(function(resolve, reject) {
 		var preference = {};

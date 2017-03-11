@@ -1,12 +1,5 @@
 /* general */
 
-html,
-body {
-	width: 500px;
-	height: 600px;
-	overflow: hidden;
-}
-
 body {
 	margin: 0;
 	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; 
