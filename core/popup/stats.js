@@ -17,9 +17,9 @@ var stats = {
 	},
 
 	initObservationControl: function() {
-		getBackground().database.getBeginning().then(function(beginning) {
+		getBackground().database.getFirstIntervalStart().then(function(start) {
 			const now = getBackground().getTimestamp();
-			const totalDuration = now - beginning;
+			const totalDuration = now - start;
 
 			const second = 1000;
 			const minute = second * 60;
@@ -35,7 +35,7 @@ var stats = {
 			}
 			
 			// subtract hour so that it starts at 00:00
-			beginning = beginning - (beginning % scales[scaleIndex]) - hour; // start at round number
+			start = start - (start % scales[scaleIndex]) - hour; // start at round number
 
 			var slider = document.getElementById('observationControl');
 
@@ -45,7 +45,7 @@ var stats = {
 			}
 
 			noUiSlider.create(slider, {
-				start: [beginning, now],
+				start: [start, now],
 				connect: true, // display a colored bar between the handles
 				behaviour: 'drag',
 				// margin: scales[scaleIndex], // minimum between start and end
@@ -57,7 +57,7 @@ var stats = {
 					}
 				},
 				range: {
-					'min' : [beginning, scales[scaleIndex]],
+					'min' : [start, scales[scaleIndex]],
 					'75%' : [now - now % scales[scaleIndex], scales[scaleIndex - 1]],
 					'max' : [now]
 				},
@@ -78,7 +78,7 @@ var stats = {
 				stats.showObservationPeriod(from, till);
 			});
 
-			stats.showObservationPeriod(beginning, now);
+			stats.showObservationPeriod(start, now);
 		});
 	},
 

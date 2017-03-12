@@ -50,8 +50,8 @@ var database = new function() {
 		});
 	}
 
-	// get timestamp of first recorded entry
-	this.getBeginning = function() {
+	// get timestamp of start of first recorded entry
+	this.getFirstIntervalStart = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.toCollection().first().then(function(interval) {
 				if(interval) {
@@ -65,12 +65,12 @@ var database = new function() {
 		});
 	}
 
-	// get timestamp of last recorded entry
-	this.getEnd = function() {
+	// get timestamp of end of last recorded entry
+	this.getLastIntervalEnd = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.toCollection().last().then(function(interval) {
 				if(interval) {
-					resolve(interval.from);
+					resolve(interval.till);
 				} else {
 					resolve(null);
 				}
@@ -137,16 +137,6 @@ var database = new function() {
 				.reduce((total, duration) => total + duration, 0);
 				
 				resolve(duration);
-			}).catch(function(error) {
-				reject(error);
-			});
-		});
-	}
-
-	this.countIntervals = function() {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.count().then(function(count) {
-				resolve(count);
 			}).catch(function(error) {
 				reject(error);
 			});

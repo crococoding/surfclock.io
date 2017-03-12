@@ -1,18 +1,20 @@
-
-
 var popup = {
 	init: function() {
-		getBackground().database.countIntervals().then(function(count) {
-			if (count > 5) {
-				popup.loadView('stats');
-			} else {
-				popup.loadView('welcome');
-			}
-
+		getBackground().database.getFirstIntervalStart().then(function(start) {
+			getBackground().database.getLastIntervalEnd().then(function(end) {
+				maxObservationPeriod = end - start;
+				if (maxObservationPeriod > 5000) { // 5 minutes
+					popup.loadView('stats');
+				} else {
+					popup.loadView('welcome');
+				}
+			}).catch(function(error) {
+				console.log(error);
+			});	
 		}).catch(function(error) {
-			alert("error counting intervals: " + error);
+			console.log(error);
 		});	
-	}, 
+	},
 
 	loadView: function(view) {
 		// simple caching mechanism
