@@ -103,6 +103,17 @@ var database = new function() {
 		});
 	}
 
+	// get number of domain entries
+	this.getNumberOfDomains = function() {
+		return new Promise(function(resolve, reject) {
+			database.dexie.domains.count().then(function(count) {
+				resolve(count);
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
 	// get all recorded domains
 	this.getDomains = function() {
 		return new Promise(function(resolve, reject) {

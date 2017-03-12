@@ -2,12 +2,16 @@ var popup = {
 	init: function() {
 		getBackground().database.getFirstIntervalStart().then(function(start) {
 			getBackground().database.getLastIntervalEnd().then(function(end) {
-				maxObservationPeriod = end - start;
-				if (maxObservationPeriod > 5000) { // 5 minutes
-					popup.loadView('stats');
-				} else {
-					popup.loadView('welcome');
-				}
+				getBackground().database.getNumberOfDomains().then(function(count) {
+					maxObservationPeriod = end - start;
+					if (maxObservationPeriod > 5000 && count > 0) { // 5 minutes and at least 1 domain
+						popup.loadView('stats');
+					} else {
+						popup.loadView('welcome');
+					}
+				}).catch(function(error) {
+					console.log(error);
+				});	
 			}).catch(function(error) {
 				console.log(error);
 			});	
