@@ -5,12 +5,12 @@
 	<link rel="stylesheet" type="text/css" href="../core/popup/stats.css">
 </head>
 <body>
-	<div id="header">
-		<p></p>
-	</div>
+	<a id="resetControl" href="" tabindex="-1" title="delete all data">
+		<img src="../core/popup/bin.svg" alt="paper bin" />
+	</a>
 
-	<div id="main">
-		<canvas id="chart"></canvas>
+	<div id="chart">
+		<canvas></canvas>
 
 		<div id="indicator">
 			<div></div>
@@ -25,10 +25,13 @@
 		</div>
 	</div>
 
-	<div id="footer">
-		<div id="observationControl"></div>
-		<div id="text"></div>
-		<a href="" tabindex="-1" id="resetControl">delete all data</a>
+	<div id="observationControl">
+		<div class="rangeSlider"></div>
+
+		<p>
+			<span id="observationStart"></span> &ndash; <span id="observationEnd"></span> <br>
+			<span id="observationDuration"></span>
+		</p>
 	</div>
 
 

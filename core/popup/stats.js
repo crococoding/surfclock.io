@@ -37,7 +37,7 @@ var stats = {
 			// subtract hour so that it starts at 00:00
 			start = start - (start % scales[scaleIndex]) - hour; // start at round number
 
-			var slider = document.getElementById('observationControl');
+			var slider = document.querySelector('#observationControl .rangeSlider');
 
 			// destroy the slider in case it already exists (necessary for Safari)
 			if (slider.noUiSlider) {
@@ -108,7 +108,7 @@ var stats = {
 			stats.chart.destroy();
 		}
 
-		var canvas = document.getElementById('chart');
+		var canvas = document.querySelector('#chart canvas');
 		var context = canvas.getContext('2d');
 
 		stats.chart = new Chart(context, {
@@ -235,15 +235,9 @@ var stats = {
 	showObservationPeriod: function(from, till) {
 		moment.locale(window.navigator.userLanguage || window.navigator.language);
 
-		// const start = moment(from).format('llll');
-		// const end = moment(till).format('llll');
-
-		const start = moment(from).calendar();
-		const end = moment(till).calendar();
-
-		const duration = stats.getPrettyTime(till - from);
-
-		document.getElementById('text').innerHTML = '<b>' + start + ' - ' + end + '</b><br>' + duration + '';
+		document.getElementById('observationStart').innerHTML = moment(from).calendar(); // moment(from).format('llll');
+		document.getElementById('observationEnd').innerHTML = moment(till).calendar(); // moment(till).format('llll');
+		document.getElementById('observationDuration').innerHTML = stats.getPrettyTime(till - from);
 	},
 
 	showDurations: function() {

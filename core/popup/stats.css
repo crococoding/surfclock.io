@@ -18,9 +18,8 @@ p {
 	margin: 0;
 }
 
-#header,
-#main,
-#footer {
+#chart,
+#observationControl {
 	width: 100%;
 	padding: 10px;
 	box-sizing: border-box;
@@ -28,18 +27,13 @@ p {
 	position: relative;
 }
 
-#header {
-	height: 0;
-	padding: 0;
-}
-
-#footer {
+#observationControl {
 	height: 100px;
 }
 
 /* doughnut */
 
-#chart {
+#chart canvas {
 	width: 100%;
 	height: 480px;
 	z-index: 1;
@@ -109,8 +103,6 @@ p {
 #info p span {
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
-	/*border-radius: 8px;
-	padding: 0 7px;*/
 	white-space: nowrap;
 	word-break: word-break;
 }
@@ -123,7 +115,7 @@ p {
 
 /* observation control */
 
-#observationControl {
+#observationControl .rangeSlider {
 	height: 8px;
 }
 
@@ -161,9 +153,14 @@ p {
 	display: none;
 }
 
-#text {
+#observationControl p {
 	margin-top: 10px;
-	font-size: 12px;
+	font-size: 18px;
+}
+
+#observationStart,
+#observationEnd {
+	font-weight: bold;
 }
 
 /* reset control */
@@ -172,5 +169,17 @@ p {
 #resetControl:visited {
 	color: lightgrey;
 	display: inline-block;
-	margin-top: 15px;
+	position: absolute;
+	top: 15px;
+	right: 17px;
+	z-index: 3;
+}
+
+#resetControl:focus {
+	outline: 0;
+}
+
+#resetControl img {
+	width: 25px;
+	height: 25px;
 }
