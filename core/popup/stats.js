@@ -34,8 +34,7 @@ var stats = {
 				scaleIndex = 2;
 			}
 			
-			// subtract hour so that it starts at 00:00
-			start = start - (start % scales[scaleIndex]) - hour; // start at round number
+			start = start - (start % scales[scaleIndex]); // start at round number
 
 			var slider = document.querySelector('#observationControl .rangeSlider');
 
@@ -84,7 +83,6 @@ var stats = {
 
 	initResetControl: function() {
 		document.getElementById('resetControl').onclick = function(e) {
-			
 			e.preventDefault();
 
 			// delete entries from database
@@ -94,11 +92,8 @@ var stats = {
 			// start a new interval
 			getBackground().logger.reinstateDomain();
 
-			// reload chart
-			stats.update({
-				'from' : 0,
-				'till' : getBackground().getTimestamp()
-			});
+			// come back to welcome view
+			popup.loadView('welcome');
 		};
 	},
 
@@ -155,34 +150,18 @@ var stats = {
 	},
 
 	update: function(observationBounds) {
-		getBackground().database.getDomains().then(function(domains) {
-			return domains.map(function(domain) {
+		getBackground().database.getDomains().then(function(domainEntries) {
+			return domainEntries.map(function(domainEntry) {
 				return new Promise(function(resolve, reject) {
-					var entry = {
-						'domain' : domain,
-						'duration' : 0,
-						'color' : '#EEEEEE',
-					};
-					// fetch color and duration in parallel
-					Promise.all([
-						// color
-						new Promise(function(resolve, reject) {
-							getBackground().database.getColor(domain).then(function(color) {
-								entry.color = color ? color : '#EEEEEE';
-								resolve();
-							});
-						}),
-						// duration
-						new Promise(function(resolve, reject) {
-							getBackground().database.getDuration(domain, observationBounds).then(function(duration) {
-								entry.duration = duration ? duration : 0;
-								resolve();
-							});
-						})
-					]).catch(function(error) {
-						console.log(error);
-					}).then(function() {
-						resolve(entry);
+					// fetch duration
+					getBackground().database.getDuration(domainEntry.domain, observationBounds).then(function(duration) {
+						resolve({
+							'domain' : domainEntry.domain,
+							'duration' : duration ? duration : 0,
+							'color' : domainEntry.color ? domainEntry.color : '#EEEEEE',
+						});
+					}).catch(function(error) {
+						reject(error);
 					});
 				});
 			});
@@ -202,6 +181,8 @@ var stats = {
 
 				stats.chart.update();
 			});
+		}).catch(function(error) {
+			console.log(error);
 		});
 	},
 

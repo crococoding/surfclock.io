@@ -50,7 +50,7 @@ var database = new function() {
 		});
 	}
 
-	// get timestamp of start of first recorded entry
+	// get start of first recorded entry
 	this.getFirstIntervalStart = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.toCollection().first().then(function(interval) {
@@ -65,7 +65,7 @@ var database = new function() {
 		});
 	}
 
-	// get timestamp of end of last recorded entry
+	// get end of last recorded entry
 	this.getLastIntervalEnd = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.intervals.toCollection().last().then(function(interval) {
@@ -90,19 +90,6 @@ var database = new function() {
 		});
 	}
 
-	// get color of a given domain
-	this.getColor = function(domain) {
-		return new Promise(function(resolve, reject) {
-			database.dexie.domains.where('domain').equals(domain).first().then(function(val) {
-				resolve(val.color);
-			}).catch(function(error) {
-				//TODO: error handling
-				resolve(null);
-				//console.log('error: ' + JSON.stringify(error));
-			});
-		});
-	}
-
 	// get number of domain entries
 	this.getNumberOfDomains = function() {
 		return new Promise(function(resolve, reject) {
@@ -114,11 +101,11 @@ var database = new function() {
 		});
 	}
 
-	// get all recorded domains
+	// get all domain entries
 	this.getDomains = function() {
 		return new Promise(function(resolve, reject) {
 			database.dexie.domains.toCollection().toArray(function(domains) {
-				resolve(domains.map(x => x.domain));
+				resolve(domains);
 			}).catch(function(error) {
 				reject(error);
 			});

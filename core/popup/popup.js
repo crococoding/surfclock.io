@@ -3,8 +3,7 @@ var popup = {
 		getBackground().database.getFirstIntervalStart().then(function(start) {
 			getBackground().database.getLastIntervalEnd().then(function(end) {
 				getBackground().database.getNumberOfDomains().then(function(count) {
-					maxObservationPeriod = end - start;
-					if (maxObservationPeriod > 5000 && count > 0) { // 5 minutes and at least 1 domain
+					if (start && end && count && end - start > 1000*60*5 && count > 0) { // 5 minutes and at least 1 domain
 						popup.loadView('stats');
 					} else {
 						popup.loadView('welcome');
