@@ -18,24 +18,38 @@ var stats = {
 
 	initObservationControl: function() {
 		getBackground().database.getFirstIntervalStart().then(function(start) {
+			/* returns the observation slider scale: 
+			   second element for the last quarter if it's special */
+			function getScale(duration) {
+				const scales = {
+					'second' : 1000,
+					'minute' : 1000 * 60,
+					'hour'	 : 1000 * 60 * 60,
+					'day'	 : 1000 * 60 * 60 * 24,
+				};
+
+				if(duration > 3 * scales.day) {
+					return [scales.day, scales.hour];
+				} else if(duration > 12 * scales.hour) {
+					return [scales.hour];
+				} else {
+					return [scales.minute];
+				}
+			};
+
 			const now = getBackground().getTimestamp();
-			const totalDuration = now - start;
+			scale = getScale(now - start);
 
-			const second = 1000;
-			const minute = second * 60;
-			const hour = minute * 60;
-			const day = hour * 24;
-			const scales = [second, minute, hour, day];
-
-			var scaleIndex = 1;
-			if(totalDuration > 3 * day) {
-				scaleIndex = 3;
-			} else if(totalDuration > 12 * hour) {
-				scaleIndex = 2;
+			start = start - start % scale[0];
+			
+			steps = {
+				'min' : [start, scale[0]],
+				'max' : [now]
+			};
+			if(scale[1]) {
+				steps['75%'] = [now - now % scale[0], scale[1]];
 			}
 			
-			start = start - (start % scales[scaleIndex]); // start at round number
-
 			var slider = document.querySelector('#observationControl .rangeSlider');
 
 			// destroy the slider in case it already exists (necessary for Safari)
@@ -47,19 +61,13 @@ var stats = {
 				start: [start, now],
 				connect: true, // display a colored bar between the handles
 				behaviour: 'drag',
-				// margin: scales[scaleIndex], // minimum between start and end
-				// step: scales[scaleIndex],
 				format: {
 					from: Number,
 					to: function(number) {
 						return Math.round(number); // skip decimals
 					}
 				},
-				range: {
-					'min' : [start, scales[scaleIndex]],
-					'75%' : [now - now % scales[scaleIndex], scales[scaleIndex - 1]],
-					'max' : [now]
-				},
+				range: steps,
 			});
 			
 			// update preference and chart data when moving the slider is done
@@ -216,8 +224,8 @@ var stats = {
 	showObservationPeriod: function(from, till) {
 		moment.locale(window.navigator.userLanguage || window.navigator.language);
 
-		document.getElementById('observationStart').innerHTML = moment(from).calendar(); // moment(from).format('llll');
-		document.getElementById('observationEnd').innerHTML = moment(till).calendar(); // moment(till).format('llll');
+		document.getElementById('observationStart').innerHTML = moment(from).calendar();
+		document.getElementById('observationEnd').innerHTML = moment(till).calendar();
 		document.getElementById('observationDuration').innerHTML = stats.getPrettyTime(till - from);
 	},
 
