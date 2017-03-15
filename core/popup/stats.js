@@ -5,7 +5,6 @@ window.onload = function() {
 var stats = {
 
 	init: function() {
-
 		stats.initResetControl();
 		stats.initObservationControl();
 		stats.initChart();
@@ -88,6 +87,8 @@ var stats = {
 			});
 
 			stats.showObservationPeriod(start, now);
+		}).catch(function(error) {
+			console.log(error);
 		});
 	},
 
