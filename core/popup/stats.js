@@ -18,16 +18,15 @@ var stats = {
 
 	initObservationControl: function() {
 		getBackground().database.getFirstIntervalStart().then(function(start) {
+			const scales = {
+				'second' : 1000,
+				'minute' : 1000 * 60,
+				'hour'	 : 1000 * 60 * 60,
+				'day'	 : 1000 * 60 * 60 * 24,
+			};
 			/* returns the observation slider scale: 
 			   second element for the last quarter if it's special */
 			function getScale(duration) {
-				const scales = {
-					'second' : 1000,
-					'minute' : 1000 * 60,
-					'hour'	 : 1000 * 60 * 60,
-					'day'	 : 1000 * 60 * 60 * 24,
-				};
-
 				if(duration > 3 * scales.day) {
 					return [scales.day, scales.hour];
 				} else if(duration > 12 * scales.hour) {
@@ -41,6 +40,9 @@ var stats = {
 			scale = getScale(now - start);
 
 			start = start - start % scale[0];
+			if(scale[0] == scales.day && !moment(start).isDST()) {
+				start -= scales.hour;
+			}
 			
 			steps = {
 				'min' : [start, scale[0]],
