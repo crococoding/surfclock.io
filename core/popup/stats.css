@@ -179,7 +179,17 @@ p {
 	outline: 0;
 }
 
-#resetControl img {
+#resetControl {
 	width: 25px;
-	height: 25px;
+	height: 32px;
+	opacity: .5;
+	transition: opacity .2s;
+	background-image: url('../popup/bin_closed.svg');
+	background-repeat: no-repeat;
+	background-position: center bottom;
+}
+
+#resetControl:hover {
+	background-image: url('../popup/bin_open.svg');
+	opacity: .8;
 }
