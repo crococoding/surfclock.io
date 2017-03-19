@@ -65,21 +65,6 @@ var database = new function() {
 		});
 	}
 
-	// get end of last recorded entry
-	this.getLastIntervalEnd = function() {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.toCollection().last().then(function(interval) {
-				if(interval) {
-					resolve(interval.till);
-				} else {
-					resolve(null);
-				}
-			}).catch(function(error) {
-				reject(error);
-			});
-		});
-	}
-
 	// store color for a domain
 	this.storeColor = function(domain, color) {
 		database.dexie.domains.put({
