@@ -1,6 +1,5 @@
-window.onload = function() {
-	stats.init();
-}
+
+// alert('hello, stats!');
 
 var stats = {
 
@@ -309,4 +308,12 @@ var stats = {
 	
 	chart: null
 
+};
+
+
+function viewLoaded() {
+	stats.init(); 
 }
+stats.init();
+
+
