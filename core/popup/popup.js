@@ -14,58 +14,54 @@ var popup = {
 
 	loadView: function(view) {
 		// simple caching mechanism
-		//if (view == popup._currentPopup) {return;}
+		// if (view == popup._currentPopup) {return;}
 
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', '../core/popup/' + view + '.html', true);
 		xhr.onreadystatechange = function() {
 			if(xhr.readyState !== 4) return;
-		 	
-		 	// popup wireframe
-			const head = document.head;
+
+			const htmlDoc = new DOMParser().parseFromString(xhr.responseText, 'text/html');
+
+			// stylesheets
 
 			const alreadyLoadedStylesheets = Array
-				.from(head.querySelectorAll('link'))
+				.from(document.head.querySelectorAll('link'))
 				.map(stylesheet => stylesheet.getAttribute('href'));
+
+			const newStylesheets = Array
+				.from(htmlDoc.querySelectorAll('head link'))
+				.filter(stylesheet => alreadyLoadedStylesheets.indexOf(stylesheet.href) == -1)
+				.forEach(stylesheet => {
+					var newStylesheet = document.createElement('link');
+					newStylesheet.href = stylesheet.href;
+					newStylesheet.rel = 'stylesheet';
+					newStylesheet.type = 'text/css';
+
+					document.head.append(newStylesheet);
+				});
+
+			// scripts
 			
 			const alreadyLoadedScripts = Array
-				.from(head.querySelectorAll('script'))
+				.from(document.head.querySelectorAll('script'))
 				.map(script => script.getAttribute('src'));
 
-			// new view
-			const parser = new DOMParser();
-			const htmlDoc = parser.parseFromString(xhr.responseText, 'text/html');
+			const newScripts = Array
+				.from(htmlDoc.querySelectorAll('head script'))
+				.filter(script => alreadyLoadedScripts.indexOf(script.src) == -1)
+				.forEach(script => {
+					var newScript = document.createElement('script');
+					newScript.src = script.src;
+					newScript.async = false;
 
-			const body = htmlDoc.body.innerHTML;
-			
-			const stylesheets = htmlDoc.querySelectorAll('head link');
+					document.head.append(newScript);
+				});
 
-			for(var i = 0; i < stylesheets.length; i++) {
-				const href = stylesheets[i].getAttribute('href');
-				if (alreadyLoadedStylesheets.indexOf(href) == -1) {
-					var stylesheet = document.createElement( 'link' );
-					stylesheet.href = href;
-					stylesheet.rel = 'stylesheet';
-					stylesheet.type = 'text/css';
+			// body
 
-					head.append(stylesheet);
-				}
-			}
+			document.body.innerHTML = htmlDoc.body.innerHTML;;
 
-			const scripts = htmlDoc.querySelectorAll('head script');
-
-			for(var i = 0; i < scripts.length; i++) {
-				const src = scripts[i].getAttribute('src');
-				if (alreadyLoadedScripts.indexOf(src) == -1) {
-					var script = document.createElement( 'script' );
-					script.src = src;
-					script.async = false;
-
-					head.append(script);
-				}
-			}
-
-			document.body.innerHTML = body;
 
 			if (typeof viewLoaded == 'function') {
 				viewLoaded();
