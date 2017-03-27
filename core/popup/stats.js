@@ -31,11 +31,16 @@ var stats = {
 				}
 			};
 
-			const now = getBackground().getTimestamp();
+			// right end of slider is current time, but only minute-exact
+			var now = getBackground().getTimestamp();
+			now = now - now % scales.minute;
+
 			scale = getScale(now - start);
 
+			// left end of slider is starting time, but only scale-exact
 			start = start - start % scale[0];
 			if(scale[0] == scales.day && !moment(start).isDST()) {
+				// subtract one hour if it is not daylight savings time
 				start -= scales.hour;
 			}
 			
@@ -44,6 +49,7 @@ var stats = {
 				'max' : [now]
 			};
 			if(scale[1]) {
+				// add additional stop to get hour-exact stats for last day
 				steps['75%'] = [now - now % scale[0], scale[1]];
 			}
 			

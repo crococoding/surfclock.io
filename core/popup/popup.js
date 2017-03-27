@@ -31,7 +31,7 @@ var popup = {
 			// add new stylesheets to head
 			const alreadyLoadedStylesheets = Array
 				.from(document.head.querySelectorAll('link'))
-				.map(stylesheet => stylesheet.getAttribute('href'));
+				.map(stylesheet => stylesheet.href);
 
 			const newStylesheets = Array
 				.from(htmlDoc.querySelectorAll('head link'))
@@ -50,7 +50,7 @@ var popup = {
 			// add new scripts to head
 			const alreadyLoadedScripts = Array
 				.from(document.head.querySelectorAll('script'))
-				.map(script => script.getAttribute('src'));
+				.map(script => script.src);
 
 			const newScripts = Array
 				.from(htmlDoc.querySelectorAll('head script'))
