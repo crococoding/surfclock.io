@@ -16,15 +16,19 @@ var popup = {
 		// simple caching mechanism
 		// if (view == popup._currentPopup) {return;}
 
+
+		// load markup for view
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', '../core/popup/' + view + '.html', true);
 		xhr.onreadystatechange = function() {
 			if(xhr.readyState !== 4) return;
 
+			// parse responseText string to DOM
 			const htmlDoc = new DOMParser().parseFromString(xhr.responseText, 'text/html');
 
 			// stylesheets
 
+			// add new stylesheets to head
 			const alreadyLoadedStylesheets = Array
 				.from(document.head.querySelectorAll('link'))
 				.map(stylesheet => stylesheet.getAttribute('href'));
@@ -43,6 +47,7 @@ var popup = {
 
 			// scripts
 			
+			// add new scripts to head
 			const alreadyLoadedScripts = Array
 				.from(document.head.querySelectorAll('script'))
 				.map(script => script.getAttribute('src'));
@@ -58,11 +63,11 @@ var popup = {
 					document.head.append(newScript);
 				});
 
-			// body
-
+			// change HTML body
 			document.body.innerHTML = htmlDoc.body.innerHTML;
 
 
+			// call viewLoaded function - Safari
 			if (typeof viewLoaded == 'function') {
 				viewLoaded();
 			}

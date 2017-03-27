@@ -1,6 +1,3 @@
-
-// alert('hello, stats!');
-
 var stats = {
 
 	init: function() {
@@ -311,9 +308,10 @@ var stats = {
 };
 
 
+// safari
 function viewLoaded() {
 	stats.init(); 
 }
+
+// init chart after loading this JS file in popup.js
 stats.init();
-
-
