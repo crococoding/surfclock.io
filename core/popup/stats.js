@@ -1,7 +1,3 @@
-window.onload = function() {
-	stats.init();
-}
-
 var stats = {
 
 	init: function() {
@@ -309,4 +305,13 @@ var stats = {
 	
 	chart: null
 
+};
+
+
+// safari
+function viewLoaded() {
+	stats.init(); 
 }
+
+// init chart after loading this JS file in popup.js
+stats.init();
