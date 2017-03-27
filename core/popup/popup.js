@@ -60,7 +60,7 @@ var popup = {
 
 			// body
 
-			document.body.innerHTML = htmlDoc.body.innerHTML;;
+			document.body.innerHTML = htmlDoc.body.innerHTML;
 
 
 			if (typeof viewLoaded == 'function') {
