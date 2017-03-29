@@ -3,7 +3,7 @@ var stats = {
 	init: function() {
 		stats.initResetControl();
 		stats.initObservationControl();
-		stats.initChart();
+		stats.chart = new DoughnutChart(document.querySelector('#chart canvas'));
 		stats.domain = getBackground().logger.domain;
 		stats.update({
 			'from' : 0,
@@ -110,58 +110,6 @@ var stats = {
 		};
 	},
 
-	initChart: function() {
-		// destroy the chart in case it already exists (necessary for Safari)
-		if(stats.chart) {
-			stats.chart.destroy();
-		}
-
-		var canvas = document.querySelector('#chart canvas');
-		var context = canvas.getContext('2d');
-
-		stats.chart = new Chart(context, {
-			type: 'doughnut',
-			data: {
-				labels: [],
-				datasets: [{
-					data: [],
-					backgroundColor: [],
-					hoverBackgroundColor: [],
-					hoverBorderColor: 'white',
-				}],
-			},
-			options: {
-				cutoutPercentage: 83,
-				legend: {
-					display: false,
-				},
-				tooltips: {
-					enabled: false,
-				},
-				hover: {
-					onHover: function(e) {
-						if (e[0]) {
-							canvas.style.cursor = 'pointer';
-							var index = e[0]._index;
-							stats.domain = stats.chart.labels[index];
-						} else {
-							canvas.style.cursor = 'default';
-						}
-					},
-				},
-			}
-		});
-
-		Chart.pluginService.register({
-			beforeRender: function (chart, easing) {
-				stats.showDurations();
-			},
-			afterDraw: function(chart, easing) {
-				stats.showIndicator();
-			},
-		});
-	},
-
 	update: function(observationBounds) {
 		getBackground().database.getDomains().then(function(domainEntries) {
 			return domainEntries.map(function(domainEntry) {
@@ -181,49 +129,12 @@ var stats = {
 		}).then(function(promises) {
 			Promise.all(promises).then(function(entries) {
 				entries.sort((x, y) => y.duration - x.duration);
-				entries = stats.handleSmallEntries(entries, 1.0);
-
-				const domains = entries.map(x => x.domain);
-				const durations = entries.map(x => x.duration);
-				const colors = entries.map(x => x.color);
-
-				stats.chart.labels = domains;
-				stats.chart.data.datasets[0].data = durations;
-				stats.chart.data.datasets[0].backgroundColor = colors;
-				stats.chart.data.datasets[0].hoverBackgroundColor = colors;
-
+				stats.data = entries;
 				stats.chart.update();
 			});
 		}).catch(function(error) {
 			console.log(error);
 		});
-	},
-
-	// put everything smaller than x degrees into "other"; precondition: sorted
-	handleSmallEntries: function(entries, thresholdDegrees) {
-		const totalDuration = entries
-		.map(x => x.duration)
-		.reduce((total, duration) => total + duration, 0);
-
-		var other = {
-			'domain' : 'other',
-			'duration' : 0,
-			'color' : '#EEEEEE',
-		};
-
-		for (var i = entries.length - 1; i >= 0; i--) {;
-			const entry = entries[i];
-			if(entry.duration * 1.0 / totalDuration < thresholdDegrees / 360.0) {
-				other.duration += entry.duration;
-				entry.duration = 0;
-			} else {
-				break; // because we're iterating backwards, no smaller values will come
-			}
-		}
-
-		entries.push(other);
-
-		return entries;
 	},
 
 	showObservationPeriod: function(from, till) {
@@ -236,12 +147,12 @@ var stats = {
 
 	showDurations: function() {
 		// total
-		const totalDuration = stats.chart.data.datasets[0].data.reduce((total, duration) => total + duration, 0);
+		const totalDuration = stats.data.map(x => x.duration).reduce((total, duration) => total + duration, 0);
 		document.getElementById('totalDuration').innerHTML = totalDuration ? stats.getPrettyTime(totalDuration) : '0 minutes';	
 
 		// domain
-		if(stats.domain && stats.chart.labels && totalDuration) {
-			const index = stats.chart.labels.indexOf(stats.domain);
+		if(stats.domain && stats.data.map(x => x.domain) && totalDuration) {
+			const index = stats.data.map(x => x.domain).indexOf(stats.domain);
 			const domainDuration = stats.getDomainDuration(index);
 			
 			document.querySelector('#info p:last-of-type').style.display = 'block';
@@ -253,11 +164,11 @@ var stats = {
 	},
 
 	showIndicator: function() {
-		if(stats.domain && stats.chart.labels) {
-			const index = stats.chart.labels.indexOf(stats.domain);
+		if(stats.domain && stats.chart.chart.labels) {
+			const index = stats.chart.chart.labels.indexOf(stats.domain);
 
 			if(stats.getDomainDuration(index) > 0) {
-				const arc = stats.chart.getDatasetMeta(0).data[index]._view;
+				const arc = stats.chart.chart.getDatasetMeta(0).data[index]._view;
 				const angleRad = (arc.startAngle + arc.endAngle) / 2.0;
 				const angleDeg = angleRad * 180.0 / Math.PI;
 
@@ -275,7 +186,7 @@ var stats = {
 	},
 
 	getDomainDuration(index) {
-		return stats.chart.data.datasets[0].data[index];
+		return stats.data.map(x => x.duration)[index];
 	},
 
 	getPrettyTime: function(milliseconds) {
@@ -308,8 +219,106 @@ var stats = {
 	},
 
 	domain: null, // domain you chose to inspect details of
-	
+
+	data: null,
+
 	chart: null
+}
+
+
+class DoughnutChart {
+
+	constructor(canvas) {
+		// destroy the chart in case it already exists (necessary for Safari)
+		if(this.chart) {
+			this.chart.destroy();
+		}
+
+		var context = canvas.getContext('2d');
+
+		this.chart = new Chart(context, {
+			type: 'doughnut',
+			data: {
+				labels: [],
+				datasets: [{
+					data: [],
+					backgroundColor: [],
+					hoverBackgroundColor: [],
+					hoverBorderColor: 'white',
+				}],
+			},
+			options: {
+				cutoutPercentage: 83,
+				legend: {
+					display: false,
+				},
+				tooltips: {
+					enabled: false,
+				},
+				hover: {
+					onHover: function(e) {
+						if (e[0]) {
+							canvas.style.cursor = 'pointer';
+							var index = e[0]._index;
+							stats.domain = stats.data.map(x => x.domain)[index];
+						} else {
+							canvas.style.cursor = 'default';
+						}
+					},
+				},
+			}
+		});
+
+		Chart.pluginService.register({
+			beforeRender: function (chart, easing) {
+				stats.showDurations();
+			},
+			afterDraw: function(chart, easing) {
+				stats.showIndicator();
+			},
+		});
+	}
+
+	update() {
+		const entries = this.handleSmallEntries(stats.data, 1.0);
+		const domains = entries.map(x => x.domain);
+		const durations = entries.map(x => x.duration);
+		const colors = entries.map(x => x.color);
+
+		this.chart.labels = domains;
+		this.chart.data.datasets[0].data = durations;
+		this.chart.data.datasets[0].backgroundColor = colors;
+		this.chart.data.datasets[0].hoverBackgroundColor = colors;
+
+		this.chart.update();
+	}
+
+	// put everything smaller than x degrees into "other"; precondition: sorted
+	handleSmallEntries(entries, thresholdDegrees) {
+		const totalDuration = entries
+		.map(x => x.duration)
+		.reduce((total, duration) => total + duration, 0);
+
+		var other = {
+			'domain' : 'other',
+			'duration' : 0,
+			'color' : '#EEEEEE',
+		};
+
+		for (var i = entries.length - 1; i >= 0; i--) {;
+			const entry = entries[i];
+			if(entry.duration * 1.0 / totalDuration < thresholdDegrees / 360.0) {
+				other.duration += entry.duration;
+				entry.duration = 0;
+			} else {
+				break; // because we're iterating backwards, no smaller values will come
+			}
+		}
+
+		entries.push(other);
+
+		return entries;
+	}
 
 };
 
