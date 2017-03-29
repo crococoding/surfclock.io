@@ -19,6 +19,9 @@ var database = new function() {
 
 	// store a new interval for a domain
 	this.storeInterval = function(domain) {
+
+		console.log('trying to add interval');
+
 		database.dexie.intervals.add({
 			'domain' : domain,
 			'from' : getTimestamp(),
@@ -31,18 +34,18 @@ var database = new function() {
 	// update the end of the last interval of a given domain
 	this.updateIntervalEnd = function(domain) {
 		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.toCollection().last().then(function(lastInverval) {
-				if (lastInverval.domain == domain) {
+			database.dexie.intervals.toCollection().last().then(function(lastInterval) {
+				if (lastInterval.domain == domain) {
 					// when a strange problem happens
-					if (getTimestamp() - lastInverval.till > 10 * 1000) { // > 10 seconds
+					if (getTimestamp() - lastInterval.till > 10 * 1000) { // > 10 seconds
 						return reject(new Error('Interval > 10secs'));
 					}
 
 					// update the last entry
-					database.dexie.intervals.update(lastInverval.id, {'till' : getTimestamp()});
+					database.dexie.intervals.update(lastInterval.id, {'till' : getTimestamp()});
 					return resolve();
 				} else {
-					return reject(new Error('lastInterval.domain != domain'));
+					return reject(new Error('lastInterval.domain != domain. lastInterval: ' + JSON.stringify(lastInterval) + '; domain: ' + domain));
 				}
 			}).catch(function(error) {
 				return reject(new Error('database: ' + error));

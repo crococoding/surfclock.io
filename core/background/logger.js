@@ -10,16 +10,17 @@ var logger = {
 			this.endInterval();
 		} else if(domain != this.domain) {
 			// end previous interval
-			this.endInterval();
-
-			// start new interval
-			this.startInterval(domain);
+			this.endInterval(function() {
+				// start new interval
+				logger.startInterval(domain);
 			
-			// store color (alternative: 'http://favicon.yandex.net/favicon/')
-			var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
-			this.getFaviconColor(faviconUrl).then(function(color) {
-				database.storeColor(domain, color);
+				// store color (alternative: 'http://favicon.yandex.net/favicon/')
+				var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
+				logger.getFaviconColor(faviconUrl).then(function(color) {
+					database.storeColor(domain, color);
+				});
 			});
+			
 		} else if(domain == this.domain) {
 			database.updateIntervalEnd(this.domain).catch(function(error) {
 				alert('Error: ' + error);
@@ -64,6 +65,7 @@ var logger = {
 
 
 	startInterval: function(domain) {
+
 		database.storeInterval(domain);
 
 		this.paused = false;
@@ -71,12 +73,14 @@ var logger = {
 	},
 
 
-	endInterval: function() {
+	endInterval: function(completion) {
 		if(this.domain) {
-			database.updateIntervalEnd(this.domain).catch(function(error) {
+			database.updateIntervalEnd(this.domain).then(completion).catch(function(error) {
 				alert('Error: ' + error);
 				logger.reinstateDomain();
 			});
+		} else {
+			if (typeof completion == 'function') {completion();}
 		}
 
 		this.paused = true;

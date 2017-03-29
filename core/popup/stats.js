@@ -3,7 +3,7 @@ var stats = {
 	init: function() {
 		stats.initResetControl();
 		stats.initObservationControl();
-		stats.chart = new DoughnutChart(document.querySelector('#chart canvas'));
+		stats.initChart();
 		stats.domain = getBackground().logger.domain;
 		stats.update({
 			'from' : 0,
@@ -92,6 +92,12 @@ var stats = {
 		}).catch(function(error) {
 			console.log(error);
 		});
+	},
+
+	initChart: function() {
+		if(!stats.chart) {
+			stats.chart = new DoughnutChart(document.querySelector('#chart canvas'));
+		}
 	},
 
 	initResetControl: function() {
@@ -223,6 +229,10 @@ var stats = {
 	data: null,
 
 	chart: null
+}
+
+class Test {
+	
 }
 
 
