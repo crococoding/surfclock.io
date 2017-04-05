@@ -258,7 +258,7 @@ var stats = {
 
 	// true if duration is so small that it is found in the part "other" of the graph
 	inOther: function(index) {
-		return stats.chart.data.datasets[0].data[index] == 0;
+		return stats.chart.data.datasets[0].data[index] == 0 && stats.getOriginalDurations()[index] != 0;
 	},
 
 	showIndicator: function() {
