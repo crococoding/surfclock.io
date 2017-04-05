@@ -181,6 +181,9 @@ var stats = {
 		}).then(function(promises) {
 			Promise.all(promises).then(function(entries) {
 				entries.sort((x, y) => y.duration - x.duration);
+				
+				stats.data = entries;
+
 				entries = stats.handleSmallEntries(entries, 1.0);
 
 				const domains = entries.map(x => x.domain);
@@ -207,19 +210,20 @@ var stats = {
 
 		var other = {
 			'domain' : 'other',
-			'duration' : 0,
+			'durationOriginal' : 0,
 			'color' : '#EEEEEE',
 		};
 
 		for (var i = entries.length - 1; i >= 0; i--) {;
 			const entry = entries[i];
+			entry.durationOriginal = entry.duration;
 			if(entry.duration * 1.0 / totalDuration < thresholdDegrees / 360.0) {
-				other.duration += entry.duration;
+				other.durationOriginal += entry.duration;
 				entry.duration = 0;
-			} else {
-				break; // because we're iterating backwards, no smaller values will come
 			}
 		}
+
+		other.duration = other.durationOriginal;
 
 		entries.push(other);
 
@@ -236,27 +240,34 @@ var stats = {
 
 	showDurations: function() {
 		// total
-		const totalDuration = stats.chart.data.datasets[0].data.reduce((total, duration) => total + duration, 0);
+		const totalDuration = stats.getOriginalDurations().reduce((total, duration) => total + duration, 0);
 		document.getElementById('totalDuration').innerHTML = totalDuration ? stats.getPrettyTime(totalDuration) : '0 minutes';	
 
 		// domain
 		if(stats.domain && stats.chart.labels && totalDuration) {
-			const index = stats.chart.labels.indexOf(stats.domain);
-			const domainDuration = stats.getDomainDuration(index);
-			
+			const index = stats.getDomains().indexOf(stats.domain);
+			const domainDuration = stats.getOriginalDurations()[index];
+
 			document.querySelector('#info p:last-of-type').style.display = 'block';
-			document.getElementById('domain').innerHTML = stats.domain;
+			document.getElementById('domain').innerHTML = stats.domain + (stats.inOther(index) ? ' (in other)' : '');
 			document.getElementById('domainDuration').innerHTML = domainDuration ? stats.getPrettyTime(domainDuration) : '0 minutes';
 		} else {
 			document.querySelector('#info p:last-of-type').style.display = 'none';
 		}
 	},
 
+	// true if duration is so small that it is found in the part "other" of the graph
+	inOther: function(index) {
+		return stats.chart.data.datasets[0].data[index] == 0;
+	},
+
 	showIndicator: function() {
 		if(stats.domain && stats.chart.labels) {
-			const index = stats.chart.labels.indexOf(stats.domain);
+			var index = stats.getDomains().indexOf(stats.domain);
+			var indexOther = stats.chart.labels.length - 1;
+			index = stats.inOther(index) ? indexOther : index;
 
-			if(stats.getDomainDuration(index) > 0) {
+			if(stats.getOriginalDurations()[index] > 0) {
 				const arc = stats.chart.getDatasetMeta(0).data[index]._view;
 				const angleRad = (arc.startAngle + arc.endAngle) / 2.0;
 				const angleDeg = angleRad * 180.0 / Math.PI;
@@ -272,10 +283,6 @@ var stats = {
 		
 		// hide
 		document.getElementById('indicator').style.display = 'none';
-	},
-
-	getDomainDuration(index) {
-		return stats.chart.data.datasets[0].data[index];
 	},
 
 	getPrettyTime: function(milliseconds) {
@@ -307,8 +314,18 @@ var stats = {
 		return (number > 1) ? (number + ' ' + word + 's') : (number + ' ' + word);
 	},
 
+	getOriginalDurations: function() {
+		return stats.data ? stats.data.map(x => x.durationOriginal) : null;
+	},
+
+	getDomains: function() {
+		return stats.data ? stats.data.map(x => x.domain) : null;
+	},
+
 	domain: null, // domain you chose to inspect details of
 	
+	data: null,
+
 	chart: null
 
 };

@@ -31,14 +31,14 @@ var popup = {
 			// add new stylesheets to head
 			const alreadyLoadedStylesheets = Array
 				.from(document.head.querySelectorAll('link'))
-				.map(stylesheet => stylesheet.href);
+				.map(stylesheet => stylesheet.getAttribute('href'));
 
 			const newStylesheets = Array
 				.from(htmlDoc.querySelectorAll('head link'))
-				.filter(stylesheet => alreadyLoadedStylesheets.indexOf(stylesheet.href) == -1)
+				.filter(stylesheet => alreadyLoadedStylesheets.indexOf(stylesheet.getAttribute('href')) == -1)
 				.forEach(stylesheet => {
 					var newStylesheet = document.createElement('link');
-					newStylesheet.href = stylesheet.href;
+					newStylesheet.href = stylesheet.getAttribute('href');
 					newStylesheet.rel = 'stylesheet';
 					newStylesheet.type = 'text/css';
 
@@ -50,14 +50,14 @@ var popup = {
 			// add new scripts to head
 			const alreadyLoadedScripts = Array
 				.from(document.head.querySelectorAll('script'))
-				.map(script => script.src);
+				.map(script => script.getAttribute('src'));
 
 			const newScripts = Array
 				.from(htmlDoc.querySelectorAll('head script'))
-				.filter(script => alreadyLoadedScripts.indexOf(script.src) == -1)
+				.filter(script => alreadyLoadedScripts.indexOf(script.getAttribute('src')) == -1)
 				.forEach(script => {
 					var newScript = document.createElement('script');
-					newScript.src = script.src;
+					newScript.src = script.getAttribute('src');
 					newScript.async = false;
 
 					document.head.append(newScript);
