@@ -3,7 +3,7 @@ var logger = {
 	handleUrl: function(url) {
 
 		logger.url = url;
-		var domain = logger.getDomain(url);
+		const domain = logger.getDomain(url);
 
 		if(!domain) {
 			// internal browser page
@@ -15,7 +15,7 @@ var logger = {
 				logger.startInterval(domain);
 			
 				// store color (alternative: 'http://favicon.yandex.net/favicon/')
-				var faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
+				const faviconUrl = 'https://www.google.com/s2/favicons?domain=' + domain;
 				logger.getFaviconColor(faviconUrl).then(function(color) {
 					database.storeColor(domain, color);
 				});

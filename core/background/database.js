@@ -31,17 +31,12 @@ var database = new function() {
 	// update the end of the last interval of a given domain
 	this.updateIntervalEnd = function(domain) {
 		return database.dexie.intervals.toCollection().last().then(function(lastInterval) {
-			if (lastInterval.domain == domain) {
-				// when a strange problem happens
-				if (getTimestamp() - lastInterval.till > 10 * 1000) { // > 10 seconds
-					return Promise.reject(new Error('Interval > 10secs'));
-				}
+			if (lastInterval.domain != domain) return Promise.reject(new Error('lastInterval.domain != domain'));
 
-				// update the last entry
-				return database.dexie.intervals.update(lastInterval.id, {'till' : getTimestamp()});
-			} else {
-				return Promise.reject(new Error('lastInterval.domain != domain. lastInterval: ' + JSON.stringify(lastInterval) + '; domain: ' + domain));
-			}
+			if (getTimestamp() - lastInterval.till > 10 * 1000) return Promise.reject(new Error('Interval > 10secs'));
+
+			// update
+			return database.dexie.intervals.update(lastInterval.id, {'till' : getTimestamp()});
 		});
 	}
 
@@ -77,8 +72,8 @@ var database = new function() {
 			
 			// clip
 			if(intervals.length > 0) {
-				var indexFirst = 0;
-				var indexLast = intervals.length - 1;
+				const indexFirst = 0;
+				const indexLast = intervals.length - 1;
 				intervals[indexFirst].from = Math.max(intervals[indexFirst].from, observationBounds.from);
 				intervals[indexLast].till = Math.min(intervals[indexLast].till, observationBounds.till);
 			}
