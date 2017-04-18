@@ -2,15 +2,15 @@ var logger = {
 
 	handleUrl: function(url) {
 
-		this.url = url;
-		var domain = this.getDomain(url);
+		logger.url = url;
+		var domain = logger.getDomain(url);
 
 		if(!domain) {
 			// internal browser page
-			this.endInterval();
-		} else if(domain != this.domain) {
+			logger.endInterval();
+		} else if(domain != logger.domain) {
 			// end previous interval
-			this.endInterval(function() {
+			logger.endInterval(function() {
 				// start new interval
 				logger.startInterval(domain);
 			
@@ -21,8 +21,8 @@ var logger = {
 				});
 			});
 			
-		} else if(domain == this.domain) {
-			database.updateIntervalEnd(this.domain).catch(function(error) {
+		} else if(domain == logger.domain) {
+			database.updateIntervalEnd(logger.domain).catch(function(error) {
 				alert('Error: ' + error);
 				logger.reinstateDomain();
 			});
@@ -68,28 +68,34 @@ var logger = {
 
 		database.storeInterval(domain);
 
-		this.paused = false;
-		this.domain = domain;
+		logger.paused = false;
+		logger.domain = domain;
 	},
 
 
 	endInterval: function(completion) {
-		if(this.domain) {
-			database.updateIntervalEnd(this.domain).then(completion).catch(function(error) {
+		if(logger.domain) {
+			database.updateIntervalEnd(logger.domain).then(function() {
+				logger.paused = true;
+				logger.domain = null;
+				if (typeof completion == 'function') completion();
+			}).catch(function(error) {
 				alert('Error: ' + error);
 				logger.reinstateDomain();
 			});
 		} else {
-			if (typeof completion == 'function') {completion();}
+			logger.paused = true;
+			logger.domain = null;
+			if (typeof completion == 'function') completion();
 		}
 
-		this.paused = true;
-		this.domain = null;
+		// logger.paused = true;
+		// logger.domain = null;
 	},
 
 	reinstateDomain: function() {
-		this.domain = null;
-		this.handleUrl(this.url);
+		logger.domain = null;
+		logger.handleUrl(logger.url);
 	},
 
 	getDomain: function(url) {
@@ -121,9 +127,4 @@ function getTimestamp() {
 	// in milliseconds since Jan 1st 1970
 	return Date.now();
 }
-
-
-
-
-
 
