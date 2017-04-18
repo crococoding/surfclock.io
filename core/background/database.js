@@ -19,9 +19,6 @@ var database = new function() {
 
 	// store a new interval for a domain
 	this.storeInterval = function(domain) {
-
-		console.log('trying to add interval');
-
 		database.dexie.intervals.add({
 			'domain' : domain,
 			'from' : getTimestamp(),
