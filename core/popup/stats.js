@@ -165,17 +165,12 @@ var stats = {
 	update: function(observationBounds) {
 		getBackground().database.getDomains().then(function(domainEntries) {
 			return domainEntries.map(function(domainEntry) {
-				return new Promise(function(resolve, reject) {
-					// fetch duration
-					getBackground().database.getDuration(domainEntry.domain, observationBounds).then(function(duration) {
-						resolve({
-							'domain' : domainEntry.domain,
-							'duration' : duration ? duration : 0,
-							'color' : domainEntry.color ? domainEntry.color : '#EEEEEE',
-						});
-					}).catch(function(error) {
-						reject(error);
-					});
+				return getBackground().database.getDuration(domainEntry.domain, observationBounds).then(function(duration) {
+					return {
+						'domain' : domainEntry.domain,
+						'duration' : duration ? duration : 0,
+						'color' : domainEntry.color ? domainEntry.color : '#EEEEEE',
+					};
 				});
 			});
 		}).then(function(promises) {

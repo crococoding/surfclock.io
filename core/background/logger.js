@@ -10,7 +10,7 @@ var logger = {
 			logger.endInterval();
 		} else if(domain != logger.domain) {
 			// end previous interval
-			logger.endInterval(function() {
+			logger.endInterval().then(function() {
 				// start new interval
 				logger.startInterval(domain);
 			
@@ -65,7 +65,6 @@ var logger = {
 
 
 	startInterval: function(domain) {
-
 		database.storeInterval(domain);
 
 		logger.paused = false;
@@ -73,24 +72,19 @@ var logger = {
 	},
 
 
-	endInterval: function(completion) {
+	endInterval: function() {
+		const domain = logger.domain;
+		logger.paused = true;
+		logger.domain = null;
+
 		if(logger.domain) {
-			database.updateIntervalEnd(logger.domain).then(function() {
-				logger.paused = true;
-				logger.domain = null;
-				if (typeof completion == 'function') completion();
-			}).catch(function(error) {
+			return database.updateIntervalEnd(domain).catch(function(error) {
 				alert('Error: ' + error);
 				logger.reinstateDomain();
 			});
 		} else {
-			logger.paused = true;
-			logger.domain = null;
-			if (typeof completion == 'function') completion();
+			return Promise.resolve();
 		}
-
-		// logger.paused = true;
-		// logger.domain = null;
 	},
 
 	reinstateDomain: function() {

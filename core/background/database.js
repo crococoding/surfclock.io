@@ -30,38 +30,25 @@ var database = new function() {
 
 	// update the end of the last interval of a given domain
 	this.updateIntervalEnd = function(domain) {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.toCollection().last().then(function(lastInterval) {
-				if (lastInterval.domain == domain) {
-					// when a strange problem happens
-					if (getTimestamp() - lastInterval.till > 10 * 1000) { // > 10 seconds
-						return reject(new Error('Interval > 10secs'));
-					}
-
-					// update the last entry
-					database.dexie.intervals.update(lastInterval.id, {'till' : getTimestamp()});
-					return resolve();
-				} else {
-					return reject(new Error('lastInterval.domain != domain. lastInterval: ' + JSON.stringify(lastInterval) + '; domain: ' + domain));
+		return database.dexie.intervals.toCollection().last().then(function(lastInterval) {
+			if (lastInterval.domain == domain) {
+				// when a strange problem happens
+				if (getTimestamp() - lastInterval.till > 10 * 1000) { // > 10 seconds
+					return Promise.reject(new Error('Interval > 10secs'));
 				}
-			}).catch(function(error) {
-				return reject(new Error('database: ' + error));
-			});
+
+				// update the last entry
+				return database.dexie.intervals.update(lastInterval.id, {'till' : getTimestamp()});
+			} else {
+				return Promise.reject(new Error('lastInterval.domain != domain. lastInterval: ' + JSON.stringify(lastInterval) + '; domain: ' + domain));
+			}
 		});
 	}
 
 	// get start of first recorded entry
 	this.getFirstIntervalStart = function() {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals.toCollection().first().then(function(interval) {
-				if(interval) {
-					resolve(interval.from);
-				} else {
-					resolve(null);
-				}
-			}).catch(function(error) {
-				reject(error);
-			});
+		return database.dexie.intervals.toCollection().first().then(function(interval) {
+			return interval ? interval.from : null;
 		});
 	}
 
@@ -75,54 +62,31 @@ var database = new function() {
 		});
 	}
 
-	// get number of domain entries
-	this.getNumberOfDomains = function() {
-		return new Promise(function(resolve, reject) {
-			database.dexie.domains.count().then(function(count) {
-				resolve(count);
-			}).catch(function(error) {
-				reject(error);
-			});
-		});
-	}
-
 	// get all domain entries
 	this.getDomains = function() {
-		return new Promise(function(resolve, reject) {
-			database.dexie.domains.toCollection().toArray(function(domains) {
-				resolve(domains);
-			}).catch(function(error) {
-				reject(error);
-			});
-		});
+		return database.dexie.domains.toCollection().toArray();
 	}
 
 	// get duration of all intervals in a given observation period of a given domain summed up
 	this.getDuration = function(domain, observationBounds) {
-		return new Promise(function(resolve, reject) {
-			database.dexie.intervals
-			.where('domain').equals(domain)
-			// filter
-			.and(interval => observationBounds.from < interval.till && observationBounds.till > interval.from)
-			.toArray(function(intervals) {
-				
-				// clip
-				if(intervals.length > 0) {
-					var indexFirst = 0;
-					var indexLast = intervals.length - 1;
-					intervals[indexFirst].from = Math.max(intervals[indexFirst].from, observationBounds.from);
-					intervals[indexLast].till = Math.min(intervals[indexLast].till, observationBounds.till);
-				}
+		return database.dexie.intervals
+		.where('domain').equals(domain)
+		// filter
+		.and(interval => observationBounds.from < interval.till && observationBounds.till > interval.from)
+		.toArray(function(intervals) {
+			
+			// clip
+			if(intervals.length > 0) {
+				var indexFirst = 0;
+				var indexLast = intervals.length - 1;
+				intervals[indexFirst].from = Math.max(intervals[indexFirst].from, observationBounds.from);
+				intervals[indexLast].till = Math.min(intervals[indexLast].till, observationBounds.till);
+			}
 
-				// calculate
-				var duration = intervals
-				.map(interval => interval.till - interval.from)
-				.reduce((total, duration) => total + duration, 0);
-				
-				resolve(duration);
-			}).catch(function(error) {
-				reject(error);
-			});
+			// calculate
+			return intervals
+			.map(interval => interval.till - interval.from)
+			.reduce((total, duration) => total + duration, 0);
 		});
 	}
 
