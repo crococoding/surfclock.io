@@ -50,7 +50,7 @@ var logger = {
 				var swatches = vibrant.swatches();
 				for(swatch in swatches) {
 					if(swatches[swatch]) {
-						resolve(swatches[swatch].getHex());
+						return resolve(swatches[swatch].getHex());
 					}
 				}
 				// else
