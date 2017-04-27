@@ -1,4 +1,4 @@
-var stats = {
+let stats = {
 
 	init: function() {
 		stats.initResetControl();
@@ -32,15 +32,17 @@ var stats = {
 			};
 
 			// right end of slider is current time, but only minute-exact
-			var now = getBackground().getTimestamp();
+			let now = getBackground().getTimestamp();
 			now = now - now % scales.minute;
 
 			scale = getScale(now - start);
 
 			// left end of slider is starting time, but only scale-exact
-			start = start - start % scale[0];
+			start -= start % scale[0];
+			// subtract utc offset (in minutes)
+			start -= moment(start).utcOffset() * scales.minute;
+			// subtract one hour if it is not daylight savings time
 			if(scale[0] == scales.day && !moment(start).isDST()) {
-				// subtract one hour if it is not daylight savings time
 				start -= scales.hour;
 			}
 			
@@ -49,11 +51,15 @@ var stats = {
 				'max' : [now]
 			};
 			if(scale[1]) {
-				// add additional stop to get hour-exact stats for last day
-				steps['75%'] = [now - now % scale[0], scale[1]];
+				// add additional stop to get more exact stats for last day
+				let stop = now - now % scale[0];
+				// subtract utc offset (in minutes)
+				stop -= moment(now).utcOffset() * scales.minute;
+
+				steps['75%'] = [stop, scale[1]];
 			}
 			
-			var slider = document.querySelector('#observationControl .rangeSlider');
+			let slider = document.querySelector('#observationControl .rangeSlider');
 
 			// destroy the slider in case it already exists (necessary for Safari)
 			if (slider.noUiSlider) {
@@ -116,8 +122,8 @@ var stats = {
 			stats.chart.destroy();
 		}
 
-		var canvas = document.querySelector('#chart canvas');
-		var context = canvas.getContext('2d');
+		let canvas = document.querySelector('#chart canvas');
+		let context = canvas.getContext('2d');
 
 		stats.chart = new Chart(context, {
 			type: 'doughnut',
@@ -142,7 +148,7 @@ var stats = {
 					onHover: function(e) {
 						if (e[0]) {
 							// canvas.style.cursor = 'pointer';
-							var index = e[0]._index;
+							const index = e[0]._index;
 							stats.domain = stats.chart.labels[index];
 						} else {
 							// canvas.style.cursor = 'default';
@@ -203,13 +209,13 @@ var stats = {
 		.map(x => x.duration)
 		.reduce((total, duration) => total + duration, 0);
 
-		var other = {
+		let other = {
 			'domain' : 'other',
 			'durationOriginal' : 0,
 			'color' : '#EEEEEE',
 		};
 
-		for (var i = entries.length - 1; i >= 0; i--) {;
+		for (let i = entries.length - 1; i >= 0; i--) {;
 			const entry = entries[i];
 			entry.durationOriginal = entry.duration;
 			if(entry.duration * 1.0 / totalDuration < thresholdDegrees / 360.0) {
@@ -258,8 +264,8 @@ var stats = {
 
 	showIndicator: function() {
 		if(stats.domain && stats.chart.labels) {
-			var index = stats.getDomains().indexOf(stats.domain);
-			var indexOther = stats.chart.labels.length - 1;
+			let index = stats.getDomains().indexOf(stats.domain);
+			const indexOther = stats.chart.labels.length - 1;
 			index = stats.inOther(index) ? indexOther : index;
 
 			if(stats.getOriginalDurations()[index] > 0) {
@@ -294,7 +300,7 @@ var stats = {
 				return timePart ? ' ' + stats.numerus(timePart, timePartName) : '';
 			};
 
-			var time = '';
+			let time = '';
 			time += getTimePartString(days, 'day');
 			time += getTimePartString(hours, 'hour');
 			time += getTimePartString(minutes, 'minute');
