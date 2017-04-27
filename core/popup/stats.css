@@ -1,5 +1,18 @@
 /* general */
 
+@font-face {
+	font-family: 'iconFont';
+	src: url('iconFont.woff?6m8x0i') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.iconFont {
+	font-family: 'iconFont', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
 html,
 body {
 	width: 500px;
@@ -16,6 +29,10 @@ body {
 
 p {
 	margin: 0;
+}
+
+a:focus {
+	outline: 0;
 }
 
 #chart,
@@ -163,33 +180,42 @@ p {
 	font-weight: bold;
 }
 
-/* reset control */
+/* reset control & link to homepage */
 
 #resetControl,
-#resetControl:visited {
-	color: lightgrey;
+#resetControl:visited,
+#help,
+#help:visited {
+	color: #666666;
 	display: inline-block;
 	position: absolute;
 	top: 15px;
-	right: 17px;
-	z-index: 3;
-}
-
-#resetControl:focus {
-	outline: 0;
+	font-size: 2em;
+	text-decoration: none;
 }
 
 #resetControl {
-	width: 25px;
-	height: 32px;
-	opacity: .5;
-	transition: opacity .2s;
-	background-image: url('../popup/bin_closed.svg');
-	background-repeat: no-repeat;
-	background-position: center bottom;
+	right: 15px;
+	z-index: 3;
 }
 
-#resetControl:hover {
-	background-image: url('../popup/bin_open.svg');
-	opacity: .8;
+#resetControl:before {
+	content: "\e903"; /* trash icon */
+}
+
+#resetControl:hover:before {
+	content: "\e902"; /* trash icon filled */
+}
+
+#help {
+	left: 15px;
+	z-index: 4;
+}
+
+#help:before {
+	content: "\e901"; /* info icon */
+}
+
+#help:hover:before {
+	content: "\e900"; /* info icon filled */
 }

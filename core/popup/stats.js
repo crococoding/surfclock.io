@@ -141,11 +141,11 @@ var stats = {
 				hover: {
 					onHover: function(e) {
 						if (e[0]) {
-							canvas.style.cursor = 'pointer';
+							// canvas.style.cursor = 'pointer';
 							var index = e[0]._index;
 							stats.domain = stats.chart.labels[index];
 						} else {
-							canvas.style.cursor = 'default';
+							// canvas.style.cursor = 'default';
 						}
 					},
 				},
