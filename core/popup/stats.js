@@ -39,11 +39,13 @@ let stats = {
 
 			// left end of slider is starting time, but only scale-exact
 			start -= start % scale[0];
-			// subtract utc offset (in minutes)
-			start -= moment(start).utcOffset() * scales.minute;
-			// subtract one hour if it is not daylight savings time
-			if(scale[0] == scales.day && !moment(start).isDST()) {
-				start -= scales.hour;
+			if(scale[0] == scales.day) {
+				// subtract one hour if it is not daylight savings time
+				if (!moment(start).isDST()) {
+					start -= scales.hour;
+				}
+				// subtract utc offset (in minutes)
+				start -= moment(start).utcOffset() * scales.minute;
 			}
 			
 			steps = {
@@ -51,10 +53,13 @@ let stats = {
 				'max' : [now]
 			};
 			if(scale[1]) {
-				// add additional stop to get more exact stats for last day
+				// additional stop to get more exact stats for last day
 				let stop = now - now % scale[0];
+				
 				// subtract utc offset (in minutes)
-				stop -= moment(now).utcOffset() * scales.minute;
+				if (scale[0] == scales.day) {	
+					stop -= moment(now).utcOffset() * scales.minute;
+				}
 
 				steps['75%'] = [stop, scale[1]];
 			}
