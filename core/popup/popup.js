@@ -31,11 +31,14 @@ let popup = {
 			// add new stylesheets to head
 			const alreadyLoadedStylesheets = Array
 				.from(document.head.querySelectorAll('link'))
-				.map(stylesheet => stylesheet.getAttribute('href'));
+				//.map(stylesheet => stylesheet.getAttribute('href'));
+				.forEach(stylesheet => {
+					stylesheet.remove();
+				});
 
 			const newStylesheets = Array
 				.from(htmlDoc.querySelectorAll('head link'))
-				.filter(stylesheet => alreadyLoadedStylesheets.indexOf(stylesheet.getAttribute('href')) == -1)
+				//.filter(stylesheet => alreadyLoadedStylesheets.indexOf(stylesheet.getAttribute('href')) == -1)
 				.forEach(stylesheet => {
 					let newStylesheet = document.createElement('link');
 					newStylesheet.href = stylesheet.getAttribute('href');
@@ -50,11 +53,14 @@ let popup = {
 			// add new scripts to head
 			const alreadyLoadedScripts = Array
 				.from(document.head.querySelectorAll('script'))
-				.map(script => script.getAttribute('src'));
+				//.map(script => script.getAttribute('src'));
+				.forEach(script => {
+					script.remove();
+				});
 
 			const newScripts = Array
 				.from(htmlDoc.querySelectorAll('head script'))
-				.filter(script => alreadyLoadedScripts.indexOf(script.getAttribute('src')) == -1)
+				//.filter(script => alreadyLoadedScripts.indexOf(script.getAttribute('src')) == -1)
 				.forEach(script => {
 					let newScript = document.createElement('script');
 					newScript.src = script.getAttribute('src');
@@ -68,7 +74,7 @@ let popup = {
 
 
 			// call viewLoaded function - Safari
-			if (typeof viewLoaded == 'function') {
+			if (typeof viewLoaded == 'function' && view == 'stats') {
 				viewLoaded();
 			}
 

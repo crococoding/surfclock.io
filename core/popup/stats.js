@@ -182,12 +182,15 @@ let stats = {
 						'duration' : duration ? duration : 0,
 						'color' : domainEntry.color ? domainEntry.color : '#EEEEEE',
 					};
+				}).catch(function(error) {
+					console.log(JSON.stringify(domainEntry) + error);
 				});
 			});
 		}).then(function(promises) {
+
 			Promise.all(promises).then(function(entries) {
 				entries.sort((x, y) => y.duration - x.duration);
-				
+
 				stats.data = entries;
 
 				entries = stats.handleSmallEntries(entries, 1.0);
@@ -202,6 +205,8 @@ let stats = {
 				stats.chart.data.datasets[0].hoverBackgroundColor = colors;
 
 				stats.chart.update();
+			}).catch(function(error) {
+				console.log(errror);
 			});
 		}).catch(function(error) {
 			console.log(error);
