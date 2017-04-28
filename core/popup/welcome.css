@@ -1,3 +1,10 @@
+@font-face {
+	font-family: 'Pattaya';
+	font-style: normal;
+	font-weight: normal;
+	src: local('Pattaya'), local('Pattaya-Regular'), url('fonts/pattaya.woff') format('woff');
+}
+
 html,
 body {
 	width: 500px;
@@ -15,7 +22,6 @@ html {
 	background: -moz-radial-gradient(center, ellipse cover, #16a4c2 0%, #1c7bbf 100%); /* FF3.6-15 */
 	background: -webkit-radial-gradient(center, ellipse cover, #16a4c2 0%,#1c7bbf 100%); /* Chrome10-25,Safari5.1-6 */
 	background: radial-gradient(ellipse at center, #16a4c2 0%,#1c7bbf 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#16a4c2', endColorstr='#1c7bbf',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 	background-attachment: fixed;
 }
 
@@ -26,20 +32,18 @@ body {
 	font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
 	font-weight: 300;
 	font-size: 20px;
+	text-align: center;
 }
 
 h1 {
 	font-family: 'Pattaya', sans-serif;
 	font-size: 70px; /* fallback */
 	font-size: 10vw;
-	margin-top: 20px;
-	margin-bottom: 40px;
-	text-shadow: 0 0 60px rgba(0, 0, 0, .5);
-	text-align: center;
+	margin: 20px 0 40px 0;
+	text-shadow: 0 0 60px rgba(0, 0, 0, .75);
 }
 
 p {
-	text-align: center;
 	max-width: 70%;
 	margin: 70px auto;
 }
