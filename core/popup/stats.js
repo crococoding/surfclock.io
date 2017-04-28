@@ -84,7 +84,7 @@ let stats = {
 				range: steps,
 			});
 			
-			// update preference and chart data when moving the slider is done
+			// update chart data when moving the slider is done
 			slider.noUiSlider.on('change', function(values) {
 		    	stats.update({
 					'from' : values[0],

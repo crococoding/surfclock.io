@@ -22,7 +22,7 @@ body {
 
 body {
 	margin: 0;
-	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; 
+	font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
 	font-weight: 300;
 	color: #666666;
 }
@@ -200,11 +200,11 @@ a:focus {
 }
 
 #resetControl:before {
-	content: "\e903"; /* trash icon */
+	content: '\e903'; /* trash icon */
 }
 
 #resetControl:hover:before {
-	content: "\e902"; /* trash icon filled */
+	content: '\e902'; /* trash icon filled */
 }
 
 #help {
@@ -213,9 +213,9 @@ a:focus {
 }
 
 #help:before {
-	content: "\e901"; /* info icon */
+	content: '\e901'; /* info icon */
 }
 
 #help:hover:before {
-	content: "\e900"; /* info icon filled */
+	content: '\e900'; /* info icon filled */
 }

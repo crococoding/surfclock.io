@@ -1,4 +1,4 @@
-var popup = {
+let popup = {
 	init: function() {
 		getBackground().database.getFirstIntervalStart().then(function(start) {
 			// > 5 minutes since 1st domain visit
@@ -18,7 +18,7 @@ var popup = {
 
 
 		// load markup for view
-		var xhr = new XMLHttpRequest();
+		let xhr = new XMLHttpRequest();
 		xhr.open('GET', '../core/popup/' + view + '.html', true);
 		xhr.onreadystatechange = function() {
 			if(xhr.readyState !== 4) return;
@@ -37,7 +37,7 @@ var popup = {
 				.from(htmlDoc.querySelectorAll('head link'))
 				.filter(stylesheet => alreadyLoadedStylesheets.indexOf(stylesheet.getAttribute('href')) == -1)
 				.forEach(stylesheet => {
-					var newStylesheet = document.createElement('link');
+					let newStylesheet = document.createElement('link');
 					newStylesheet.href = stylesheet.getAttribute('href');
 					newStylesheet.rel = 'stylesheet';
 					newStylesheet.type = 'text/css';
@@ -56,7 +56,7 @@ var popup = {
 				.from(htmlDoc.querySelectorAll('head script'))
 				.filter(script => alreadyLoadedScripts.indexOf(script.getAttribute('src')) == -1)
 				.forEach(script => {
-					var newScript = document.createElement('script');
+					let newScript = document.createElement('script');
 					newScript.src = script.getAttribute('src');
 					newScript.async = false;
 

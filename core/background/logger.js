@@ -23,7 +23,7 @@ var logger = {
 			
 		} else if(domain == logger.domain) {
 			database.updateIntervalEnd(logger.domain).catch(function(error) {
-				alert('Error: ' + error);
+				console.log('Error: ' + error);
 				logger.reinstateDomain();
 			});
 		}
@@ -79,7 +79,7 @@ var logger = {
 
 		if(logger.domain) {
 			return database.updateIntervalEnd(domain).catch(function(error) {
-				alert('Error: ' + error);
+				console.log('Error: ' + error);
 				logger.reinstateDomain();
 			});
 		} else {

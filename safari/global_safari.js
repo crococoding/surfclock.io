@@ -32,23 +32,7 @@ function safariActivate(event) {
 		logger.handleUrl(url);
 	}
 
-
-	// getFaviconColor();
-	
 }
-
-// function getFaviconUrl(url) {
-// 	return 'http' + url.match(/:\/\/(.[^/]+)/)[0] + '/favicon.ico';
-// }
-
-// getFavicon() {
-// 	return document.getElementById('favicon');
-// }
-
-// updateFavicon() {
-// 	var favicon = getFavicon();
-// 	favicon.src = document.
-// }
 
 
 function safariDeactivate(event) {
@@ -64,6 +48,6 @@ function safariDeactivate(event) {
 
 }
 
-safari.application.addEventListener("navigate", safariNavigate, true);
-safari.application.addEventListener("deactivate", safariDeactivate, true);
-safari.application.addEventListener("activate", safariActivate, true);
+safari.application.addEventListener('navigate', safariNavigate, true);
+safari.application.addEventListener('deactivate', safariDeactivate, true);
+safari.application.addEventListener('activate', safariActivate, true);
