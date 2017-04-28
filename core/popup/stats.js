@@ -9,6 +9,14 @@ let stats = {
 			'from' : 0,
 			'till' : getBackground().getTimestamp()
 		});
+
+		document.getElementById('help').onclick = function() {
+			if (typeof safari !== undefined) {
+				safari.application.activeBrowserWindow.openTab().url = 'https://surfclock.io'; 
+			}
+			
+		}
+
 	},
 
 	initObservationControl: function() {

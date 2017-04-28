@@ -9,7 +9,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Surf Clock</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.crococoding.crocostat</string>
+	<string>com.crococoding.crocostatDEV2</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
