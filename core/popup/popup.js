@@ -2,7 +2,7 @@ let popup = {
 	init: function() {
 		getBackground().database.getFirstIntervalStart().then(function(start) {
 			// > 5 minutes since 1st domain visit
-			if (start && getBackground().getTimestamp() - start > 1000*60*5) {
+			if (start && getBackground().getTimestamp() - start > 1000*60*3) {
 				popup.loadView('stats');
 			} else {
 				popup.loadView('welcome');

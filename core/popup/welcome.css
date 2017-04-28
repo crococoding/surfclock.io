@@ -43,7 +43,12 @@ h1 {
 	text-shadow: 0 0 60px rgba(0, 0, 0, .75);
 }
 
+h2 {
+	font-weight: 100;
+	margin: 100px 0 70px 0;
+}
+
 p {
-	max-width: 70%;
-	margin: 70px auto;
+	max-width: 80%;
+	margin: 20px auto;
 }
