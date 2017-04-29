@@ -40,7 +40,7 @@ h1 {
 	font-size: 70px; /* fallback */
 	font-size: 10vw;
 	margin: 20px 0 40px 0;
-	text-shadow: 0 0 60px rgba(0, 0, 0, .75);
+	text-shadow: 0 0 60px rgba(0, 0, 0, .6);
 }
 
 h2 {

@@ -10,13 +10,11 @@ let stats = {
 			'till' : getBackground().getTimestamp()
 		});
 
-		document.getElementById('help').onclick = function() {
-			if (typeof safari !== undefined) {
+		if (typeof safari !== 'undefined') {
+			document.getElementById('help').onclick = function() {
 				safari.application.activeBrowserWindow.openTab().url = 'https://surfclock.io'; 
 			}
-			
 		}
-
 	},
 
 	initObservationControl: function() {
@@ -349,11 +347,10 @@ let stats = {
 
 };
 
+stats.init();
+
 
 // safari
 function viewLoaded() {
-	stats.init(); 
+	stats.init();
 }
-
-// init chart after loading this JS file in popup.js
-stats.init();

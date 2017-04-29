@@ -2,15 +2,7 @@ function getBackground() {
 	return safari.extension.globalPage.contentWindow;
 }
 
-
-function popoverHandler(event) {
-	popup.init();
-}
-
-safari.application.addEventListener("popover", popoverHandler, true);
-
-
-
+safari.application.addEventListener('popover', event => popup.init(), true);
 
 function setPreference(key, value) {
 	return new Promise(function(resolve, reject) {
@@ -21,7 +13,7 @@ function setPreference(key, value) {
 
 function getPreference(key, callback) {
 	return new Promise(function(resolve, reject) {
-		var value  = safari.extension.settings[key];
+		const value  = safari.extension.settings[key];
 		resolve(value);
 	});
 }

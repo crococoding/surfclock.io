@@ -74,19 +74,21 @@ let popup = {
 
 
 			// call viewLoaded function - Safari
-			if (typeof viewLoaded == 'function' && view == 'stats') {
+			if (typeof safari !== 'undefined' && 
+				typeof viewLoaded == 'function' && 
+				view == 'stats') {
 				viewLoaded();
 			}
 
 
 			popup._currentPopup = view;
 		};
+		
 		xhr.send();
 	}, 
 
 	_currentPopup: null,
 
-}
+};
 
-
-
+popup.init();
