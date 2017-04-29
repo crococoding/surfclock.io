@@ -127,7 +127,7 @@ a:focus {
 #domain {
 	font-weight: bold;
 	white-space: normal !important;
-	word-break: normal !important;
+	word-break: break-all !important;
 }
 
 /* observation control */
