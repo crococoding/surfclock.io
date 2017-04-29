@@ -13,7 +13,7 @@ function setPreference(key, value) {
 
 function getPreference(key, callback) {
 	return new Promise(function(resolve, reject) {
-		const value  = safari.extension.settings[key];
+		const value = safari.extension.settings[key];
 		resolve(value);
 	});
 }

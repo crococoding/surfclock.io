@@ -41,7 +41,7 @@
 				<key>Identifier</key>
 				<string>statsToolbarItem</string>
 				<key>Image</key>
-				<string>core/icons/icon_64_safari.png</string>
+				<string>safari/icon_64.png</string>
 				<key>Include By Default</key>
 				<true/>
 				<key>Label</key>

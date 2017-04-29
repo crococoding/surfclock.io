@@ -5,14 +5,11 @@
 	"author": "crococoding",
 	"homepage_url": "https://surfclock.io",
 	"description": "Track the time you spend surfing on the web.",
-	"icons": { 
-		"1024": "core/icons/icon_1024.png",
-		 "128": "core/icons/icon_128.png",
-		  "96": "core/icons/icon_96.png",
-		  "48": "core/icons/icon_48.png" 
+	"icons": {
+		 "128": "chrome/icon_128.png"
 	},
 	"browser_action": {
-		"default_icon": "core/icons/icon_19.png",
+		"default_icon": "chrome/icon_128.png",
 		"default_popup": "chrome/popup_chrome.html"
 	},
 	"permissions": [
