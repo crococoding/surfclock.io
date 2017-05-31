@@ -308,8 +308,9 @@ let stats = {
 		const minutes = duration.minutes();
 		const hours = duration.hours();
 		const days = duration.days();
+		const months = duration.months();
 
-		if(days + hours + minutes == 0) {
+		if(months + days + hours + minutes == 0) {
 			return '< 1 minute';
 		} else {
 			function getTimePartString(timePart, timePartName) {
@@ -317,6 +318,7 @@ let stats = {
 			};
 
 			let time = '';
+			time += getTimePartString(months, 'month')
 			time += getTimePartString(days, 'day');
 			time += getTimePartString(hours, 'hour');
 			time += getTimePartString(minutes, 'minute');
