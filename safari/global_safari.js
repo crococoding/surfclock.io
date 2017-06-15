@@ -1,4 +1,11 @@
 function safariNavigate(event) {
+
+	// disable logging if private mode is enabeld
+	// 
+	if (safari.application.privateBrowsing.enabled) {
+		return;
+	}
+
 	var url = event.target.url;
 	if (typeof(url) !== 'undefined' && url) { 
 		
