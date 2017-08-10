@@ -5,15 +5,15 @@
 	<key>Author</key>
 	<string>crococoding</string>
 	<key>Builder Version</key>
-	<string>12603.2.4</string>
+	<string>12603.3.8</string>
 	<key>CFBundleDisplayName</key>
 	<string>Surf Clock</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.crococoding.crocostatDEV2</string>
+	<string>com.crococoding.surfclock</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.1</string>
+	<string>1.0.3</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>Chrome</key>
