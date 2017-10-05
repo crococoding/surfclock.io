@@ -22,7 +22,6 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 chrome.windows.onFocusChanged.addListener(function(windowId) {
 	if(windowId == chrome.windows.WINDOW_ID_NONE) {
 		// no window is focused -> Google Chrome inactive
-		console.log('inactive');
 		logger.endInterval();
 	} else {
 		// find active tab of newly focused window
