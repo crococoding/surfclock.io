@@ -1,10 +1,10 @@
 {
 	"manifest_version": 2,
 	"name": "Surf Clock",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"author": "crococoding",
 	"homepage_url": "https://surfclock.io",
-	"description": "Track the time you spend surfing on the web.",
+	"description": "Keep track of the time you spend surfing on the web.",
 	"icons": {
 		 "128": "chrome/icon_128.png"
 	},

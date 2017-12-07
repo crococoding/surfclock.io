@@ -47,9 +47,9 @@ let stats = {
 			start -= start % scale[0];
 			if(scale[0] == scales.day) {
 				// subtract one hour if it is not daylight savings time
-				if (!moment(start).isDST()) {
-					start -= scales.hour;
-				}
+				// if (!moment(start).isDST()) {
+				// 	start -= scales.hour;
+				// }
 				// subtract utc offset (in minutes)
 				start -= moment(start).utcOffset() * scales.minute;
 			}
